@@ -174,7 +174,7 @@
         "[resourceId('Microsoft.EventHub/namespaces', variables('namespaceName'))]"
       ],
       "location": "[resourceGroup().location]",
-      "name": "[concat(variables('namespaceName'), '/', variables('eventHubInsightsOperationalLogsName'))]",
+      "name": "[concat(variables('namespaceName'), '/', variables('eventHubName'))]",
       "properties": {
         "messageRetentionInDays": 7,
         "partitionCount": 4,
@@ -193,10 +193,10 @@
       "apiVersion": "2017-04-01",
       "dependsOn": [
         "[resourceId('Microsoft.EventHub/namespaces', variables('namespaceName'))]",
-        "[resourceId('Microsoft.EventHub/namespaces/eventhubs', variables('namespaceName'), veriables('eventHubInsightsOperationalLogsName'))]"
+        "[resourceId('Microsoft.EventHub/namespaces/eventhubs', variables('namespaceName'), veriables('eventHubName'))]"
       ],
       "location": "[resourceGroup().location]",
-      "name": "[concat(variables('namespaceName'), '/', variables('eventHubInsightsOperationalLogsName'), '/', variables('consumerGroupName'))]",
+      "name": "[concat(variables('namespaceName'), '/', variables('eventHubName'), '/', variables('consumerGroupName'))]",
       "properties": {},
       "scale": null,
       "type": "Microsoft.EventHub/namespaces/eventhubs/consumergroups"
@@ -206,11 +206,11 @@
     "appStorageName": "[concat('newrelic', uniqueString(resourceGroup().id))]",
     "authorizationRulesSharedAccessKeyName": "NewRelicLogsSharedAccessKey",
     "consumerGroupName": "NewRelicLogsConsumerGroup",
-    "eventHubInsightsOperationalLogsName": "insights-operational-logs",
+    "eventHubName": "newreliceventhub",
     "functionAppName": "[concat('NewRelicLogsIngestion', uniqueString(resourceGroup().id))]",
     "gitBranch": "main",
     "gitRepoURL": "https://github.com/newrelic/newrelic-azure-log-ingestion.git",
-    "namespaceName": "[concat('NewRelicLogsNamespace', uniqueString(resourceGroup().id))]",
-    "servicePlanName": "[concat('NewRelicLogsServicePlan', uniqueString(resourceGroup().id))]"
+    "namespaceName": "[concat('NewRelicLogsNS', uniqueString(resourceGroup().id))]",
+    "servicePlanName": "[concat('newRelicLogsServicePlan', uniqueString(resourceGroup().id))]"
   }
 }

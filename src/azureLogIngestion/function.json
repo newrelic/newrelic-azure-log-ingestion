@@ -3,9 +3,9 @@
     {
       "cardinality": "many", 
       "connection": "AzureEventHubLogsConnectionString", 
-      "consumerGroup": "newRelicConsumerGroup", 
+      "consumerGroup": "NewRelicLogsConsumerGroup", 
       "direction": "in", 
-      "eventHubName": "newRelicEventHub", 
+      "eventHubName": "newreliceventhub", 
       "name": "eventHubMessages", 
       "type": "eventHubTrigger"
     }
