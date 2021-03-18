@@ -1,0 +1,16 @@
+{
+  "bindings": [
+    {
+      "cardinality": "many", 
+      "connection": "AzureEventHubLogsConnectionString", 
+      "consumerGroup": "NewRelicLogsConsumerGroup", 
+      "direction": "in", 
+      "eventHubName": "newreliceventhub", 
+      "name": "eventHubMessages", 
+      "type": "eventHubTrigger"
+    }
+  ],
+  "disabled": false,
+  "entryPoint": "processEventHubMessages",
+  "scriptFile": "index.js"
+}
