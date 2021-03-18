@@ -1,269 +1,216 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "NewRelicLicenseKey": {
-            "metadata": {
-                "description": "Your New Relic License Key"
-            },
-            "minLength": 1,
-            "type": "String"
-        },
-        "AppStorageName": {
-            "defaultValue": "[concat('newrelic', uniqueString(resourceGroup().id))]",
-            "metadata": {
-                "description": "The name to use for the app storage container"
-            },
-            "type": "String"
-        },
-        "AuthorizationRulesSharedAccessKeyName": {
-            "defaultValue": "NewRelicLogsSharedAccessKey",
-            "metadata": {
-                "description": "The name to use for the authorization rules shared access key"
-            },
-            "type": "String"
-        },
-        "ConsumerGroupName": {
-            "defaultValue": "NewRelicLogsConsumerGroup",
-            "metadata": {
-                "description": "The name to use for the consumer group"
-            },
-            "type": "String"
-        },
-        "EventHubInsightsOperationalLogsName": {
-            "defaultValue": "insights-operational-logs",
-            "metadata": {
-                "description": "The event hub for insights operational logs"
-            },
-            "type": "String"
-        },
-        "FunctionAppName": {
-            "defaultValue": "[concat('NewRelicLogsIngestion', uniqueString(resourceGroup().id))]",
-            "metadata": {
-                "description": "The name to use for the function app"
-            },
-            "type": "String"
-        },
-        "GitBranch": {
-            "defaultValue": "master",
-            "metadata": {
-                "description": "The git branch to use for deployment"
-            },
-            "type": "String"
-        },
-        "GitRepoURL": {
-            "defaultValue": "https://github.com/newrelic/azure-log-ingestion.git",
-            "metadata": {
-                "description": "The git repository to use for deployment"
-            },
-            "type": "String"
-        },
-        "NamespaceName": {
-            "defaultValue": "[concat('NewRelicLogsNamespace', uniqueString(resourceGroup().id))]",
-            "metadata": {
-                "description": "The name to use for the event hub namespace"
-            },
-            "type": "String"
-        },
-        "ServicePlanName": {
-            "defaultValue": "[concat('NewRelicLogsServicePlan', uniqueString(resourceGroup().id))]",
-            "metadata": {
-                "description": "The name to use for the service plan"
-            },
-            "type": "String"
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "NewRelicInsertKey": {
+      "metadata": {
+        "description": "Your New Relic Insert Key"
+      },
+      "minLength": 1,
+      "type": "String"
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2017-04-01",
+      "dependsOn": [],
+      "location": "[resourceGroup().location]",
+      "name": "[variables('namespaceName')]",
+      "properties": {
+        "isAutoInflateEnabled": true,
+        "maximumThroughputUnits": 20,
+        "provisioningState": "Succeeded"
+      },
+      "scale": null,
+      "sku": {
+        "capacity": 1,
+        "name": "Standard",
+        "tier": "Standard"
+      },
+      "tags": {},
+      "type": "Microsoft.EventHub/namespaces"
     },
-    "resources": [
-        {
-            "apiVersion": "2017-04-01",
-            "dependsOn": [],
-            "location": "[resourceGroup().location]",
-            "name": "[parameters('NamespaceName')]",
-            "properties": {
-                "isAutoInflateEnabled": true,
-                "maximumThroughputUnits": 20,
-                "provisioningState": "Succeeded"
+    {
+      "apiVersion": "2019-04-01",
+      "dependsOn": [],
+      "kind": "Storage",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('appStorageName')]",
+      "properties": {
+        "encryption": {
+          "keySource": "Microsoft.Storage",
+          "services": {
+            "blob": {
+              "enabled": true
             },
-            "scale": null,
-            "sku": {
-                "capacity": 1,
-                "name": "Standard",
-                "tier": "Standard"
-            },
-            "tags": {},
-            "type": "Microsoft.EventHub/namespaces"
-        },
-        {
-            "apiVersion": "2019-04-01",
-            "dependsOn": [],
-            "kind": "Storage",
-            "location": "[resourceGroup().location]",
-            "name": "[parameters('AppStorageName')]",
-            "properties": {
-                "encryption": {
-                    "keySource": "Microsoft.Storage",
-                    "services": {
-                        "blob": {
-                            "enabled": true
-                        },
-                        "file": {
-                            "enabled": true
-                        }
-                    }
-                }
-            },
-            "sku": {
-                "name": "Standard_LRS",
-                "tier": "Standard"
-            },
-            "type": "Microsoft.Storage/storageAccounts"
-        },
-        {
-            "apiVersion": "2016-09-01",
-            "dependsOn": [],
-            "kind": "functionapp",
-            "location": "[resourceGroup().location]",
-            "name": "[parameters('ServicePlanName')]",
-            "properties": {
-                "adminSiteName": null,
-                "hostingEnvironmentProfile": null,
-                "name": "[parameters('ServicePlanName')]",
-                "perSiteScaling": false,
-                "reserved": false,
-                "targetWorkerCount": 0,
-                "targetWorkerSizeId": 0,
-                "workerTierName": null
-            },
-            "scale": null,
-            "sku": {
-                "capacity": 0,
-                "family": "Y",
-                "name": "Y1",
-                "size": "Y1",
-                "tier": "Dynamic"
-            },
-            "type": "Microsoft.Web/serverfarms"
-        },
-        {
-            "apiVersion": "2016-08-01",
-            "dependsOn": [
-                "[resourceId('Microsoft.Web/serverfarms', parameters('ServicePlanName'))]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('AppStorageName'))]",
-                "[concat('Microsoft.EventHub/namespaces/', parameters('NamespaceName'))]"
-            ],
-            "kind": "functionapp",
-            "location": "[resourceGroup().location]",
-            "name": "[parameters('FunctionAppName')]",
-            "properties": {
-                "enabled": true,
-                "httpsOnly": true,
-                "reserved": false,
-                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('ServicePlanName'))]",
-                "siteConfig": {
-                    "appSettings": [
-                        {
-                            "name": "FUNCTIONS_EXTENSION_VERSION",
-                            "value": "~1"
-                        },
-                        {
-                            "name": "FUNCTIONS_WORKER_RUNTIME",
-                            "value": "node"
-                        },
-                        {
-                            "name": "FUNCTION_APP_EDIT_MODE",
-                            "value": "readwrite"
-                        },
-                        {
-                            "name": "Project",
-                            "value": "dist/"
-                        },
-                        {
-                            "name": "AzureWebJobsStorage",
-                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('AppStorageName'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('AppStorageName')),'2015-05-01-preview').key1)]"
-                        },
-                        {
-                            "name": "AzureWebJobsDashboard",
-                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('AppStorageName'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('AppStorageName')),'2015-05-01-preview').key1)]"
-                        },
-                        {
-                            "name": "AzureEventHubLogsConnectionString",
-                            "value": "[listkeys(resourceId('Microsoft.EventHub/namespaces/authorizationRules', parameters('NamespaceName'),parameters('AuthorizationRulesSharedAccessKeyName')), '2017-04-01').primaryConnectionString]"
-                        },
-                        {
-                            "name": "NewRelicLicenseKey",
-                            "value": "[parameters('NewRelicLicenseKey')]"
-                        }
-                    ]
-                }
-            },
-            "resources": [
-                {
-                    "apiVersion": "2015-08-01",
-                    "dependsOn": [
-                        "[resourceId('Microsoft.Web/sites/', parameters('FunctionAppName'))]"
-                    ],
-                    "name": "web",
-                    "properties": {
-                        "IsManualIntegration": true,
-                        "RepoUrl": "[parameters('GitRepoURL')]",
-                        "branch": "[parameters('GitBranch')]"
-                    },
-                    "type": "sourcecontrols"
-                }
-            ],
-            "scale": null,
-            "type": "Microsoft.Web/sites"
-        },
-        {
-            "apiVersion": "2017-04-01",
-            "dependsOn": [
-                "[resourceId('Microsoft.EventHub/namespaces', parameters('NamespaceName'))]"
-            ],
-            "location": "[resourceGroup().location]",
-            "name": "[concat(parameters('NamespaceName'), '/', parameters('AuthorizationRulesSharedAccessKeyName'))]",
-            "properties": {
-                "rights": [
-                    "Listen",
-                    "Manage",
-                    "Send"
-                ]
-            },
-            "scale": null,
-            "type": "Microsoft.EventHub/namespaces/AuthorizationRules"
-        },
-        {
-            "apiVersion": "2017-04-01",
-            "dependsOn": [
-                "[resourceId('Microsoft.EventHub/namespaces', parameters('NamespaceName'))]"
-            ],
-            "location": "[resourceGroup().location]",
-            "name": "[concat(parameters('NamespaceName'), '/', parameters('EventHubInsightsOperationalLogsName'))]",
-            "properties": {
-                "messageRetentionInDays": 7,
-                "partitionCount": 4,
-                "partitionIds": [
-                    "0",
-                    "1",
-                    "2",
-                    "3"
-                ],
-                "status": "Active"
-            },
-            "scale": null,
-            "type": "Microsoft.EventHub/namespaces/eventhubs"
-        },
-        {
-            "apiVersion": "2017-04-01",
-            "dependsOn": [
-                "[resourceId('Microsoft.EventHub/namespaces', parameters('NamespaceName'))]",
-                "[resourceId('Microsoft.EventHub/namespaces/eventhubs', parameters('NamespaceName'), parameters('EventHubInsightsOperationalLogsName'))]"
-            ],
-            "location": "[resourceGroup().location]",
-            "name": "[concat(parameters('NamespaceName'), '/', parameters('EventHubInsightsOperationalLogsName'), '/', parameters('ConsumerGroupName'))]",
-            "properties": {},
-            "scale": null,
-            "type": "Microsoft.EventHub/namespaces/eventhubs/consumergroups"
+            "file": {
+              "enabled": true
+            }
+          }
         }
-    ],
-    "variables": {}
+      },
+      "sku": {
+        "name": "Standard_LRS",
+        "tier": "Standard"
+      },
+      "type": "Microsoft.Storage/storageAccounts"
+    },
+    {
+      "apiVersion": "2016-09-01",
+      "dependsOn": [],
+      "kind": "functionapp",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('servicePlanName')]",
+      "properties": {
+        "adminSiteName": null,
+        "hostingEnvironmentProfile": null,
+        "name": "[variables('servicePlanName')]",
+        "perSiteScaling": false,
+        "reserved": false,
+        "targetWorkerCount": 0,
+        "targetWorkerSizeId": 0,
+        "workerTierName": null
+      },
+      "scale": null,
+      "sku": {
+        "capacity": 0,
+        "family": "Y",
+        "name": "Y1",
+        "size": "Y1",
+        "tier": "Dynamic"
+      },
+      "type": "Microsoft.Web/serverfarms"
+    },
+    {
+      "apiVersion": "2016-08-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', variables('servicePlanName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('appStorageName'))]",
+        "[concat('Microsoft.EventHub/namespaces/', variables('namespaceName'))]"
+      ],
+      "kind": "functionapp",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('functionAppName')]",
+      "properties": {
+        "enabled": true,
+        "httpsOnly": true,
+        "reserved": false,
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('servicePlanName'))]",
+        "siteConfig": {
+          "appSettings": [
+            {
+              "name": "FUNCTIONS_EXTENSION_VERSION",
+              "value": "~1"
+            },
+            {
+              "name": "FUNCTIONS_WORKER_RUNTIME",
+              "value": "node"
+            },
+            {
+              "name": "FUNCTION_APP_EDIT_MODE",
+              "value": "readwrite"
+            },
+            {
+              "name": "Project",
+              "value": "dist/"
+            },
+            {
+              "name": "AzureWebJobsStorage",
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('appStorageName'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('appStorageName')),'2015-05-01-preview').key1)]"
+            },
+            {
+              "name": "AzureWebJobsDashboard",
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('appStorageName'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('appStorageName')),'2015-05-01-preview').key1)]"
+            },
+            {
+              "name": "AzureEventHubLogsConnectionString",
+              "value": "[listkeys(resourceId('Microsoft.EventHub/namespaces/authorizationRules', variables('namespaceName'), variables('authorizationRulesSharedAccessKeyName')), '2017-04-01').primaryConnectionString]"
+            },
+            {
+              "name": "NewRelicInsertKey",
+              "value": "[parameters('NewRelicInsertKey')]"
+            }
+          ]
+        }
+      },
+      "resources": [
+        {
+          "apiVersion": "2015-08-01",
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/sites/', variables('functionAppName'))]"
+          ],
+          "name": "web",
+          "properties": {
+            "IsManualIntegration": true,
+            "RepoUrl": "[variables('gitRepoUrl')]",
+            "branch": "[variables('gitBranch')]"
+          },
+          "type": "sourcecontrols"
+        }
+      ],
+      "scale": null,
+      "type": "Microsoft.Web/sites"
+    },
+    {
+      "apiVersion": "2017-04-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.EventHub/namespaces', variables('namespaceName'))]"
+      ],
+      "location": "[resourceGroup().location]",
+      "name": "[concat(variables('namespaceName'), '/', variables('authorizationRulesSharedAccessKeyName'))]",
+      "properties": {
+        "rights": [
+          "Listen",
+          "Manage",
+          "Send"
+        ]
+      },
+      "scale": null,
+      "type": "Microsoft.EventHub/namespaces/AuthorizationRules"
+    },
+    {
+      "apiVersion": "2017-04-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.EventHub/namespaces', variables('namespaceName'))]"
+      ],
+      "location": "[resourceGroup().location]",
+      "name": "[concat(variables('namespaceName'), '/', variables('eventHubInsightsOperationalLogsName'))]",
+      "properties": {
+        "messageRetentionInDays": 7,
+        "partitionCount": 4,
+        "partitionIds": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ],
+        "status": "Active"
+      },
+      "scale": null,
+      "type": "Microsoft.EventHub/namespaces/eventhubs"
+    },
+    {
+      "apiVersion": "2017-04-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.EventHub/namespaces', variables('namespaceName'))]",
+        "[resourceId('Microsoft.EventHub/namespaces/eventhubs', variables('namespaceName'), veriables('eventHubInsightsOperationalLogsName'))]"
+      ],
+      "location": "[resourceGroup().location]",
+      "name": "[concat(variables('namespaceName'), '/', variables('eventHubInsightsOperationalLogsName'), '/', variables('consumerGroupName'))]",
+      "properties": {},
+      "scale": null,
+      "type": "Microsoft.EventHub/namespaces/eventhubs/consumergroups"
+    }
+  ],
+  "variables": {
+    "appStorageName": "[concat('newrelic', uniqueString(resourceGroup().id))]",
+    "authorizationRulesSharedAccessKeyName": "NewRelicLogsSharedAccessKey",
+    "consumerGroupName": "NewRelicLogsConsumerGroup",
+    "eventHubInsightsOperationalLogsName": "insights-operational-logs",
+    "functionAppName": "[concat('NewRelicLogsIngestion', uniqueString(resourceGroup().id))]",
+    "gitBranch": "main",
+    "gitRepoURL": "https://github.com/newrelic/newrelic-azure-log-ingestion.git",
+    "namespaceName": "[concat('NewRelicLogsNamespace', uniqueString(resourceGroup().id))]",
+    "servicePlanName": "[concat('NewRelicLogsServicePlan', uniqueString(resourceGroup().id))]"
+  }
 }

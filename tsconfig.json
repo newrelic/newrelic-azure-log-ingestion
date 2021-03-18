@@ -2,8 +2,8 @@
   "compilerOptions": {
     "module": "commonjs",
     "target": "es6",
-    "outDir": "dist",
-    "rootDir": "src",
+    "outDir": "dist/azureLogIngestion",
+    "rootDir": "src/azureLogIngestion",
     "sourceMap": true,
     "strict": false
   }
