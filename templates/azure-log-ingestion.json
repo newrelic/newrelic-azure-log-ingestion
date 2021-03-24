@@ -103,7 +103,7 @@
               "value": "~1"
             },
             {
-              "name": "FUNCTIONS_WORKER_RUNTIME",
+              "name": "--",
               "value": "node"
             },
             {
