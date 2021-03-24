@@ -55,14 +55,14 @@ const eventHubTrigger = function (context, eventHubMessages) {
             const span = new telemetry_1.spans.Span(Id, OperationId, epochDate, Name, ParentId, AppRoleName, DurationMs, attributes);
             spanBatch.addSpan(span);
         });
-        context.log("What do we have?");
-        context.log(spanBatch);
         spansClient.send(spanBatch, (err, res, body) => {
             context.log("NR RES");
             context.log(res.statusCode);
             context.log(body);
             context.log(err);
         });
+        context.log("At the end");
+        context.log(spanBatch);
         context.done();
     });
 };

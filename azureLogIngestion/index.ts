@@ -83,6 +83,9 @@ const eventHubTrigger: AzureFunction = async function (context: Context, eventHu
         context.log(err)
     });
 
+    context.log("At the end")
+    context.log(spanBatch)
+
     context.done();
 };
 
