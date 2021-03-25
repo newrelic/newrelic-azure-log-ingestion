@@ -1,9 +1,9 @@
 import { AzureFunction, Context } from "@azure/functions"
-import { spans, metrics } from "@newrelic/telemetry-sdk/dist/src/telemetry";
+import { spans, metrics } from "@newrelic/telemetry-sdk/dist/src/telemetry"
 
 const eventHubTrigger: AzureFunction = async function (context: Context, eventHubMessages: any[]): Promise<void> {
     const apiKey = process.env["NEW_RELIC_INSERT_KEY"]
-    
+
     context.log("Binding deets")
 
     context.log(context.bindingData)
@@ -11,17 +11,17 @@ const eventHubTrigger: AzureFunction = async function (context: Context, eventHu
     context.log(context.traceContext)
 
     const metricClient = new metrics.MetricClient({
-        apiKey
+        apiKey,
     })
     const spansClient = new spans.SpanClient({
-        apiKey
+        apiKey,
     })
 
-    const spanBatch = new spans.SpanBatch;
-    const metricBatch = new metrics.MetricBatch;
+    const spanBatch = new spans.SpanBatch()
+    const metricBatch = new metrics.MetricBatch()
 
-    eventHubMessages.forEach(message => {
-        const obj = JSON.parse(message);
+    eventHubMessages.forEach((message) => {
+        const obj = JSON.parse(message)
         context.log("my data: ", obj)
         const {
             Id,
@@ -38,10 +38,10 @@ const eventHubTrigger: AzureFunction = async function (context: Context, eventHu
             Success,
             ResourceGUID,
             _BilledSize,
-            Properties = null
-        } = obj.records[0];
+            Properties = null,
+        } = obj.records[0]
 
-        const epochDate =  new Date(time).getTime()
+        const epochDate = new Date(time).getTime()
 
         const attributes = {
             Type,
@@ -59,26 +59,17 @@ const eventHubTrigger: AzureFunction = async function (context: Context, eventHu
             }
         }
 
-        const span = new spans.Span(
-            Id,
-            OperationId,
-            epochDate,
-            Name,
-            ParentId,
-            AppRoleName,
-            DurationMs,
-            attributes
-        );
+        const span = new spans.Span(Id, OperationId, epochDate, Name, ParentId, AppRoleName, DurationMs, attributes)
 
         spanBatch.addSpan(span)
-    });
+    })
 
     spansClient.send(spanBatch, (err, res, body) => {
         context.log("NR RES")
         context.log(res.statusCode)
         context.log(body)
         context.log(err)
-    });
-};
+    })
+}
 
-export default eventHubTrigger;
+export default eventHubTrigger
