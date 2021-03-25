@@ -39,6 +39,7 @@
   "homepage": "https://github.com/newrelic/newrelic-azure-log-ingestion#readme",
   "devDependencies": {
     "@azure/functions": "^1.2.3",
+    "@types/jest": "^26.0.22",
     "@types/node": "^14.14.35",
     "@typescript-eslint/eslint-plugin": "^4.19.0",
     "@typescript-eslint/parser": "^4.19.0",
@@ -50,6 +51,7 @@
     "jest": "^26.6.3",
     "npm-run-all": "^4.1.5",
     "prettier": "^2.2.1",
+    "ts-jest": "^26.5.4",
     "typescript": "^4.0.0"
   },
   "dependencies": {
