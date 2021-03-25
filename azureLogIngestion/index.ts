@@ -4,6 +4,12 @@ import { spans, metrics } from "@newrelic/telemetry-sdk/dist/src/telemetry";
 const eventHubTrigger: AzureFunction = async function (context: Context, eventHubMessages: any[]): Promise<void> {
     const apiKey = process.env["NEW_RELIC_INSERT_KEY"]
     
+    context.log("Binding deets")
+
+    context.log(context.bindingData)
+    context.log(context.bindings)
+    context.log(context.traceContext)
+
     const metricClient = new metrics.MetricClient({
         apiKey
     })
@@ -32,15 +38,7 @@ const eventHubTrigger: AzureFunction = async function (context: Context, eventHu
             Success,
             ResourceGUID,
             _BilledSize,
-            // Properties : {
-            //     TriggerReason,
-            //     InvocationId,
-            //     HostInstanceId,
-            //     FunctionExecutionTimeMs,
-            //     OperationName,
-            //     Category,
-            //     ProcessId
-            // } = ""
+            Properties = null
         } = obj.records[0];
 
         const epochDate =  new Date(time).getTime()
@@ -53,13 +51,12 @@ const eventHubTrigger: AzureFunction = async function (context: Context, eventHu
             Success,
             ResourceGUID,
             BilledSize: _BilledSize,
-            // TriggerReason,
-            // InvocationId,
-            // HostInstanceId,
-            // FunctionExecutionTimeMs,
-            // OperationName,
-            // Category,
-            // ProcessId
+        }
+
+        if (Properties) {
+            for (const x in Properties) {
+                attributes[x] = Properties[x]
+            }
         }
 
         const span = new spans.Span(
@@ -82,11 +79,6 @@ const eventHubTrigger: AzureFunction = async function (context: Context, eventHu
         context.log(body)
         context.log(err)
     });
-
-    context.log("At the end")
-    context.log(spanBatch)
-
-    context.done();
 };
 
 export default eventHubTrigger;

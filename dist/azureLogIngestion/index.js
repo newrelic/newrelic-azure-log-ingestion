@@ -13,6 +13,10 @@ const telemetry_1 = require("@newrelic/telemetry-sdk/dist/src/telemetry");
 const eventHubTrigger = function (context, eventHubMessages) {
     return __awaiter(this, void 0, void 0, function* () {
         const apiKey = process.env["NEW_RELIC_INSERT_KEY"];
+        context.log("Binding deets");
+        context.log(context.bindingData);
+        context.log(context.bindings);
+        context.log(context.traceContext);
         const metricClient = new telemetry_1.metrics.MetricClient({
             apiKey
         });
@@ -24,17 +28,7 @@ const eventHubTrigger = function (context, eventHubMessages) {
         eventHubMessages.forEach(message => {
             const obj = JSON.parse(message);
             context.log("my data: ", obj);
-            const { Id, ParentId, OperationId, time, Name, DurationMs, AppRoleName, Type, AppRoleInstance, ClientIP, SDKVersion, Success, ResourceGUID, _BilledSize,
-            // Properties : {
-            //     TriggerReason,
-            //     InvocationId,
-            //     HostInstanceId,
-            //     FunctionExecutionTimeMs,
-            //     OperationName,
-            //     Category,
-            //     ProcessId
-            // } = ""
-             } = obj.records[0];
+            const { Id, ParentId, OperationId, time, Name, DurationMs, AppRoleName, Type, AppRoleInstance, ClientIP, SDKVersion, Success, ResourceGUID, _BilledSize, Properties = null } = obj.records[0];
             const epochDate = new Date(time).getTime();
             const attributes = {
                 Type,
@@ -44,14 +38,12 @@ const eventHubTrigger = function (context, eventHubMessages) {
                 Success,
                 ResourceGUID,
                 BilledSize: _BilledSize,
-                // TriggerReason,
-                // InvocationId,
-                // HostInstanceId,
-                // FunctionExecutionTimeMs,
-                // OperationName,
-                // Category,
-                // ProcessId
             };
+            if (Properties) {
+                for (const x in Properties) {
+                    attributes[x] = Properties[x];
+                }
+            }
             const span = new telemetry_1.spans.Span(Id, OperationId, epochDate, Name, ParentId, AppRoleName, DurationMs, attributes);
             spanBatch.addSpan(span);
         });
@@ -63,7 +55,6 @@ const eventHubTrigger = function (context, eventHubMessages) {
         });
         context.log("At the end");
         context.log(spanBatch);
-        context.done();
     });
 };
 exports.default = eventHubTrigger;
