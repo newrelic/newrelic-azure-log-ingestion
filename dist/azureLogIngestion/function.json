@@ -1,0 +1,15 @@
+{
+  "bindings": [
+    {
+      "cardinality": "many", 
+      "connection": "AzureEventHubConnectionString",
+      "consumerGroup": "$Default", 
+      "direction": "in", 
+      "eventHubName": "insights-logs-apprequests", 
+      "name": "eventHubMessages", 
+      "type": "eventHubTrigger",
+      "dataType": "string"
+    }
+  ],
+  "scriptFile": "../dist/azureLogIngestion/index.js"
+}
