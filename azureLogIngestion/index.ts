@@ -3,26 +3,17 @@ import { spans, metrics } from "@newrelic/telemetry-sdk/dist/src/telemetry"
 
 const eventHubTrigger: AzureFunction = async function (context: Context, eventHubMessages: any[]): Promise<void> {
     const apiKey = process.env["NEW_RELIC_INSERT_KEY"]
-
-    context.log("Binding deets")
-
-    context.log(context.bindingData)
-    context.log(context.bindings)
-    context.log(context.traceContext)
-
     const metricClient = new metrics.MetricClient({
         apiKey,
     })
     const spansClient = new spans.SpanClient({
         apiKey,
     })
-
     const spanBatch = new spans.SpanBatch()
     const metricBatch = new metrics.MetricBatch()
 
-    eventHubMessages.forEach((message) => {
-        const obj = JSON.parse(message)
-        context.log("my data: ", obj)
+    const messages = JSON.parse(eventHubMessages[0])
+    messages.records.forEach((message) => {
         const {
             Id,
             ParentId,
@@ -31,6 +22,7 @@ const eventHubTrigger: AzureFunction = async function (context: Context, eventHu
             Name,
             DurationMs,
             AppRoleName,
+            OperationName,
             Type,
             AppRoleInstance,
             ClientIP,
@@ -39,7 +31,7 @@ const eventHubTrigger: AzureFunction = async function (context: Context, eventHu
             ResourceGUID,
             _BilledSize,
             Properties = null,
-        } = obj.records[0]
+        } = message
 
         const epochDate = new Date(time).getTime()
 
@@ -59,7 +51,16 @@ const eventHubTrigger: AzureFunction = async function (context: Context, eventHu
             }
         }
 
-        const span = new spans.Span(Id, OperationId, epochDate, Name, ParentId, AppRoleName, DurationMs, attributes)
+        const span = new spans.Span(
+            Id,
+            OperationId,
+            epochDate,
+            Name,
+            OperationId,
+            OperationName,
+            DurationMs,
+            attributes,
+        )
 
         spanBatch.addSpan(span)
     })
