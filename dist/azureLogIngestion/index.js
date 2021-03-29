@@ -10,13 +10,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const telemetry_1 = require("@newrelic/telemetry-sdk/dist/src/telemetry");
+const uuid_1 = require("uuid");
 const eventHubTrigger = function (context, eventHubMessages) {
     return __awaiter(this, void 0, void 0, function* () {
         const apiKey = process.env["NEW_RELIC_INSERT_KEY"];
-        context.log("Binding deets");
-        context.log(context.bindingData);
-        context.log(context.bindings);
-        context.log(context.traceContext);
         const metricClient = new telemetry_1.metrics.MetricClient({
             apiKey
         });
@@ -25,10 +22,11 @@ const eventHubTrigger = function (context, eventHubMessages) {
         });
         const spanBatch = new telemetry_1.spans.SpanBatch;
         const metricBatch = new telemetry_1.metrics.MetricBatch;
-        eventHubMessages.forEach(message => {
-            const obj = JSON.parse(message);
-            context.log("my data: ", obj);
-            const { Id, ParentId, OperationId, time, Name, DurationMs, AppRoleName, Type, AppRoleInstance, ClientIP, SDKVersion, Success, ResourceGUID, _BilledSize, Properties = null } = obj.records[0];
+        const messages = JSON.parse(eventHubMessages[0]);
+        context.log("My messages: ", messages);
+        messages.records.forEach(message => {
+            context.log("my message: ", message);
+            const { Id, ParentId, OperationId, time, Name, DurationMs, AppRoleName, OperationName, Type, AppRoleInstance, ClientIP, SDKVersion, Success, ResourceGUID, _BilledSize, Properties = null } = message;
             const epochDate = new Date(time).getTime();
             const attributes = {
                 Type,
@@ -44,7 +42,15 @@ const eventHubTrigger = function (context, eventHubMessages) {
                     attributes[x] = Properties[x];
                 }
             }
-            const span = new telemetry_1.spans.Span(Id, OperationId, epochDate, Name, ParentId, AppRoleName, DurationMs, attributes);
+            if (OperationId === ParentId) {
+                context.log("I AM A ROOT: ", message);
+                const parentSpan = new telemetry_1.spans.Span(uuid_1.v4(), OperationId, Date.now(), 'SyntheticParentSpan', null, OperationName, 0);
+                spanBatch.addSpan(parentSpan);
+            }
+            // We've determined based on the log events we've seem from our testing in azure so far
+            // that if an ObjectId (TraceId) is the same as the ParentId then we are looking at the root span.
+            // TODO verify this or figure out if we should generate a synthetic root for our trace.
+            const span = new telemetry_1.spans.Span(Id, OperationId, epochDate, Name, OperationId, OperationName, DurationMs, attributes);
             spanBatch.addSpan(span);
         });
         spansClient.send(spanBatch, (err, res, body) => {
@@ -53,8 +59,6 @@ const eventHubTrigger = function (context, eventHubMessages) {
             context.log(body);
             context.log(err);
         });
-        context.log("At the end");
-        context.log(spanBatch);
     });
 };
 exports.default = eventHubTrigger;
