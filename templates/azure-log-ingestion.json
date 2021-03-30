@@ -210,7 +210,7 @@
     "functionAppName": "[concat('NewRelicLogsIngestion', uniqueString(resourceGroup().id))]",
     "gitBranch": "main",
     "gitRepoURL": "https://github.com/newrelic/newrelic-azure-log-ingestion.git",
-    "namespaceName": "[concat('NewRelicLogsNS', uniqueString(resourceGroup().id))]",
+    "namespaceName": "[concat('NewRelicLogs', uniqueString(resourceGroup().id))]",
     "servicePlanName": "[concat('newRelicLogsServicePlan', uniqueString(resourceGroup().id))]"
   }
 }
