@@ -34,7 +34,7 @@ Then click the button below to start the installation process via the Azure Port
    az deployment group create \
   -  -name NewRelicLogs \
      --resource-group NewRelicLogs \
-     --template-file ./templates/azure-log-ingestion.json \
+     --template-uri https://raw.githubusercontent.com/newrelic/newrelic-azure-log-ingestion/main/templates/azure-log-ingestion.json \
      --parameters NewRelicInsertKey=<new relic insert key here>
      ```
      Make sure the `--resource-group` argument is the same as the one you created in
