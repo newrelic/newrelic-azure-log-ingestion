@@ -44,7 +44,60 @@ Then click the button below to start the installation process via the Azure Port
      with your New Relic Insert Key.
 
 ## Getting Started
->[Simple steps to start working with the software similar to a "Hello World"]
+
+Now that you have your New Relic reporting stack setup in your Azure account, you need
+to configure your App Insights resources to start sending telemetry data to it.
+
+### Automatic Reporting with Azure Policy
+
+You can automatically configure your Function Apps to report App Insights telemetry to
+New Relic using an [Azure Policy](https://docs.microsoft.com/en-us/azure/azure-monitor/deploy-scale).
+
+This is the easiest option as it only needs to be setup once and all existing and future
+App Insights resources will be automatically configured to report to New Relic. Keep in
+mind there are costs associated with exporting telemetry data from Azure. You will want
+to monitor the Consumption Group created by this integration to ensure they meet your
+expectations.
+
+To setup this Azure Policy, rrun the below command using the Azure CLI:
+
+```
+az deployment group create \
+  --name NewRelicLogsPolicy \
+  --resource-group NewRelicLogs \
+  --template-uri https://raw.githubusercontent.com/newrelic/newrelic-azure-log-ingestion/main/templates/azure-policy.json
+```
+
+Replacing, as necessary, the `--resource-group` argument with the ResourceGroup
+that you created during installation.
+
+### Manually Configure Diagnostic Settings
+
+You can manually configure [Diagnostic Settings](https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings)
+for only the App Insights resources you want to report telemetry data to New Relic. This
+option is more involved, but offers more fine grained control over the telemetry data
+being exported.
+
+1. Find the App Function you want to export telemetry data from in the Azure Portal.
+2. In the resource's menu, click **Diagnostic Settings** under **Monitor**.
+3. Click **Add diagnostic setting**.
+4. Enter a **Name** for your setting.
+5. Under **Category details**, Check the box for each category of data you want to export to New Relic.
+6. Under **Destination details**, check the **Event Hub** box.
+7. Under the Event Hub destination configuration, you'll need to specify the following:
+     * The subscription which the event hub is part of. This should be the same
+       subscription used during the installation steps above.
+     * The Event hub namespace. This should be `NewRelicLogs`.
+     * An Event hub name. This should be `newrelic-log-ingestion`.
+     * An Event Hub policy. The policy selected must grant the permissions
+       necessary to stream data to the Event Hub.
+8. Click **Save**.
+
+After a few moments, the new setting appears in your list of settings for this
+resource, and logs are streamed to the specified destination as new event data
+is generated.
+
+See the [Azure documentation](https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings) for details.
 
 ## Usage
 >[**Optional** - Include more thorough instructions on how to use the software. This section might not be needed if the Getting Started section is enough. Remove this section if it's not needed.]
