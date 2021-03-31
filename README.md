@@ -67,8 +67,7 @@ to New Relic using an [Azure Policy](https://docs.microsoft.com/en-us/azure/azur
 This is the easiest option as it only needs to be setup once and all existing and future
 App Insights resources will be automatically configured to report to New Relic. Keep in
 mind there are costs associated with exporting telemetry data from Azure. You will want
-to monitor the Consumption Group created by this integration to ensure they meet your
-expectations.
+to monitor integration utilzation to ensure they meet your expectations.
 
 To setup this Azure Policy, rrun the below command using the Azure CLI:
 
