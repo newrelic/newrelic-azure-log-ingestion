@@ -23,8 +23,6 @@ const eventHubTrigger = function (context, eventHubMessages) {
         const metricBatch = new telemetry_1.metrics.MetricBatch();
         const messages = JSON.parse(eventHubMessages[0]);
         messages.records.forEach((message) => {
-            context.log("my message:");
-            context.log(message);
             const { Id, ParentId, OperationId, time, Name, DurationMs, OperationName, Type, AppRoleInstance, ClientIP, SDKVersion, Success, ResourceGUID, _BilledSize, Properties = null, } = message;
             const epochDate = new Date(time).getTime();
             const attributes = {
