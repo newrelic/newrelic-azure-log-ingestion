@@ -1,12 +1,12 @@
 {
   "bindings": [
     {
-      "cardinality": "many", 
+      "cardinality": "many",
       "connection": "AzureEventHubConnectionString",
-      "consumerGroup": "$Default", 
-      "direction": "in", 
-      "eventHubName": "insights-logs-apprequests", 
-      "name": "eventHubMessages", 
+      "consumerGroup": "$Default",
+      "direction": "in",
+      "eventHubName": "newrelic-logs-ingestion",
+      "name": "eventHubMessages",
       "type": "eventHubTrigger",
       "dataType": "string"
     }

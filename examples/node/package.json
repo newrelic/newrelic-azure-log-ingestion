@@ -1,0 +1,16 @@
+{
+  "name": "node-example",
+  "version": "1.0.0",
+  "description": "The `TimerTrigger` makes it incredibly easy to have your functions executed on a schedule. This sample demonstrates a simple use case of calling your function every 5 minutes.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "applicationinsights": "^1.8.10",
+    "axios": "^0.21.1",
+    "uuid": "^8.3.2"
+  }
+}

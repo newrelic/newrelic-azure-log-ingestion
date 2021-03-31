@@ -23,7 +23,7 @@ const eventHubTrigger = function (context, eventHubMessages) {
         const metricBatch = new telemetry_1.metrics.MetricBatch();
         const messages = JSON.parse(eventHubMessages[0]);
         messages.records.forEach((message) => {
-            const { Id, ParentId, OperationId, time, Name, DurationMs, AppRoleName, OperationName, Type, AppRoleInstance, ClientIP, SDKVersion, Success, ResourceGUID, _BilledSize, Properties = null, } = message;
+            const { Id, ParentId, OperationId, time, Name, DurationMs, OperationName, Type, AppRoleInstance, ClientIP, SDKVersion, Success, ResourceGUID, _BilledSize, Properties = null, } = message;
             const epochDate = new Date(time).getTime();
             const attributes = {
                 Type,
@@ -39,14 +39,12 @@ const eventHubTrigger = function (context, eventHubMessages) {
                     attributes[x] = Properties[x];
                 }
             }
-            const span = new telemetry_1.spans.Span(Id, OperationId, epochDate, Name, OperationId, OperationName, DurationMs, attributes);
+            const span = new telemetry_1.spans.Span(Id, OperationId, epochDate, Name, ParentId, OperationName, DurationMs, attributes);
             spanBatch.addSpan(span);
         });
-        spansClient.send(spanBatch, (err, res, body) => {
-            context.log("NR RES");
-            context.log(res.statusCode);
-            context.log(body);
-            context.log(err);
+        spansClient.send(spanBatch, (err) => {
+            if (err)
+                context.log(`Error occurred while sending telemetry to New Relic: ${err}`);
         });
     });
 };
