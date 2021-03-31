@@ -2,7 +2,18 @@
 
 # newrelic-azure-log-ingestion [![Build Status](https://github.com/newrelic/newrelic-azure-log-ingestion/actions/workflows/main.yml/badge.svg)](https://github.com/newrelic/newrelic-azure-log-ingestion/actions/workflows/main.yml)
 
-An Azure Resource Manager template to ingest Azure Monitoring logs, metrics and traces into New Relic.
+An Azure Resource Manager template to export Azure Monitoring logs, metrics and traces to New Relic.
+
+## How Does It Work?
+
+This integration creates and configures the Azure resources necessary to efficiently
+export telemetry data from an Azure account into New Relic. It relies on Azure
+Diagnostic Settings to stream telemetry data to an Azure Event Hub, this Event Hub
+subsequently batches and triggers an Azure Function to handle the transport of telemetry data on to
+New Relic.
+
+Currently this integration only targets App Insights. If you have other telemetry data
+you would like to see exported using Diagnostic Settings, [tell us about your use case](https://github.com/newrelic/newrelic-azure-log-ingestion/issues).
 
 ## Installation
 
@@ -97,7 +108,7 @@ After a few moments, the new setting appears in your list of settings for this
 resource, and logs are streamed to the specified destination as new event data
 is generated.
 
-See the [Azure documentation](https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings) for details.
+See the [Azure documentation](https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings) for more details.
 
 ## Usage
 >[**Optional** - Include more thorough instructions on how to use the software. This section might not be needed if the Getting Started section is enough. Remove this section if it's not needed.]
