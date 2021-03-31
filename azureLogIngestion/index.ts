@@ -1,14 +1,22 @@
 import { AzureFunction, Context } from "@azure/functions"
 import { spans, metrics } from "@newrelic/telemetry-sdk/dist/src/telemetry"
 
+const apiKey = process.env["NEW_RELIC_INSERT_KEY"]
+
+const metricClient = new metrics.MetricClient({
+    apiKey,
+})
+
+const spansClient = new spans.SpanClient({
+    apiKey,
+})
+
 const eventHubTrigger: AzureFunction = async function (context: Context, eventHubMessages: any[]): Promise<void> {
-    const apiKey = process.env["NEW_RELIC_INSERT_KEY"]
-    const metricClient = new metrics.MetricClient({
-        apiKey,
+    context.log(`Eventhub trigger function called for message array ${eventHubMessages}`)
+    eventHubMessages.forEach((message, index) => {
+        context.log(`Processed message ${message}`)
     })
-    const spansClient = new spans.SpanClient({
-        apiKey,
-    })
+
     const spanBatch = new spans.SpanBatch()
     const metricBatch = new metrics.MetricBatch()
 
