@@ -56,13 +56,13 @@ Then click the button below to start the installation process via the Azure Port
 
 ## Getting Started
 
-Now that you have your New Relic reporting stack setup in your Azure account, you need
+Now that you have your New Relic export stack setup in your Azure account, you need
 to configure your App Insights resources to start sending telemetry data to it.
 
 ### Automatic Reporting with Azure Policy
 
-You can automatically configure your Function Apps to report App Insights telemetry to
-New Relic using an [Azure Policy](https://docs.microsoft.com/en-us/azure/azure-monitor/deploy-scale).
+You can automatically configure your App Insights resources to report telemetry 
+to New Relic using an [Azure Policy](https://docs.microsoft.com/en-us/azure/azure-monitor/deploy-scale).
 
 This is the easiest option as it only needs to be setup once and all existing and future
 App Insights resources will be automatically configured to report to New Relic. Keep in
@@ -89,7 +89,7 @@ for only the App Insights resources you want to report telemetry data to New Rel
 option is more involved, but offers more fine grained control over the telemetry data
 being exported.
 
-1. Find the App Function you want to export telemetry data from in the Azure Portal.
+1. Find the resource you want to export telemetry data from in the Azure Portal.
 2. In the resource's menu, click **Diagnostic Settings** under **Monitor**.
 3. Click **Add diagnostic setting**.
 4. Enter a **Name** for your setting.
@@ -111,8 +111,16 @@ is generated.
 See the [Azure documentation](https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings) for more details.
 
 ## Usage
->[**Optional** - Include more thorough instructions on how to use the software. This section might not be needed if the Getting Started section is enough. Remove this section if it's not needed.]
 
+From here, App Insights will begin streamingplatform logs and metrics out-of-the-box.
+However, to get the most out of your telemetry, you'll want to start instrumenting.
+
+See below for details on how to instrument your code for your specific runtime:
+
+* [C#](https://docs.microsoft.com/en-us/azure/azure-functions/functions-dotnet-class-library?tabs=v2%2Ccmd#log-custom-telemetry-in-c-functions)
+* [Java](https://docs.microsoft.com/en-us/azure/azure-monitor/app/java-in-process-agent)
+* [Node.js](https://docs.microsoft.com/en-us/azure/azure-monitor/app/nodejs)
+* [Python](https://docs.microsoft.com/en-us/azure/azure-monitor/app/opencensus-python)
 
 ## Building
 
