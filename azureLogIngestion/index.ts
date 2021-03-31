@@ -21,7 +21,6 @@ const eventHubTrigger: AzureFunction = async function (context: Context, eventHu
             time,
             Name,
             DurationMs,
-            AppRoleName,
             OperationName,
             Type,
             AppRoleInstance,
@@ -56,7 +55,7 @@ const eventHubTrigger: AzureFunction = async function (context: Context, eventHu
             OperationId,
             epochDate,
             Name,
-            OperationId,
+            ParentId,
             OperationName,
             DurationMs,
             attributes,
@@ -65,11 +64,8 @@ const eventHubTrigger: AzureFunction = async function (context: Context, eventHu
         spanBatch.addSpan(span)
     })
 
-    spansClient.send(spanBatch, (err, res, body) => {
-        context.log("NR RES")
-        context.log(res.statusCode)
-        context.log(body)
-        context.log(err)
+    spansClient.send(spanBatch, (err) => {
+        if (err) context.log(`Error occurred while sending telemetry to New Relic: ${err}`)
     })
 }
 
