@@ -50,17 +50,7 @@ const eventHubTrigger: AzureFunction = async function (context: Context, eventHu
             }
         }
 
-        const span = new spans.Span(
-            Id,
-            OperationId,
-            epochDate,
-            Name,
-            ParentId,
-            OperationName,
-            DurationMs,
-            attributes,
-        )
-
+        const span = new spans.Span(Id, OperationId, epochDate, Name, ParentId, OperationName, DurationMs, attributes)
         spanBatch.addSpan(span)
     })
 
