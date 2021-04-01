@@ -8,11 +8,12 @@ const metricClient = new metrics.MetricClient({
 const spansClient = new spans.SpanClient({
     apiKey,
 })
-const spanBatch = new spans.SpanBatch()
-const metricBatch = new metrics.MetricBatch()
 
 const eventHubTrigger: AzureFunction = async function (context: Context, eventHubMessages: any[]): Promise<void> {
     context.log(`Eventhub trigger function called for message array ${eventHubMessages}`)
+
+    const spanBatch = new spans.SpanBatch()
+    const metricBatch = new metrics.MetricBatch()
 
     eventHubMessages.forEach((messages) => {
         const records = JSON.parse(messages)
