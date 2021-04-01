@@ -11,5 +11,5 @@
       "dataType": "string"
     }
   ],
-  "scriptFile": "../dist/azureLogIngestion/index.js"
+  "scriptFile": "index.js"
 }
