@@ -10,37 +10,42 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const telemetry_1 = require("@newrelic/telemetry-sdk/dist/src/telemetry");
+const apiKey = process.env["NEW_RELIC_INSERT_KEY"];
+const metricClient = new telemetry_1.metrics.MetricClient({
+    apiKey,
+});
+const spansClient = new telemetry_1.spans.SpanClient({
+    apiKey,
+});
+const spanBatch = new telemetry_1.spans.SpanBatch();
+const metricBatch = new telemetry_1.metrics.MetricBatch();
 const eventHubTrigger = function (context, eventHubMessages) {
     return __awaiter(this, void 0, void 0, function* () {
-        const apiKey = process.env["NEW_RELIC_INSERT_KEY"];
-        const metricClient = new telemetry_1.metrics.MetricClient({
-            apiKey,
-        });
-        const spansClient = new telemetry_1.spans.SpanClient({
-            apiKey,
-        });
-        const spanBatch = new telemetry_1.spans.SpanBatch();
-        const metricBatch = new telemetry_1.metrics.MetricBatch();
-        const messages = JSON.parse(eventHubMessages[0]);
-        messages.records.forEach((message) => {
-            const { Id, ParentId, OperationId, time, Name, DurationMs, OperationName, Type, AppRoleInstance, ClientIP, SDKVersion, Success, ResourceGUID, _BilledSize, Properties = null, } = message;
-            const epochDate = new Date(time).getTime();
-            const attributes = {
-                Type,
-                AppRoleInstance,
-                ClientIP,
-                SDKVersion,
-                Success,
-                ResourceGUID,
-                BilledSize: _BilledSize,
-            };
-            if (Properties) {
-                for (const x in Properties) {
-                    attributes[x] = Properties[x];
+        context.log(`Eventhub trigger function called for message array ${eventHubMessages}`);
+        eventHubMessages.forEach((messages) => {
+            const records = JSON.parse(messages);
+            records.records.forEach((message) => {
+                context.log("Single event hub records message: ", message);
+                const { Id, ParentId, OperationId, time, Name, DurationMs, OperationName, Type, AppRoleInstance, ClientIP, SDKVersion, Success, ResourceGUID, _BilledSize, Properties = null, } = message;
+                const epochDate = new Date(time).getTime();
+                const attributes = {
+                    Type,
+                    AppRoleInstance,
+                    ClientIP,
+                    SDKVersion,
+                    Success,
+                    ResourceGUID,
+                    BilledSize: _BilledSize,
+                };
+                if (Properties) {
+                    for (const x in Properties) {
+                        attributes[x] = Properties[x];
+                    }
                 }
-            }
-            const span = new telemetry_1.spans.Span(Id, OperationId, epochDate, Name, ParentId, OperationName, DurationMs, attributes);
-            spanBatch.addSpan(span);
+                const span = new telemetry_1.spans.Span(Id, OperationId, epochDate, Name, ParentId === OperationId ? null : ParentId, // Determining if this is the root span or not and formatting accordingly
+                OperationName, DurationMs, attributes);
+                spanBatch.addSpan(span);
+            });
         });
         spansClient.send(spanBatch, (err) => {
             if (err)
