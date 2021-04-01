@@ -5,7 +5,7 @@
       "connection": "AzureEventHubConnectionString",
       "consumerGroup": "$Default",
       "direction": "in",
-      "eventHubName": "newrelic-logs-ingestion",
+      "eventHubName": "newrelic-log-ingestion",
       "name": "eventHubMessages",
       "type": "eventHubTrigger",
       "dataType": "string"
