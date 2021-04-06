@@ -6,6 +6,13 @@
             "samplingSettings": {
                 "isEnabled": true
             }
+        },
+        "fileLoggingMode": "always",
+        "logLevel": {
+            "default": "Trace",
+            "Host.Results": "Trace",
+            "Function": "Trace",
+            "Host.Aggregator": "Trace"
         }
     }
 }
