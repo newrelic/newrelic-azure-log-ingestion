@@ -1,12 +1,16 @@
-let appInsights = require('applicationinsights')
+let appInsights
+appInsights = require("applicationinsights")
 const key = process.env["APPINSIGHTS_INSTRUMENTATIONKEY"]
-appInsights.setup(key)
+appInsights
+    .setup(key)
     .setAutoDependencyCorrelation(true)
     .setAutoCollectRequests(true)
     .setAutoCollectPerformance(true, true)
-    .setAutoCollectDependencies(true).start()
+    .setAutoCollectDependencies(true)
+    .start()
 
-const axios = require("axios")
+let axios
+axios = require("axios")
 
 const httpTrigger = async function (context, req) {
     const url = process.env["FUNCTION_URL"]
