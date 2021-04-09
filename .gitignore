@@ -22,5 +22,6 @@ project.lock.json
 .vscode
 appsettings.json
 local.settings.json
+.idea
 
 node_modules
