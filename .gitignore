@@ -11,6 +11,8 @@ Publish
 *.Cache
 project.lock.json
 
+.idea/
+
 /packages
 /TestResults
 

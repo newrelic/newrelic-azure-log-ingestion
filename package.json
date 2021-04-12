@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "An Azure Resource Manager template to ingest Azure Monitoring logs, metrics and traces into New Relic.",
   "main": "dist/index.js",
+  "engines": {
+    "node": "~15.14",
+    "npm": "~7.7"
+  },
   "files": [
     "dist",
     "templates",
