@@ -1,5 +1,5 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
     "NewRelicInsertKey": {
@@ -8,27 +8,60 @@
       },
       "minLength": 1,
       "type": "String"
+    },
+    "appInsightsName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of Application Insights resource."
+      }
+    },
+    "workspacesName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of Workspaces resource."
+      }
+    },
+    "requestSource": {
+      "type": "string",
+      "metadata": {
+        "description": "Source of Azure Resource Manager deployment"
+      }
+    },
+    "diagnosticSettingsName": {
+      "metadata": {
+        "description": "Name of Diagnostic Setting resource"
+      },
+      "type": "String"
+    },
+    "logsEnabled": {
+      "metadata": {
+        "description": "Logs enablement flag"
+      },
+      "type": "Bool"
+    },
+    "metricsEnabled": {
+      "metadata": {
+        "description": "Metrics enablement flag"
+      },
+      "type": "Bool"
     }
   },
   "resources": [
     {
-      "apiVersion": "2017-04-01",
-      "dependsOn": [],
-      "location": "[resourceGroup().location]",
       "name": "[variables('namespaceName')]",
-      "properties": {
-        "isAutoInflateEnabled": true,
-        "maximumThroughputUnits": 20,
-        "provisioningState": "Succeeded"
-      },
-      "scale": null,
-      "sku": {
-        "capacity": 1,
-        "name": "Standard",
-        "tier": "Standard"
-      },
+      "type": "Microsoft.EventHub/namespaces",
+      "apiVersion": "2018-01-01-preview",
+      "location": "[resourceGroup().location]",
       "tags": {},
-      "type": "Microsoft.EventHub/namespaces"
+      "sku": {
+        "name": "Standard",
+        "tier": "Standard",
+        "capacity": 2
+      },
+      "properties": {
+        "maximumThroughputUnits": 20,
+        "isAutoInflateEnabled": true
+      }
     },
     {
       "apiVersion": "2019-04-01",
@@ -82,10 +115,118 @@
       "type": "Microsoft.Web/serverfarms"
     },
     {
+      "type": "microsoft.operationalinsights/workspaces",
+      "apiVersion": "2020-10-01",
+      "name": "[parameters('workspacesName')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "sku": {
+          "name": "pergb2018"
+        },
+        "retentionInDays": 30,
+        "features": {
+          "legacy": 0,
+          "searchVersion": 1,
+          "enableLogAccessUsingOnlyResourcePermissions": true
+        },
+        "workspaceCapping": {
+          "dailyQuotaGb": -1
+        },
+        "publicNetworkAccessForIngestion": "Enabled",
+        "publicNetworkAccessForQuery": "Enabled"
+      }
+    },
+    {
+      "name": "[parameters('appInsightsName')]",
+      "type": "microsoft.insights/components",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2020-02-02-preview",
+      "dependsOn": [
+        "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspacesName'))]"
+      ],
+      "properties": {
+        "WorkspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspacesName'))]",
+        "ApplicationId": "[parameters('appInsightsName')]",
+        "Application_Type": "web",
+        "Flow_Type": "Redfield",
+        "Request_Source": "[parameters('requestSource')]"
+      }
+    },
+    {
+      "type": "microsoft.insights/components/providers/diagnosticSettings",
+      "apiVersion": "2017-05-01-preview",
+      "name": "[concat(resourceGroup().name, '/', 'Microsoft.Insights/', parameters('diagnosticSettingsName'))]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('microsoft.insights/components', parameters('appInsightsName'))]",
+        "[concat('Microsoft.EventHub/namespaces/', variables('namespaceName'))]",
+        "[resourceId('Microsoft.EventHub/namespaces/authorizationRules', variables('namespaceName'), variables('authorizationRulesSharedAccessKeyName'))]"
+      ],
+      "properties": {
+        "eventHubAuthorizationRuleId": "[resourceId('Microsoft.EventHub/namespaces/authorizationRules', variables('namespaceName'), variables('authorizationRulesSharedAccessKeyName'))]",
+        "eventHubName": "[variables('eventHubName')]",
+        "metrics": [
+          {
+            "category": "AllMetrics",
+            "enabled": "[parameters('metricsEnabled')]"
+          }
+        ],
+        "logs": [
+          {
+            "category": "AppAvailabilityResults",
+            "enabled": "[parameters('logsEnabled')]"
+          },
+          {
+            "category": "AppBrowserTimings",
+            "enabled": "[parameters('logsEnabled')]"
+          },
+          {
+            "category": "AppEvents",
+            "enabled": "[parameters('logsEnabled')]"
+          },
+          {
+            "category": "AppMetrics",
+            "enabled": "[parameters('logsEnabled')]"
+          },
+          {
+            "category": "AppDependencies",
+            "enabled": "[parameters('logsEnabled')]"
+          },
+          {
+            "category": "AppExceptions",
+            "enabled": "[parameters('logsEnabled')]"
+          },
+          {
+            "category": "AppPageViews",
+            "enabled": "[parameters('logsEnabled')]"
+          },
+          {
+            "category": "AppPerformanceCounters",
+            "enabled": "[parameters('logsEnabled')]"
+          },
+          {
+            "category": "AppRequests",
+            "enabled": "[parameters('logsEnabled')]"
+          },
+          {
+            "category": "AppSystemEvents",
+            "enabled": "[parameters('logsEnabled')]"
+          },
+          {
+            "category": "AppTraces",
+            "enabled": "[parameters('logsEnabled')]"
+          }
+        ]
+      }
+    },
+    {
       "apiVersion": "2016-08-01",
+      "type": "Microsoft.Web/sites",
+      "scale": null,
       "dependsOn": [
         "[resourceId('Microsoft.Web/serverfarms', variables('servicePlanName'))]",
         "[resourceId('Microsoft.Storage/storageAccounts', variables('appStorageName'))]",
+        "[resourceId('microsoft.insights/components', parameters('appInsightsName'))]",
         "[concat('Microsoft.EventHub/namespaces/', variables('namespaceName'))]"
       ],
       "kind": "functionapp",
@@ -98,6 +239,18 @@
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('servicePlanName'))]",
         "siteConfig": {
           "appSettings": [
+            {
+              "name": "ApplicationInsightsAgent_EXTENSION_VERSION",
+              "value": "~2"
+            },
+            {
+              "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+              "value": "[reference(concat('microsoft.insights/components/',  parameters('appInsightsName')), '2015-05-01').InstrumentationKey]"
+            },
+            {
+              "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
+              "value": "[reference(concat('microsoft.insights/components/',  parameters('appInsightsName')), '2015-05-01').ConnectionString]"
+            },
             {
               "name": "FUNCTIONS_EXTENSION_VERSION",
               "value": "~1"
@@ -112,7 +265,7 @@
             },
             {
               "name": "Project",
-              "value": "dist/"
+              "value": "."
             },
             {
               "name": "AzureWebJobsStorage",
@@ -136,20 +289,18 @@
       "resources": [
         {
           "apiVersion": "2015-08-01",
-          "dependsOn": [
-            "[resourceId('Microsoft.Web/sites/', variables('functionAppName'))]"
-          ],
           "name": "web",
+          "type": "sourcecontrols",
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/sites', variables('functionAppName'))]"
+          ],
           "properties": {
             "IsManualIntegration": true,
             "RepoUrl": "[variables('gitRepoUrl')]",
             "branch": "[variables('gitBranch')]"
-          },
-          "type": "sourcecontrols"
+          }
         }
-      ],
-      "scale": null,
-      "type": "Microsoft.Web/sites"
+      ]
     },
     {
       "apiVersion": "2017-04-01",
@@ -188,24 +339,11 @@
       },
       "scale": null,
       "type": "Microsoft.EventHub/namespaces/eventhubs"
-    },
-    {
-      "apiVersion": "2017-04-01",
-      "dependsOn": [
-        "[resourceId('Microsoft.EventHub/namespaces', variables('namespaceName'))]",
-        "[resourceId('Microsoft.EventHub/namespaces/eventhubs', variables('namespaceName'), veriables('eventHubName'))]"
-      ],
-      "location": "[resourceGroup().location]",
-      "name": "[concat(variables('namespaceName'), '/', variables('eventHubName'), '/', variables('consumerGroupName'))]",
-      "properties": {},
-      "scale": null,
-      "type": "Microsoft.EventHub/namespaces/eventhubs/consumergroups"
     }
   ],
   "variables": {
     "appStorageName": "[concat('newrelic', uniqueString(resourceGroup().id))]",
     "authorizationRulesSharedAccessKeyName": "NewRelicLogsSharedAccessKey",
-    "consumerGroupName": "NewRelicLogsConsumerGroup",
     "eventHubName": "newrelic-log-ingestion",
     "functionAppName": "[concat('NewRelicLogsIngestion', uniqueString(resourceGroup().id))]",
     "gitBranch": "main",
