@@ -1,7 +1,7 @@
-import { Context } from "@azure/functions"
 import { telemetry } from "@newrelic/telemetry-sdk"
 
 import { SpanMessage } from "../messages"
+import { Processor } from "./base"
 
 const dbs = ["sql", "mariadb", "postgresql", "cosmos", "table", "storage"]
 
@@ -44,7 +44,7 @@ const formatAttributes = (message) => {
     return formattedAttributes
 }
 
-export default class SpanProcessor {
+export default class SpanProcessor implements Processor {
     client: telemetry.spans.SpanClient
     batch: telemetry.spans.SpanBatch
 
@@ -53,10 +53,16 @@ export default class SpanProcessor {
         this.startNewBatch()
     }
 
+    /**
+     * Starts a new span batch, setting common attributes
+     */
     private startNewBatch(): void {
         this.batch = new telemetry.spans.SpanBatch({ "cloudProvider.source": "azure" })
     }
 
+    /**
+     * Processes a span message and adds span to current batch
+     */
     processMessage(message: SpanMessage): void {
         // Deleting attributes we do not want to send to New Relic
         // TODO: Make this a part of a processor attribute filter method
@@ -82,11 +88,21 @@ export default class SpanProcessor {
         this.batch.addSpan(span)
     }
 
-    // TODO: Make this return a promise
-    sendBatch(context: Context): void {
-        this.client.send(this.batch, (err) => {
-            if (err) context.log(`Error occurred while sending telemetry to New Relic: ${err}`)
+    /**
+     * Sends span telemetry batches to New Relic
+     *
+     * Currently this doesn't create a new batch on failure, allowing for
+     * reattempts. This will result in a memory leak for subsequent failures.
+     * Should set a max attempt count and start new batch when reached.
+     */
+    sendBatch(): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            this.client.send(this.batch, (err) => {
+                if (err) reject(err)
+            })
+
+            this.startNewBatch()
+            resolve()
         })
-        this.startNewBatch()
     }
 }
