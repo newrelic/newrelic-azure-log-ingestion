@@ -19,3 +19,7 @@ export interface SpanMessage {
 
 // Union type for message interfaces
 export type Message = SpanMessage
+
+export interface Records {
+    records: Message[]
+}

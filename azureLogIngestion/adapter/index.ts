@@ -1,6 +1,6 @@
 import { Context } from "@azure/functions"
 
-import { Message, MessageType } from "./messages"
+import { Message, MessageType, Records } from "./messages"
 import { SpanProcessor } from "./processors"
 
 export default class Adapter {
@@ -29,9 +29,9 @@ export default class Adapter {
      * type of telemetry. In this case, the switch/case may not make sense.
      */
     processMessages(messages: string): void {
-        const records = JSON.parse(messages)
+        const records: Records = JSON.parse(messages)
 
-        records.records.forEach((message) => {
+        records.records.forEach((message: Message) => {
             switch (this.determineMessageType(message)) {
                 case MessageType.Span:
                     return this.spanProcessor.processMessage(message)

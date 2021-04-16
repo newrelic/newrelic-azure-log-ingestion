@@ -1,10 +1,14 @@
 {
   "compilerOptions": {
+
     "module": "commonjs",
     "target": "es2020",
     "outDir": "dist",
     "rootDir": ".",
     "sourceMap": true,
-    "strict": false
-  }
+    "strict": false,
+  },
+  "exclude": [
+    "**/*.test.ts"
+  ]
 }
