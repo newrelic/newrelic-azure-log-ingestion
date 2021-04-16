@@ -9,30 +9,6 @@
       "minLength": 1,
       "type": "String"
     },
-    "appInsightsName": {
-      "type": "string",
-      "metadata": {
-        "description": "Name of Application Insights resource."
-      }
-    },
-    "workspacesName": {
-      "type": "string",
-      "metadata": {
-        "description": "Name of Workspaces resource."
-      }
-    },
-    "requestSource": {
-      "type": "string",
-      "metadata": {
-        "description": "Source of Azure Resource Manager deployment"
-      }
-    },
-    "diagnosticSettingsName": {
-      "metadata": {
-        "description": "Name of Diagnostic Setting resource"
-      },
-      "type": "String"
-    },
     "logsEnabled": {
       "metadata": {
         "description": "Logs enablement flag"
@@ -68,7 +44,7 @@
       "dependsOn": [],
       "kind": "Storage",
       "location": "[resourceGroup().location]",
-      "name": "[variables('appStorageName')]",
+      "name": "[variables('newrelicResource')]",
       "properties": {
         "encryption": {
           "keySource": "Microsoft.Storage",
@@ -117,7 +93,7 @@
     {
       "type": "microsoft.operationalinsights/workspaces",
       "apiVersion": "2020-10-01",
-      "name": "[parameters('workspacesName')]",
+      "name": "[variables('newrelicResource')]",
       "location": "[resourceGroup().location]",
       "properties": {
         "sku": {
@@ -137,28 +113,26 @@
       }
     },
     {
-      "name": "[parameters('appInsightsName')]",
+      "name": "[variables('newrelicResource')]",
       "type": "microsoft.insights/components",
       "location": "[resourceGroup().location]",
       "apiVersion": "2020-02-02-preview",
       "dependsOn": [
-        "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspacesName'))]"
+        "[resourceId('Microsoft.OperationalInsights/workspaces', variables('newrelicResource'))]"
       ],
       "properties": {
-        "WorkspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspacesName'))]",
-        "ApplicationId": "[parameters('appInsightsName')]",
-        "Application_Type": "web",
-        "Flow_Type": "Redfield",
-        "Request_Source": "[parameters('requestSource')]"
+        "WorkspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('newrelicResource'))]",
+        "ApplicationId": "[variables('newrelicResource')]",
+        "Application_Type": "web"
       }
     },
     {
       "type": "microsoft.insights/components/providers/diagnosticSettings",
       "apiVersion": "2017-05-01-preview",
-      "name": "[concat(resourceGroup().name, '/', 'Microsoft.Insights/', parameters('diagnosticSettingsName'))]",
+      "name": "[concat(variables('newrelicResource'), '/Microsoft.Insights/diagnosticSettings')]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[resourceId('microsoft.insights/components', parameters('appInsightsName'))]",
+        "[resourceId('microsoft.insights/components', variables('newrelicResource'))]",
         "[concat('Microsoft.EventHub/namespaces/', variables('namespaceName'))]",
         "[resourceId('Microsoft.EventHub/namespaces/authorizationRules', variables('namespaceName'), variables('authorizationRulesSharedAccessKeyName'))]"
       ],
@@ -225,8 +199,8 @@
       "scale": null,
       "dependsOn": [
         "[resourceId('Microsoft.Web/serverfarms', variables('servicePlanName'))]",
-        "[resourceId('Microsoft.Storage/storageAccounts', variables('appStorageName'))]",
-        "[resourceId('microsoft.insights/components', parameters('appInsightsName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('newrelicResource'))]",
+        "[resourceId('microsoft.insights/components', variables('newrelicResource'))]",
         "[concat('Microsoft.EventHub/namespaces/', variables('namespaceName'))]"
       ],
       "kind": "functionapp",
@@ -245,11 +219,11 @@
             },
             {
               "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-              "value": "[reference(concat('microsoft.insights/components/',  parameters('appInsightsName')), '2015-05-01').InstrumentationKey]"
+              "value": "[reference(concat('microsoft.insights/components/',  variables('newrelicResource')), '2015-05-01').InstrumentationKey]"
             },
             {
               "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
-              "value": "[reference(concat('microsoft.insights/components/',  parameters('appInsightsName')), '2015-05-01').ConnectionString]"
+              "value": "[reference(concat('microsoft.insights/components/',  variables('newrelicResource')), '2015-05-01').ConnectionString]"
             },
             {
               "name": "FUNCTIONS_EXTENSION_VERSION",
@@ -269,11 +243,11 @@
             },
             {
               "name": "AzureWebJobsStorage",
-              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('appStorageName'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('appStorageName')),'2015-05-01-preview').key1)]"
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('newrelicResource'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('newrelicResource')),'2015-05-01-preview').key1)]"
             },
             {
               "name": "AzureWebJobsDashboard",
-              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('appStorageName'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('appStorageName')),'2015-05-01-preview').key1)]"
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('newrelicResource'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('newrelicResource')),'2015-05-01-preview').key1)]"
             },
             {
               "name": "AzureEventHubLogsConnectionString",
@@ -288,9 +262,9 @@
       },
       "resources": [
         {
+          "type": "sourcecontrols",
           "apiVersion": "2015-08-01",
           "name": "web",
-          "type": "sourcecontrols",
           "dependsOn": [
             "[resourceId('Microsoft.Web/sites', variables('functionAppName'))]"
           ],
@@ -342,7 +316,7 @@
     }
   ],
   "variables": {
-    "appStorageName": "[concat('newrelic', uniqueString(resourceGroup().id))]",
+    "newrelicResource": "[concat('newrelic', uniqueString(resourceGroup().id))]",
     "authorizationRulesSharedAccessKeyName": "NewRelicLogsSharedAccessKey",
     "eventHubName": "newrelic-log-ingestion",
     "functionAppName": "[concat('NewRelicLogsIngestion', uniqueString(resourceGroup().id))]",
