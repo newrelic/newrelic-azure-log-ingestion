@@ -24,7 +24,7 @@
     "start": "npm-run-all --parallel start:host watch",
     "start:host": "func start",
     "test": "jest",
-    "watch": "tsc --w"
+    "watch": "tsc -w"
   },
   "husky": {
     "hooks": {

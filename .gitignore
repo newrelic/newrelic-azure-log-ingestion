@@ -20,10 +20,12 @@ project.lock.json
 /App_Data
 /secrets
 /data
+
 .secrets
 .vscode
 appsettings.json
 local.settings.json
 .idea
 
+dist
 node_modules
