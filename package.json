@@ -20,7 +20,7 @@
     "cp:function": "cpx azureLogIngestion/function.json dist/azureLogIngestion",
     "lint": "eslint '*/**/*.{ts,tsx}'",
     "lint:fix": "eslint '*/**/*.{ts,tsx}' --fix",
-    "prestart": "npm run build && func extensions install",
+    "prestart": "npm i && npm run build && func extensions install",
     "start": "npm-run-all --parallel start:host watch",
     "start:host": "func start",
     "test": "jest",

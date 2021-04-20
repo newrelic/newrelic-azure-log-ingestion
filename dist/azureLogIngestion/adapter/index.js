@@ -32,7 +32,7 @@ class Adapter {
                 case messages_1.MessageType.Span:
                     return this.spanProcessor.processMessage(message);
             }
-        });
+        }, this)
     }
     /**
      * Sends processed batches to New Relic
