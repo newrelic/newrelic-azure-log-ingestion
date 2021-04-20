@@ -46,19 +46,6 @@
       "kind": "StorageV2",
       "location": "[resourceGroup().location]",
       "name": "[variables('newrelicResource')]",
-      // "properties": {
-      //   "encryption": {
-      //     "keySource": "Microsoft.Storage",
-      //     "services": {
-      //       "blob": {
-      //         "enabled": true
-      //       },
-      //       "file": {
-      //         "enabled": true
-      //       }
-      //     }
-      //   }
-      // },
       "sku": {
         "name": "Standard_LRS",
         "tier": "Standard"
@@ -67,16 +54,11 @@
     {
       "type": "Microsoft.Web/serverfarms",
       "apiVersion": "2020-06-01",
-      //"dependsOn": [],
       "kind": "functionapp",
       "location": "[resourceGroup().location]",
       "name": "[variables('servicePlanName')]",
       "properties": {
-        // "adminSiteName": null,
-        // "hostingEnvironmentProfile": null,
         "name": "[variables('servicePlanName')]",
-        // "perSiteScaling": false,
-        // "reserved": false,
         "targetWorkerCount": 1,
         "targetWorkerSizeId": 1,
         "workerSize": "1",
@@ -87,13 +69,6 @@
         "name": "Y1",
         "tier": "Dynamic"
       }
-      // "sku": {
-      //   "capacity": 1,
-      //   "family": "Y",
-      //   "name": "Y1",
-      //   "size": "Y1",
-      //   "tier": "Dynamic"
-      // }
     },
     {
       "type": "microsoft.operationalinsights/workspaces",
@@ -257,22 +232,6 @@
               "name": "SCM_REPOSITORY_PATH",
               "value": "wwwroot"
             },
-            // {
-            //   "name": "FUNCTION_APP_EDIT_MODE",
-            //   "value": "readwrite"
-            // },
-            // {
-            //   "name": "Project",
-            //   "value": "dist"
-            // },
-            // {
-            //   "name": "WEBSITE_CONTENTSHARE",
-            //   "value": "[toLower(variables('functionAppName'))]"
-            // },
-            // {
-            //   "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
-            //   "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('newrelicResource'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('newrelicResource')),'2019-06-01').keys[0].value)]"
-            // },
             {
               "name": "AzureWebJobsStorage",
               "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('newrelicResource'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('newrelicResource')),'2019-06-01').keys[0].value)]"
