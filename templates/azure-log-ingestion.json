@@ -40,56 +40,60 @@
       }
     },
     {
-      "apiVersion": "2019-04-01",
+      "apiVersion": "2019-06-01",
+      "type": "Microsoft.Storage/storageAccounts",
       "dependsOn": [],
-      "kind": "Storage",
+      "kind": "StorageV2",
       "location": "[resourceGroup().location]",
       "name": "[variables('newrelicResource')]",
-      "properties": {
-        "encryption": {
-          "keySource": "Microsoft.Storage",
-          "services": {
-            "blob": {
-              "enabled": true
-            },
-            "file": {
-              "enabled": true
-            }
-          }
-        }
-      },
+      // "properties": {
+      //   "encryption": {
+      //     "keySource": "Microsoft.Storage",
+      //     "services": {
+      //       "blob": {
+      //         "enabled": true
+      //       },
+      //       "file": {
+      //         "enabled": true
+      //       }
+      //     }
+      //   }
+      // },
       "sku": {
         "name": "Standard_LRS",
         "tier": "Standard"
-      },
-      "type": "Microsoft.Storage/storageAccounts"
+      }
     },
     {
       "type": "Microsoft.Web/serverfarms",
-      "apiVersion": "2016-09-01",
-      "dependsOn": [],
+      "apiVersion": "2020-06-01",
+      //"dependsOn": [],
       "kind": "functionapp",
       "location": "[resourceGroup().location]",
       "name": "[variables('servicePlanName')]",
       "properties": {
-        "adminSiteName": null,
-        "hostingEnvironmentProfile": null,
+        // "adminSiteName": null,
+        // "hostingEnvironmentProfile": null,
         "name": "[variables('servicePlanName')]",
-        "perSiteScaling": false,
-        "reserved": false,
+        // "perSiteScaling": false,
+        // "reserved": false,
         "targetWorkerCount": 1,
         "targetWorkerSizeId": 1,
         "workerSize": "1",
-        "numberOfWorkers": 1
+        "numberOfWorkers": 1,
+        "computeMode": "Dynamic"
       },
-      "scale": null,
-      "sku": {
-        "capacity": 1,
-        "family": "Y",
+       "sku": {
         "name": "Y1",
-        "size": "Y1",
         "tier": "Dynamic"
       }
+      // "sku": {
+      //   "capacity": 1,
+      //   "family": "Y",
+      //   "name": "Y1",
+      //   "size": "Y1",
+      //   "tier": "Dynamic"
+      // }
     },
     {
       "type": "microsoft.operationalinsights/workspaces",
@@ -241,14 +245,26 @@
               "name": "WEBSITE_RUN_FROM_PACKAGE",
               "value": "0"
             },
+            {
+              "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('newrelicResource'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('newrelicResource')),'2019-06-01').keys[0].value)]"
+            },
+            {
+              "name": "WEBSITE_CONTENTSHARE",
+              "value": "[toLower(variables('functionAppName'))]"
+            },
+            {
+              "name": "SCM_REPOSITORY_PATH",
+              "value": "wwwroot"
+            },
             // {
             //   "name": "FUNCTION_APP_EDIT_MODE",
             //   "value": "readwrite"
             // },
-            // {
-            //   "name": "Project",
-            //   "value": "."
-            // },
+            {
+              "name": "Project",
+              "value": "dist"
+            },
             // {
             //   "name": "WEBSITE_CONTENTSHARE",
             //   "value": "[toLower(variables('functionAppName'))]"
