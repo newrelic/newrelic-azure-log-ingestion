@@ -261,10 +261,10 @@
             //   "name": "FUNCTION_APP_EDIT_MODE",
             //   "value": "readwrite"
             // },
-            {
-              "name": "Project",
-              "value": "dist"
-            },
+            // {
+            //   "name": "Project",
+            //   "value": "dist"
+            // },
             // {
             //   "name": "WEBSITE_CONTENTSHARE",
             //   "value": "[toLower(variables('functionAppName'))]"
@@ -282,7 +282,7 @@
               "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('newrelicResource'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('newrelicResource')),'2019-06-01').keys[0].value)]"
             },
             {
-              "name": "AzureEventHubLogsConnectionString",
+              "name": "AzureEventHubConnectionString",
               "value": "[listkeys(resourceId('Microsoft.EventHub/namespaces/authorizationRules', variables('namespaceName'), variables('authorizationRulesSharedAccessKeyName')), '2017-04-01').primaryConnectionString]"
             },
             {

@@ -28,10 +28,12 @@ export default class Adapter {
      * There may be situations where a message corresponds to more than one
      * type of telemetry. In this case, the switch/case may not make sense.
      */
-    processMessages(messages: string): void {
-        const records: Records = JSON.parse(messages)
+    processMessages(messages: any[], context: Context): void {
+        //const records: Records = JSON.parse(messages)
 
-        records.records.forEach((message: Message) => {
+        context.log(messages)
+        messages.forEach((message: Message) => {
+            context.log("each message: " + message)
             switch (this.determineMessageType(message)) {
                 case MessageType.Span:
                     return this.spanProcessor.processMessage(message)
