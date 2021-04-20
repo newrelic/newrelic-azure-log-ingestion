@@ -38,7 +38,7 @@ export default class Adapter {
                 case MessageType.Span:
                     return this.spanProcessor.processMessage(message)
             }
-        })
+        }, this)
     }
 
     /**
