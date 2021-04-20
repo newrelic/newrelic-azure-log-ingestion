@@ -26,4 +26,5 @@ appsettings.json
 local.settings.json
 .idea
 
+dist
 node_modules
