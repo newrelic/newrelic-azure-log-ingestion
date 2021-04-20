@@ -239,20 +239,24 @@
             },
             {
               "name": "WEBSITE_RUN_FROM_PACKAGE",
-              "value": "1"
+              "value": "0"
             },
-            {
-              "name": "FUNCTION_APP_EDIT_MODE",
-              "value": "readwrite"
-            },
-            {
-              "name": "Project",
-              "value": "."
-            },
-            {
-              "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
-              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('newrelicResource'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('newrelicResource')),'2019-06-01').keys[0].value)]"
-            },
+            // {
+            //   "name": "FUNCTION_APP_EDIT_MODE",
+            //   "value": "readwrite"
+            // },
+            // {
+            //   "name": "Project",
+            //   "value": "."
+            // },
+            // {
+            //   "name": "WEBSITE_CONTENTSHARE",
+            //   "value": "[toLower(variables('functionAppName'))]"
+            // },
+            // {
+            //   "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
+            //   "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('newrelicResource'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('newrelicResource')),'2019-06-01').keys[0].value)]"
+            // },
             {
               "name": "AzureWebJobsStorage",
               "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('newrelicResource'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('newrelicResource')),'2019-06-01').keys[0].value)]"
@@ -282,7 +286,7 @@
           ],
           "properties": {
             "IsManualIntegration": true,
-            "RepoUrl": "[variables('gitRepoUrl')]",
+            "repoUrl": "[variables('gitRepoUrl')]",
             "branch": "[variables('gitBranch')]"
           }
         }
