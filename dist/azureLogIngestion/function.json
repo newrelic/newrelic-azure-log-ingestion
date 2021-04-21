@@ -10,5 +10,6 @@
       "type": "eventHubTrigger",
       "dataType": "string"
     }
-  ]
+  ],
+  "entryPoint": "default"
 }
