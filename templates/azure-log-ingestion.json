@@ -242,8 +242,8 @@
               "value": "[toLower(variables('functionAppName'))]"
             },
             {
-              "name": "Package",
-              "value": "dist"
+              "name": "Project",
+              "value": "dist/"
             },
             {
               "name": "AzureWebJobsStorage",
