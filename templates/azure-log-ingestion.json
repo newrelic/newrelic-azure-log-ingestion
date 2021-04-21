@@ -242,10 +242,6 @@
               "value": "[toLower(variables('functionAppName'))]"
             },
             {
-              "name": "SCM_REPOSITORY_PATH",
-              "value": "wwwroot"
-            },
-            {
               "name": "AzureWebJobsStorage",
               "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('newrelicResource'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('newrelicResource')),'2019-06-01').keys[0].value)]"
             },
@@ -258,7 +254,7 @@
               "value": "[listkeys(resourceId('Microsoft.EventHub/namespaces/authorizationRules', variables('namespaceName'), variables('authorizationRulesSharedAccessKeyName')), '2017-04-01').primaryConnectionString]"
             },
             {
-              "name": "NewRelicInsertKey",
+              "name": "NEW_RELIC_INSERT_KEY",
               "value": "[parameters('NewRelicInsertKey')]"
             }
           ]
