@@ -1,7 +1,8 @@
 {
   "version": "2.0",
-  "functions": [],
-  "logging": {
+  "functions": ["azureLogIngestion"],
+    "functionTimeout": "00:02:00",
+    "logging": {
     "logLevel": {
       "default": "Trace",
       "Host.Results": "Trace",

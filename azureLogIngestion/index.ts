@@ -1,5 +1,4 @@
 import { AzureFunction, Context } from "@azure/functions"
-import { SpanClient, SpanBatch, Span } from "@newrelic/telemetry-sdk/dist/src/telemetry/spans"
 
 import Adapter from "./adapter"
 

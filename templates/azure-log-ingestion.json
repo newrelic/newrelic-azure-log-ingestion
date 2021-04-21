@@ -10,16 +10,25 @@
       "type": "String"
     },
     "logsEnabled": {
-      "metadata": {
-        "description": "Logs enablement flag"
+      "defaultValue": true,
+	  "metadata": {
+        "description": "Export App Insights logs"
       },
       "type": "Bool"
     },
     "metricsEnabled": {
+      "defaultValue": true,
       "metadata": {
-        "description": "Metrics enablement flag"
+        "description": "Export App Insights metrics"
       },
       "type": "Bool"
+    },
+    "gitBranch": {
+      "defaultValue": "main",
+      "metadata": {
+        "description": "Git branch to deploy from"
+      },
+      "type": "String"
     }
   },
   "resources": [
@@ -40,55 +49,35 @@
       }
     },
     {
-      "apiVersion": "2019-04-01",
+      "apiVersion": "2019-06-01",
+      "type": "Microsoft.Storage/storageAccounts",
       "dependsOn": [],
-      "kind": "Storage",
+      "kind": "StorageV2",
       "location": "[resourceGroup().location]",
       "name": "[variables('newrelicResource')]",
-      "properties": {
-        "encryption": {
-          "keySource": "Microsoft.Storage",
-          "services": {
-            "blob": {
-              "enabled": true
-            },
-            "file": {
-              "enabled": true
-            }
-          }
-        }
-      },
       "sku": {
         "name": "Standard_LRS",
         "tier": "Standard"
-      },
-      "type": "Microsoft.Storage/storageAccounts"
+      }
     },
     {
-      "apiVersion": "2016-09-01",
-      "dependsOn": [],
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2020-06-01",
       "kind": "functionapp",
       "location": "[resourceGroup().location]",
       "name": "[variables('servicePlanName')]",
       "properties": {
-        "adminSiteName": null,
-        "hostingEnvironmentProfile": null,
         "name": "[variables('servicePlanName')]",
-        "perSiteScaling": false,
-        "reserved": false,
-        "targetWorkerCount": 0,
-        "targetWorkerSizeId": 0,
-        "workerTierName": null
+        "targetWorkerCount": 1,
+        "targetWorkerSizeId": 1,
+        "workerSize": "1",
+        "numberOfWorkers": 1,
+        "computeMode": "Dynamic"
       },
-      "scale": null,
-      "sku": {
-        "capacity": 0,
-        "family": "Y",
+       "sku": {
         "name": "Y1",
-        "size": "Y1",
         "tier": "Dynamic"
-      },
-      "type": "Microsoft.Web/serverfarms"
+      }
     },
     {
       "type": "microsoft.operationalinsights/workspaces",
@@ -208,7 +197,6 @@
       "name": "[variables('functionAppName')]",
       "properties": {
         "enabled": true,
-        "httpsOnly": true,
         "reserved": false,
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('servicePlanName'))]",
         "siteConfig": {
@@ -227,27 +215,43 @@
             },
             {
               "name": "FUNCTIONS_EXTENSION_VERSION",
-              "value": "~1"
+              "value": "~3"
+            },
+            {
+              "name": "WEBSITE_NODE_DEFAULT_VERSION",
+              "value": "~14"
             },
             {
               "name": "FUNCTIONS_WORKER_RUNTIME",
               "value": "node"
             },
+			{
+			  "name": "FUNCTION_APP_EDIT_MODE",
+			  "value": "readwrite"
+			},
             {
-              "name": "FUNCTION_APP_EDIT_MODE",
-              "value": "readwrite"
+              "name": "WEBSITE_RUN_FROM_PACKAGE",
+              "value": "0"
             },
             {
-              "name": "Project",
-              "value": "."
+              "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('newrelicResource'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('newrelicResource')),'2019-06-01').keys[0].value)]"
+            },
+            {
+              "name": "WEBSITE_CONTENTSHARE",
+              "value": "[toLower(variables('functionAppName'))]"
+            },
+            {
+              "name": "SCM_REPOSITORY_PATH",
+              "value": "wwwroot"
             },
             {
               "name": "AzureWebJobsStorage",
-              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('newrelicResource'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('newrelicResource')),'2015-05-01-preview').key1)]"
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('newrelicResource'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('newrelicResource')),'2019-06-01').keys[0].value)]"
             },
             {
               "name": "AzureWebJobsDashboard",
-              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('newrelicResource'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('newrelicResource')),'2015-05-01-preview').key1)]"
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('newrelicResource'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('newrelicResource')),'2019-06-01').keys[0].value)]"
             },
             {
               "name": "AzureEventHubLogsConnectionString",
@@ -266,12 +270,12 @@
           "apiVersion": "2015-08-01",
           "name": "web",
           "dependsOn": [
-            "[resourceId('Microsoft.Web/sites', variables('functionAppName'))]"
+            "[resourceId('Microsoft.Web/sites/', variables('functionAppName'))]"
           ],
           "properties": {
             "IsManualIntegration": true,
-            "RepoUrl": "[variables('gitRepoUrl')]",
-            "branch": "[variables('gitBranch')]"
+            "repoUrl": "[variables('gitRepoUrl')]",
+            "branch": "[parameters('gitBranch')]"
           }
         }
       ]
@@ -320,7 +324,6 @@
     "authorizationRulesSharedAccessKeyName": "NewRelicLogsSharedAccessKey",
     "eventHubName": "newrelic-log-ingestion",
     "functionAppName": "[concat('NewRelicLogsIngestion', uniqueString(resourceGroup().id))]",
-    "gitBranch": "main",
     "gitRepoURL": "https://github.com/newrelic/newrelic-azure-log-ingestion.git",
     "namespaceName": "[concat('NewRelicLogs', uniqueString(resourceGroup().id))]",
     "servicePlanName": "[concat('newRelicLogsServicePlan', uniqueString(resourceGroup().id))]"
