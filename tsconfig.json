@@ -9,6 +9,7 @@
     "strict": false,
   },
   "exclude": [
+    "dist/**/*.ts",
     "**/*.test.ts"
   ]
 }
