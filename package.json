@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "description": "An Azure Resource Manager template to ingest Azure Monitoring logs, metrics and traces into New Relic.",
   "scripts": {
-    "build": "webpack && npm run cp:function",
+    "build": "npm run cp:packagefix && webpack && npm run cp:function",
     "build:production": "npm run prestart && npm prune --production",
     "cp:function": "cpx azureLogIngestion/function.json dist/azureLogIngestion/",
+	"cp:packagefix": "cpx node_modules/@newrelic/telemetry-sdk/package.json node_modules/@newrelic/telemetry-sdk/dist/",
     "lint": "eslint '*/**/*.{ts,tsx}'",
     "lint:fix": "eslint '*/**/*.{ts,tsx}' --fix",
     "prestart": "npm run build && func extensions install",
