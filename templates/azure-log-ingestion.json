@@ -225,6 +225,10 @@
               "name": "FUNCTIONS_WORKER_RUNTIME",
               "value": "node"
             },
+			{
+			  "name": "FUNCTION_APP_EDIT_MODE",
+			  "value": "readwrite"
+			},
             {
               "name": "WEBSITE_RUN_FROM_PACKAGE",
               "value": "0"
