@@ -11,5 +11,6 @@
       "dataType": "string"
     }
   ],
+  "disabled": false,
   "entryPoint": "default"
 }
