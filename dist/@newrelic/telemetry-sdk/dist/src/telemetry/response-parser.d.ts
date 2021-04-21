@@ -1,17 +1,17 @@
 /// <reference types="node" />
-import { IncomingMessage } from 'http';
+import { IncomingMessage } from "http"
 export declare enum RecommendedAction {
     Success = 0,
     Discard = 1,
     Retry = 2,
     SplitRetry = 3,
     RetryAfter = 4,
-    Backoff = 5
+    Backoff = 5,
 }
 interface ParsedResponse {
-    recommendedAction: RecommendedAction;
-    retryAfterMs?: number;
-    error?: Error;
+    recommendedAction: RecommendedAction
+    retryAfterMs?: number
+    error?: Error
 }
 /**
  * Returns the recommended action to take based on the response
@@ -19,5 +19,5 @@ interface ParsedResponse {
  * @param err
  * @param res
  */
-export declare function parseResponse(err: Error, res: IncomingMessage): ParsedResponse;
-export {};
+export declare function parseResponse(err: Error, res: IncomingMessage): ParsedResponse
+export {}

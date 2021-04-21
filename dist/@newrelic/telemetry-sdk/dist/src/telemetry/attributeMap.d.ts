@@ -1,3 +1,3 @@
 export interface AttributeMap {
-    [attribute: string]: string | number | boolean;
+    [attribute: string]: string | number | boolean
 }

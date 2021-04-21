@@ -5,7 +5,7 @@
   "scripts": {
     "build": "tsc && npm run cp:function",
     "build:production": "npm run prestart && npm prune --production",
-	"cp:function": "cpx azureLogIngestion/function.json dist/azureLogIngestion/",
+    "cp:function": "cpx azureLogIngestion/function.json dist/azureLogIngestion/",
     "lint": "eslint '*/**/*.{ts,tsx}'",
     "lint:fix": "eslint '*/**/*.{ts,tsx}' --fix",
     "prestart": "npm run build && func extensions install",
