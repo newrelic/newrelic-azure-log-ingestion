@@ -9,7 +9,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@newrelic/telemetry-sdk": "^0.4.0",
-    "farmhash": "^3.2.1"
+    "@newrelic/telemetry-sdk": "file:@newrelic/telemetry-sdk"
   }
 }
