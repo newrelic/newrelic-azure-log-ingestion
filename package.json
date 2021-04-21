@@ -3,10 +3,6 @@
   "version": "1.0.0",
   "description": "An Azure Resource Manager template to ingest Azure Monitoring logs, metrics and traces into New Relic.",
   "main": "dist/index.js",
-  "engines": {
-    "node": "~15.14",
-    "npm": "~7.7"
-  },
   "files": [
     "dist",
     "templates",
@@ -20,7 +16,7 @@
     "cp:function": "cpx azureLogIngestion/function.json dist/azureLogIngestion",
     "lint": "eslint '*/**/*.{ts,tsx}'",
     "lint:fix": "eslint '*/**/*.{ts,tsx}' --fix",
-    "prestart": "npm i && npm run build && func extensions install",
+    "prestart": "npm run build && func extensions install",
     "start": "npm-run-all --parallel start:host watch",
     "start:host": "func start",
     "test": "jest",
