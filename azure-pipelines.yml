@@ -4,7 +4,7 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
 
 trigger:
-- main
+- adding-azure-pipelines
 
 pool:
   vmImage: ubuntu-latest
