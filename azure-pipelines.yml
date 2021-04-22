@@ -1,0 +1,23 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- task: AzureResourceManagerTemplateDeployment@3
+  inputs:
+    deploymentScope: 'Resource Group'
+    azureResourceManagerConnection: 'logIngestionDeploymentPipeline'
+    subscriptionId: '3f08dfdf-8dff-4d1f-a974-b6216a075b4e'
+    action: 'Create Or Update Resource Group'
+    resourceGroupName: 'adding-azure-pipelines-resources'
+    location: 'West US'
+    templateLocation: 'Linked artifact'
+    csmFile: 'https://raw.githubusercontent.com/newrelic/newrelic-azure-log-ingestion/adding-azure-pipelines/templates/azure-log-ingestion.json'
+    deploymentMode: 'Incremental'
