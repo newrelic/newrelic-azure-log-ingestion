@@ -7,28 +7,28 @@
         "description": "Your New Relic Insert Key"
       },
       "minLength": 1,
-      "type": "String"
+      "type": "string"
     },
     "logsEnabled": {
       "defaultValue": true,
 	  "metadata": {
         "description": "Export App Insights logs"
       },
-      "type": "Bool"
+      "type": "bool"
     },
     "metricsEnabled": {
       "defaultValue": true,
       "metadata": {
         "description": "Export App Insights metrics"
       },
-      "type": "Bool"
+      "type": "bool"
     },
     "gitBranch": {
       "defaultValue": "main",
       "metadata": {
         "description": "Git branch to deploy from"
       },
-      "type": "String"
+      "type": "string"
     }
   },
   "resources": [
@@ -103,7 +103,7 @@
     },
     {
       "name": "[variables('newrelicResource')]",
-      "type": "microsoft.insights/components",
+      "type": "Microsoft.Insights/components",
       "location": "[resourceGroup().location]",
       "apiVersion": "2020-02-02-preview",
       "dependsOn": [
@@ -183,9 +183,8 @@
       }
     },
     {
-      "apiVersion": "2016-08-01",
+      "apiVersion": "2020-09-01",
       "type": "Microsoft.Web/sites",
-      "scale": null,
       "dependsOn": [
         "[resourceId('Microsoft.Web/serverfarms', variables('servicePlanName'))]",
         "[resourceId('Microsoft.Storage/storageAccounts', variables('newrelicResource'))]",
@@ -197,7 +196,6 @@
       "name": "[variables('functionAppName')]",
       "properties": {
         "enabled": true,
-        "reserved": false,
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('servicePlanName'))]",
         "siteConfig": {
           "appSettings": [
@@ -230,16 +228,16 @@
 			  "value": "readwrite"
 			},
             {
-              "name": "WEBSITE_RUN_FROM_PACKAGE",
-              "value": "0"
-            },
-            {
               "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
               "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('newrelicResource'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('newrelicResource')),'2019-06-01').keys[0].value)]"
             },
             {
               "name": "WEBSITE_CONTENTSHARE",
               "value": "[toLower(variables('functionAppName'))]"
+            },
+            {
+              "name": "Project",
+              "value": "dist/"
             },
             {
               "name": "AzureWebJobsStorage",
@@ -263,11 +261,8 @@
       "resources": [
         {
           "type": "sourcecontrols",
-          "apiVersion": "2015-08-01",
+          "apiVersion": "2020-09-01",
           "name": "web",
-          "dependsOn": [
-            "[resourceId('Microsoft.Web/sites/', variables('functionAppName'))]"
-          ],
           "properties": {
             "IsManualIntegration": true,
             "repoUrl": "[variables('gitRepoUrl')]",
@@ -322,6 +317,7 @@
     "functionAppName": "[concat('NewRelicLogsIngestion', uniqueString(resourceGroup().id))]",
     "gitRepoURL": "https://github.com/newrelic/newrelic-azure-log-ingestion.git",
     "namespaceName": "[concat('NewRelicLogs', uniqueString(resourceGroup().id))]",
-    "servicePlanName": "[concat('newRelicLogsServicePlan', uniqueString(resourceGroup().id))]"
+    "servicePlanName": "[concat('newRelicLogsServicePlan', uniqueString(resourceGroup().id))]",
+    "sourceControlName": "[concat('newRelicLogsSourceControl', uniqueString(resourceGroup().id))]"
   }
 }
