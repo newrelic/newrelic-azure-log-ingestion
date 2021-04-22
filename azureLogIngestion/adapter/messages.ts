@@ -8,6 +8,7 @@ export enum MessageType {
 export interface SpanMessage {
     Id: string
     ParentId: string
+    Type: string
     OperationId: string
     time: number
     Name: string

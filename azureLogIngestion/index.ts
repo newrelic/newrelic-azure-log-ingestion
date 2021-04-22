@@ -9,7 +9,7 @@ const adapter = new Adapter(apiKey)
 const eventHubTrigger: AzureFunction = async function (context: Context, eventHubMessages: any): Promise<void> {
     context.log(`Eventhub trigger function called for message array ${eventHubMessages}`)
     const messages = JSON.parse(eventHubMessages)
-    messages.records.forEach(adapter.processMessage)
+    adapter.processMessages(messages, context)
     adapter.sendBatches(context)
 }
 

@@ -18,8 +18,15 @@ export default class Adapter {
      * will need to be determined by checking for distinct properties/values for
      * that type.
      */
-    private determineMessageType(message: Message): MessageType {
-        return MessageType.Span
+    private determineMessageTypeProcessor(message: Message, context: Context): void {
+        switch (message.Type) {
+            case "AppRequests":
+                return this.spanProcessor.processMessage(message, context)
+            case "AppDependencies":
+                return this.spanProcessor.processMessage(message, context)
+            default:
+                return this.spanProcessor.processMessage(message, context)
+        }
     }
 
     /**
@@ -28,11 +35,12 @@ export default class Adapter {
      * There may be situations where a message corresponds to more than one
      * type of telemetry. In this case, the switch/case may not make sense.
      */
-    processMessage(message: Message): void {
-        switch (this.determineMessageType(message)) {
-            case MessageType.Span:
-                return this.spanProcessor.processMessage(message)
-        }
+    processMessages(messages: Records, context: Context): void {
+        context.log("All messages: ", messages.records)
+        context.log("All messages length: ", messages.records.length)
+        messages.records.forEach((message) => {
+            return this.determineMessageTypeProcessor(message, context)
+        })
     }
 
     /**
@@ -42,6 +50,7 @@ export default class Adapter {
      * batches instead of failing on the first reject. We only log promise rejections.
      */
     sendBatches(context: Context): void {
+        context.log("What is being sent to NR: ", this.spanProcessor.batch)
         const batches = []
         batches.push(this.spanProcessor.sendBatch())
         Promise.allSettled(batches).then((results) => {
