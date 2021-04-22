@@ -12,5 +12,6 @@
     }
   ],
   "disabled": false,
-  "entryPoint": "default"
+  "entryPoint": "default",
+  "scriptFile": "../dist/azureLogIngestion/index.js"
 }

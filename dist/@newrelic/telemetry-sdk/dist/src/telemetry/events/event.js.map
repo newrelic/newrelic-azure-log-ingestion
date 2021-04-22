@@ -1,1 +1,0 @@
-{"version":3,"file":"event.js","sourceRoot":"","sources":["../../../../src/telemetry/events/event.ts"],"names":[],"mappings":";;AAQA,MAAa,KAAK;IAKhB,YAAmB,SAAiB,EAAE,UAAyB,EAAE,SAAkB;QACjF,IAAI,CAAC,SAAS,GAAG,SAAS,CAAA;QAC1B,IAAI,CAAC,UAAU,GAAG,UAAU,IAAI,EAAE,CAAA;QAClC,IAAI,CAAC,SAAS,GAAG,SAAS,CAAA;IAC5B,CAAC;CACF;AAVD,sBAUC"}

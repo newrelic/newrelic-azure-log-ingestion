@@ -1,6 +1,10 @@
 name: newrelic-azure-log-ingestion
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   build:
@@ -9,11 +13,15 @@ jobs:
     strategy:
       matrix:
         node-version: [14.x]
+    env:
+      ARCHIVE: function-${{ github.run_id }}.zip
     steps:
+    - name: Install core tools
+      run: sudo apt-get install azure-functions-core-tools-3
     - name: Checkout
       uses: actions/checkout@v2
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v2
       with:
         node-version: ${{ matrix.node-version }}
     - name: Cache node modules
@@ -35,3 +43,26 @@ jobs:
       run: npm run lint
     - name: Test
       run: npm run test
+    - name: Package
+      run: |
+        mkdir -p artifacts/zip
+        func extensions install
+        npm prune --production
+        zip -r artifacts/zip/${{ env.ARCHIVE }} . --exclude @.funcignore --exclude .funcignore
+    - name: Publish Blob
+      uses: bacongobbler/azure-blob-storage-upload@v1.1.1
+      with:
+        source_dir: artifacts/zip
+        container_name: zips
+        connection_string: ${{ secrets.BLOBSTORAGECONNECTIONSTRING }}
+        sync: false
+    - name: Prepare GitHub Artifact
+      run: |
+        mkdir artifacts/archive
+        unzip artifacts/zip/${{ env.ARCHIVE }} -d artifacts/archive
+    - name: Upload GitHub Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: function
+        path: artifacts/archive/**
+        retention-days: 1

@@ -3,9 +3,8 @@
   "version": "1.0.0",
   "description": "An Azure Resource Manager template to ingest Azure Monitoring logs, metrics and traces into New Relic.",
   "scripts": {
-    "build": "tsc && npm run cp:function",
+    "build": "tsc",
     "build:production": "npm run prestart && npm prune --production",
-    "cp:function": "cpx azureLogIngestion/function.json dist/azureLogIngestion/",
     "lint": "eslint '*/**/*.{ts,tsx}'",
     "lint:fix": "eslint '*/**/*.{ts,tsx}' --fix",
     "prestart": "npm run build && func extensions install",
@@ -35,7 +34,6 @@
     "@types/node": "^14.14.35",
     "@typescript-eslint/eslint-plugin": "^4.19.0",
     "@typescript-eslint/parser": "^4.19.0",
-    "cpx": "^1.5.0",
     "eslint": "^7.22.0",
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-prettier": "^3.3.1",
