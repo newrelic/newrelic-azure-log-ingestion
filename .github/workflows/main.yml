@@ -50,12 +50,7 @@ jobs:
         npm prune --production
         zip -r artifacts/zip/${{ env.ARCHIVE }} . --exclude @.funcignore --exclude .funcignore
     - name: Publish Blob
-      uses: bacongobbler/azure-blob-storage-upload@v1.1.1
-      with:
-        source_dir: artifacts/zip
-        container_name: zips
-        connection_string: ${{ secrets.BLOBSTORAGECONNECTIONSTRING }}
-        sync: false
+      run: az storage blob upload -c zips -f artifacts/zip/${{ env.ARCHIVE }} -n ${{ env.ARCHIVE }} --connection_string ${{ secrets.BLOBSTORAGECONNECTIONSTRING }}
     - name: Prepare GitHub Artifact
       run: |
         mkdir artifacts/archive
