@@ -183,9 +183,8 @@
       }
     },
     {
-      "apiVersion": "2016-08-01",
+      "apiVersion": "2020-09-01",
       "type": "Microsoft.Web/sites",
-      "scale": null,
       "dependsOn": [
         "[resourceId('Microsoft.Web/serverfarms', variables('servicePlanName'))]",
         "[resourceId('Microsoft.Storage/storageAccounts', variables('newrelicResource'))]",
@@ -197,7 +196,6 @@
       "name": "[variables('functionAppName')]",
       "properties": {
         "enabled": true,
-        "reserved": false,
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('servicePlanName'))]",
         "siteConfig": {
           "appSettings": [
@@ -263,10 +261,10 @@
       "resources": [
         {
           "type": "sourcecontrols",
-          "apiVersion": "2015-08-01",
-          "name": "[variables('sourceControlName')]",
+          "apiVersion": "2020-09-01",
+          "name": "web",
           "dependsOn": [
-            "[resourceId('Microsoft.Web/sites/', variables('functionAppName'))]"
+            "[resourceId('Microsoft.Web/Sites/', variables('functionAppName'))]"
           ],
           "properties": {
             "IsManualIntegration": true,
