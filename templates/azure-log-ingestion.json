@@ -264,7 +264,7 @@
         {
           "type": "sourcecontrols",
           "apiVersion": "2015-08-01",
-          "name": "web",
+          "name": "[variables('sourceControlName')]",
           "dependsOn": [
             "[resourceId('Microsoft.Web/sites/', variables('functionAppName'))]"
           ],
@@ -322,6 +322,7 @@
     "functionAppName": "[concat('NewRelicLogsIngestion', uniqueString(resourceGroup().id))]",
     "gitRepoURL": "https://github.com/newrelic/newrelic-azure-log-ingestion.git",
     "namespaceName": "[concat('NewRelicLogs', uniqueString(resourceGroup().id))]",
-    "servicePlanName": "[concat('newRelicLogsServicePlan', uniqueString(resourceGroup().id))]"
+    "servicePlanName": "[concat('newRelicLogsServicePlan', uniqueString(resourceGroup().id))]",
+    "sourceControlName": "[concat('newRelicLogsSourceControl', uniqueString(resourceGroup().id))]"
   }
 }
