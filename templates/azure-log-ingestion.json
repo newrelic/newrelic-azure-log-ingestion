@@ -263,6 +263,7 @@
           "type": "sourcecontrols",
           "apiVersion": "2020-09-01",
           "name": "web",
+		  "dependsOn": [],
           "properties": {
             "IsManualIntegration": true,
             "repoUrl": "[variables('gitRepoUrl')]",
