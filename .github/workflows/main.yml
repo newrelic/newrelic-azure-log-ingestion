@@ -50,7 +50,7 @@ jobs:
         npm prune --production
         zip -r artifacts/zip/${{ env.ARCHIVE }} . --exclude @.funcignore --exclude .funcignore
     - name: Publish Blob
-      run: az storage blob upload -c zips -f artifacts/zip/${{ env.ARCHIVE }} -n ${{ env.ARCHIVE }} --connection_string ${{ secrets.BLOBSTORAGECONNECTIONSTRING }}
+      run: az storage blob upload -c zips -f artifacts/zip/${{ env.ARCHIVE }} -n ${{ env.ARCHIVE }} --account-name 'mwhelanhellozips' --sas-token '${{ secrets.BLOBSASTOKEN }}'
     - name: Prepare GitHub Artifact
       run: |
         mkdir artifacts/archive
