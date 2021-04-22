@@ -1,4 +1,5 @@
 import { telemetry } from "@newrelic/telemetry-sdk"
+import { Context } from "@azure/functions"
 
 import { SpanMessage } from "../messages"
 import { Processor } from "./base"
@@ -63,7 +64,7 @@ export default class SpanProcessor implements Processor {
     /**
      * Processes a span message and adds span to current batch
      */
-    processMessage(message: SpanMessage): void {
+    processMessage(message: SpanMessage, context: Context): void {
         // Deleting attributes we do not want to send to New Relic
         // TODO: Make this a part of a processor attribute filter method
         delete message.IKey
@@ -73,7 +74,11 @@ export default class SpanProcessor implements Processor {
         const attributes = {
             ...formatAttributes({ ...rest, ...Properties }),
         }
-
+        context.log("TraceId: ", OperationId)
+        context.log("id: ", Id)
+        context.log("ParentId: ", ParentId)
+        context.log("Name: ", Name)
+        context.log("OperationName: ", OperationName)
         const span = new telemetry.spans.Span(
             Id,
             OperationId,

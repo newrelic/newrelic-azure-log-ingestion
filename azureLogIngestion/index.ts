@@ -6,11 +6,10 @@ const apiKey = process.env["NEW_RELIC_INSERT_KEY"]
 
 const adapter = new Adapter(apiKey)
 
-const eventHubTrigger: AzureFunction = async function (context: Context, eventHubMessages: any[]): Promise<void> {
+const eventHubTrigger: AzureFunction = async function (context: Context, eventHubMessages: any): Promise<void> {
     context.log(`Eventhub trigger function called for message array ${eventHubMessages}`)
-
-    eventHubMessages.forEach(adapter.processMessages)
-
+    const messages = JSON.parse(eventHubMessages)
+    adapter.processMessages(messages, context)
     adapter.sendBatches(context)
 }
 
