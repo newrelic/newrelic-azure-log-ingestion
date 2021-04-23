@@ -23,11 +23,7 @@
       },
       "type": "bool"
     },
-    "gitBranch": {
-      "defaultValue": "main",
-      "metadata": {
-        "description": "Git branch to deploy from"
-      },
+    "packageUri": {
       "type": "string"
     }
   },
@@ -260,14 +256,14 @@
       },
       "resources": [
         {
-          "type": "sourcecontrols",
-          "apiVersion": "2020-09-01",
-          "name": "web",
-		  "dependsOn": [],
+          "apiVersion": "2014-06-01",
+          "name": "MSDeploy",
+          "type": "Extensions",
+          "dependsOn": [
+            "[concat('Microsoft.Web/sites/', variables('functionAppName'))]"
+          ],
           "properties": {
-            "IsManualIntegration": true,
-            "repoUrl": "[variables('gitRepoUrl')]",
-            "branch": "[parameters('gitBranch')]"
+            "packageUri": "[parameters('packageUri')]"
           }
         }
       ]
@@ -316,7 +312,6 @@
     "authorizationRulesSharedAccessKeyName": "NewRelicLogsSharedAccessKey",
     "eventHubName": "newrelic-log-ingestion",
     "functionAppName": "[concat('NewRelicLogsIngestion', uniqueString(resourceGroup().id))]",
-    "gitRepoURL": "https://github.com/newrelic/newrelic-azure-log-ingestion.git",
     "namespaceName": "[concat('NewRelicLogs', uniqueString(resourceGroup().id))]",
     "servicePlanName": "[concat('newRelicLogsServicePlan', uniqueString(resourceGroup().id))]",
     "sourceControlName": "[concat('newRelicLogsSourceControl', uniqueString(resourceGroup().id))]"
