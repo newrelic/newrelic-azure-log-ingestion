@@ -2,7 +2,7 @@
   "bindings": [
     {
       "cardinality": "many",
-      "connection": "AzureEventHubConnectionString",
+      "connection": "AzureEventHubLogsConnectionString",
       "consumerGroup": "$Default",
       "direction": "in",
       "eventHubName": "newrelic-log-ingestion",
@@ -12,5 +12,6 @@
     }
   ],
   "disabled": false,
-  "entryPoint": "default"
+  "entryPoint": "default",
+  "scriptFile": "../dist/azureLogIngestion/index.js"
 }

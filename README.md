@@ -44,13 +44,12 @@ Then click the button below to start the installation process via the Azure Port
    you can skip this step.
 5. Deploy the Resource Manager template:
 
-     ```
-       az deployment group create \
-         -    --name NewRelicLogs \
-         --resource-group NewRelicLogs \
-         --template-uri https://raw.githubusercontent.com/newrelic/newrelic-azure-log-ingestion/main/templates/azure-log-ingestion.json \
-         --parameters NewRelicInsertKey=<new relic insert key here>
-       ```
+          az deployment group create \
+            - --name NewRelicLogs \
+            --resource-group NewRelicLogs \
+            --template-file templates/azure-log-ingestion.json \
+            --parameters NewRelicInsertKey=<new relic insert key here> \
+            packageUri="<built package URI>"
 
      Make sure the `--resource-group` argument is the same as the one you created in
      the previous step. Also make sure you replace `<new relic insert key here>`
