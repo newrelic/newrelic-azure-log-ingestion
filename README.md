@@ -68,19 +68,33 @@ to New Relic using an [Azure Policy](https://docs.microsoft.com/en-us/azure/azur
 This is the easiest option as it only needs to be setup once and all existing and future
 App Insights resources will be automatically configured to report to New Relic. Keep in
 mind there are costs associated with exporting telemetry data from Azure. You will want
-to monitor integration utilzation to ensure they meet your expectations.
+to monitor integration utilization to ensure they meet your expectations.
 
-To setup this Azure Policy, rrun the below command using the Azure CLI:
+In addition to the Azure CLI, you'll need the `jq` JSON processing tool installed. 
 
-```
-az deployment group create \
-  --name NewRelicLogsPolicy \
-  --resource-group NewRelicLogs \
-  --template-uri https://raw.githubusercontent.com/newrelic/newrelic-azure-log-ingestion/main/templates/azure-policy.json
-```
+To set up this Azure Policy, run the following commands using the Azure CLI:
 
-Replacing, as necessary, the `--resource-group` argument with the ResourceGroup
-that you created during installation.
+    az policy definition create \
+        --name New-Relic-Diagnostic \
+        --mode All \
+        --rules $( jq '.properties.policyRule' < templates/diagnostic-policy.json ) 
+        --params $( jq '.properties.parameters' < templates/diagnostic-policy.json )
+
+    az policy assignment create \
+        --name New-Relic-Diagnostic-assignment \
+        --policy New-Relic-Diagnostic \
+        --assign-identity \
+        --role Contributor \
+        --identity-scope /subscriptions/${subscriptionId} \
+        --location westus2 
+        -p '{ "eventHubAuthorizationRuleId": { "value": "/subscriptions/${subscriptionId}/resourceGroups/${resource-group}/providers/Microsoft.EventHub/namespaces/${namespace-name)/authorizationRules/NewRelicLogsSharedAccessKey" } }'
+
+    az policy remediation create \
+        --name New-Relic-Diganostic-remediation \
+        --policy-assignment New-Relic-Diagnostic-assignment
+
+Replacing, as necessary, the `${subscriptionId}`, `${resource-group}`, and `${namespace-name}` placeholders with the
+values appropriate to your installation.
 
 ### Manually Configure Diagnostic Settings
 
