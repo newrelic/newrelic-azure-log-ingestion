@@ -48,7 +48,7 @@ jobs:
         mkdir -p artifacts/zip
         func extensions install
         npm prune --production
-        zip -r artifacts/zip/${{ env.ARCHIVE }} . --exclude @.funcignore --exclude .funcignore
+        zip -r artifacts/zip/${{ env.ARCHIVE }} azureLogIngestion/function.json dist host.json LICENSE node_modules package.json package-lock.json
     - name: Publish Blob
       run: az storage blob upload -c zips -f artifacts/zip/${{ env.ARCHIVE }} -n ${{ env.ARCHIVE }} --account-name 'mwhelanhellozips' --sas-token '${{ secrets.BLOBSASTOKEN }}'
     - name: Prepare GitHub Artifact
