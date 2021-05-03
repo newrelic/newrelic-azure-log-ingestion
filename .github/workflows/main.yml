@@ -2,22 +2,24 @@ name: newrelic-azure-log-ingestion
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
+  release:
+    types:
+      - published
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
         node-version: [14.x]
     env:
       ARCHIVE: function-${{ github.run_id }}.zip
     steps:
-    - name: Install core tools
-      run: sudo apt-get install azure-functions-core-tools-3
     - name: Checkout
       uses: actions/checkout@v2
     - name: Use Node.js ${{ matrix.node-version }}
@@ -43,21 +45,45 @@ jobs:
       run: npm run lint
     - name: Test
       run: npm run test
+    - name: Install core tools
+      run: |
+        sudo apt-get update
+        sudo apt-get install azure-functions-core-tools-3
     - name: Package
       run: |
         mkdir -p artifacts/zip
         func extensions install
         npm prune --production
         zip -r artifacts/zip/${{ env.ARCHIVE }} azureLogIngestion/function.json dist host.json LICENSE node_modules package.json package-lock.json
-    - name: Publish Blob
-      run: az storage blob upload -c zips -f artifacts/zip/${{ env.ARCHIVE }} -n ${{ env.ARCHIVE }} --account-name 'mwhelanhellozips' --sas-token '${{ secrets.BLOBSASTOKEN }}'
-    - name: Prepare GitHub Artifact
+    - name: Upload build package
       run: |
-        mkdir artifacts/archive
-        unzip artifacts/zip/${{ env.ARCHIVE }} -d artifacts/archive
+        az storage blob upload \
+          --account-name 'newrelicazureingestion' \
+          --container-name newrelic-azure-log-ingestion \
+          --file artifacts/zip/${{ env.ARCHIVE }} \
+          --name 'builds/${{ github.sha }}.zip' \
+          --sas-token '${{ secrets.AZURE_STORAGE_SAS_TOKEN }}'
     - name: Upload GitHub Artifact
       uses: actions/upload-artifact@v2
       with:
-        name: function
-        path: artifacts/archive/**
+        name: function.zip
+        path: artifacts/zip/${{ env.ARCHIVE }}
         retention-days: 1
+    - name: Upload versioned package
+      if: ${{ github.event_name == 'release' && github.event.action == 'published' }}
+      run: |
+        az storage blob upload \
+          --account-name 'newrelicazureingestion' \
+          --container-name newrelic-azure-log-ingestion \
+          --file artifacts/zip/${{ env.ARCHIVE }} \
+          --name "${GITHUB_REF#refs/*/}.zip" \
+          --sas-token '${{ secrets.AZURE_STORAGE_SAS_TOKEN }}'
+    - name: Upload latest package
+      if: ${{ github.event_name == 'release' && github.event.action == 'published' }}
+      run: |
+        az storage blob upload \
+          --account-name 'newrelicazureingestion' \
+          --container-name newrelic-azure-log-ingestion \
+          --file artifacts/zip/${{ env.ARCHIVE }} \
+          --name 'latest.zip' \
+          --sas-token '${{ secrets.AZURE_STORAGE_SAS_TOKEN }}'
