@@ -77,8 +77,8 @@ To set up this Azure Policy, run the following commands using the Azure CLI:
     az policy definition create \
         --name New-Relic-Diagnostic \
         --mode All \
-        --rules $( jq '.properties.policyRule' < templates/diagnostic-policy.json ) 
-        --params $( jq '.properties.parameters' < templates/diagnostic-policy.json )
+        --rules templates/policy/rules.json 
+        --params templates/policy/params.json
 
     az policy assignment create \
         --name New-Relic-Diagnostic-assignment \
@@ -90,7 +90,7 @@ To set up this Azure Policy, run the following commands using the Azure CLI:
         -p '{ "eventHubAuthorizationRuleId": { "value": "/subscriptions/${subscriptionId}/resourceGroups/${resource-group}/providers/Microsoft.EventHub/namespaces/${namespace-name)/authorizationRules/NewRelicLogsSharedAccessKey" } }'
 
     az policy remediation create \
-        --name New-Relic-Diganostic-remediation \
+        --name New-Relic-Diagnostic-remediation \
         --policy-assignment New-Relic-Diagnostic-assignment
 
 Replacing, as necessary, the `${subscriptionId}`, `${resource-group}`, and `${namespace-name}` placeholders with the
