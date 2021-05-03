@@ -77,8 +77,8 @@ To set up this Azure Policy, run the following commands using the Azure CLI:
     az policy definition create \
         --name New-Relic-Diagnostic \
         --mode All \
-        --rules templates/policy/rules.json 
-        --params templates/policy/params.json
+        --rules "https://raw.githubusercontent.com/newrelic/newrelic-azure-log-ingestion/main/templates/policy/rules.json" 
+        --params "https://raw.githubusercontent.com/newrelic/newrelic-azure-log-ingestion/main/templates/policy/params.json"
 
     az policy assignment create \
         --name New-Relic-Diagnostic-assignment \
