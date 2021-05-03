@@ -24,6 +24,10 @@
       "type": "bool"
     },
     "packageUri": {
+      "defaultValue": "https://newrelicazureingestion.blob.core.windows.net/newrelic-azure-log-ingestion/latest.zip",
+      "metadata": {
+        "description": "Location of the deployment package"
+      },
       "type": "string"
     }
   },
