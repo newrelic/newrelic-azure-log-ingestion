@@ -1,4 +1,4 @@
-export const appRequest = `{
+export const appInsightsAppRequest = `{
   "records": [
     {
       "time": "2021-04-29T22:41:14.1238381Z",
@@ -15,8 +15,8 @@ export const appRequest = `{
       "IKey": "iKeyValue",
       "_BilledSize": 1082,
       "OperationName": "{function name}",
-      "OperationId": "operationIdValue",
-      "ParentId": "operationIdValue",
+      "OperationId": "12345",
+      "ParentId": "12345",
       "SDKVersion": "azurefunctions: 3.0.15571.0",
       "Properties": {
         "LogLevel": "Information",
@@ -36,6 +36,38 @@ export const appRequest = `{
       "Success": true,
       "ResultCode": "200",
       "DurationMs": 9.1593,
+      "PerformanceBucket": "<250ms",
+      "ItemCount": 1
+    }
+  ]
+}`
+
+export const appInsightsAppDependency = `{
+  "records": [
+    {
+      "time": "2021-05-04T22:01:10.9400000Z",
+      "resourceId": "/SUBSCRIPTIONS/{subscription id}/RESOURCEGROUPS/{resource group in all caps}/PROVIDERS/MICROSOFT.INSIGHTS/COMPONENTS/{function app name in all caps}",
+      "ResourceGUID": "{resource uuid4}",
+      "Type": "AppDependencies",
+      "AppRoleInstance": "{role instance id}",
+      "AppRoleName": "Web",
+      "ClientCity": "San Jose",
+      "ClientCountryOrRegion": "United States",
+      "ClientIP": "0.0.0.0",
+      "ClientOS": "Windows_NT 10.0.14393",
+      "ClientStateOrProvince": "California",
+      "ClientType": "PC",
+      "IKey": "{iKey value}",
+      "_BilledSize": 786,
+      "OperationId": "67890",
+      "ParentId": "12345",
+      "SDKVersion": "node:1.8.10",
+      "Id": "{id value}",
+      "Target": "{target property of client.trackDependency}",
+      "DependencyType": "{dependencyTypeName property of client.trackDependency}",
+      "Name": "{name property of client.trackDependency}",
+      "Success": true,
+      "DurationMs": 231,
       "PerformanceBucket": "<250ms",
       "ItemCount": 1
     }
