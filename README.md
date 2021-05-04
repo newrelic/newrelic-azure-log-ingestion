@@ -70,8 +70,6 @@ App Insights resources will be automatically configured to report to New Relic. 
 mind there are costs associated with exporting telemetry data from Azure. You will want
 to monitor integration utilization to ensure they meet your expectations.
 
-In addition to the Azure CLI, you'll need the `jq` JSON processing tool installed. 
-
 To set up this Azure Policy, run the following commands using the Azure CLI:
 
     az policy definition create \
