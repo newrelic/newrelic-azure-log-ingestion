@@ -50,7 +50,8 @@ export default class SpanProcessor implements Processor {
     batch: telemetry.spans.SpanBatch
 
     constructor(apiKey: string) {
-        this.client = new telemetry.spans.SpanClient({ apiKey })
+        const host = process.env.NEW_RELIC_REGION === "eu" ? "trace-api.eu.newrelic.com" : "trace-api.newrelic.com"
+        this.client = new telemetry.spans.SpanClient({ apiKey, host })
         this.startNewBatch()
     }
 
