@@ -2,11 +2,19 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "NewRelicInsertKey": {
+    "newRelicInsertKey": {
       "metadata": {
         "description": "Your New Relic Insert Key"
       },
       "minLength": 1,
+      "type": "string"
+    },
+    "newRelicRegion": {
+      "allowedValues": ["us", "eu"],
+      "defaultValue": "us",
+      "metadata": {
+        "description": "Your New Relic region"
+      },
       "type": "string"
     },
     "logsEnabled": {
@@ -253,7 +261,11 @@
             },
             {
               "name": "NEW_RELIC_INSERT_KEY",
-              "value": "[parameters('NewRelicInsertKey')]"
+              "value": "[parameters('newRelicInsertKey')]"
+            },
+            {
+              "name": "NEW_RELIC_REGION",
+              "value": "[parameters('newRelicRegion')]"
             }
           ]
         }
