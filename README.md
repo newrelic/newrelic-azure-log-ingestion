@@ -45,11 +45,10 @@ Then click the button below to start the installation process via the Azure Port
 5. Deploy the Resource Manager template:
 
           az deployment group create \
-            - --name NewRelicLogs \
-            --resource-group NewRelicLogs \
-            --template-file templates/azure-log-ingestion.json \
-            --parameters NewRelicInsertKey=<new relic insert key here> \
-            packageUri="<built package URI>"
+              --name NewRelicLogs \
+              --resource-group NewRelicLogs \
+              --template-uri https://raw.githubusercontent.com/newrelic/newrelic-azure-log-ingestion/main/templates/azure-log-ingestion.json \
+              --parameters NewRelicInsertKey=<new relic insert key here>
 
      Make sure the `--resource-group` argument is the same as the one you created in
      the previous step. Also make sure you replace `<new relic insert key here>`
@@ -70,13 +69,22 @@ App Insights resources will be automatically configured to report to New Relic. 
 mind there are costs associated with exporting telemetry data from Azure. You will want
 to monitor integration utilization to ensure they meet your expectations.
 
-To set up this Azure Policy, run the following commands using the Azure CLI:
+
+#### Using Azure Portal
+
+Click the button below to start the installation process via the Azure Portal.
+
+[![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#blade/Microsoft_Azure_Policy/CreatePolicyDefinitionBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fnewrelic%2Fnewrelic-azure-log-ingestion%2Fmain%2Fpolicies%2Fpolicy.json)
+
+#### Using Azure CLI
+
+To set up this Azure Policy, run the following commands using the [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli):
 
     az policy definition create \
         --name New-Relic-Diagnostic \
         --mode All \
-        --rules "https://raw.githubusercontent.com/newrelic/newrelic-azure-log-ingestion/main/templates/policy/rules.json" 
-        --params "https://raw.githubusercontent.com/newrelic/newrelic-azure-log-ingestion/main/templates/policy/params.json"
+        --rules "https://raw.githubusercontent.com/newrelic/newrelic-azure-log-ingestion/main/policies/rules.json" 
+        --params "https://raw.githubusercontent.com/newrelic/newrelic-azure-log-ingestion/main/policies/params.json"
 
     az policy assignment create \
         --name New-Relic-Diagnostic-assignment \
@@ -101,7 +109,7 @@ for only the App Insights resources you want to report telemetry data to New Rel
 option is more involved, but offers more fine grained control over the telemetry data
 being exported.
 
-1. Find the resource you want to export telemetry data from in the Azure Portal.
+1. Find the AppInsights resource you want to export telemetry data from in the Azure Portal.
 2. In the resource's menu, click **Diagnostic Settings** under **Monitor**.
 3. Click **Add diagnostic setting**.
 4. Enter a **Name** for your setting.
