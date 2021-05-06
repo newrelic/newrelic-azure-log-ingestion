@@ -73,3 +73,5 @@ export const appInsightsAppDependency = `{
     }
   ]
 }`
+
+test("shut jest up", () => Promise.resolve(null))

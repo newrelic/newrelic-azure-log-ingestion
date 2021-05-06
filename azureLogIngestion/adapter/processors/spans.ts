@@ -3,6 +3,7 @@ import { Context } from "@azure/functions"
 
 import { SpanMessage } from "../messages"
 import { Processor } from "./base"
+import normalize from "../utils/normalize"
 
 const dbs = ["sql", "mariadb", "postgresql", "cosmos", "table", "storage"]
 
@@ -73,13 +74,15 @@ export default class SpanProcessor implements Processor {
         const { Id, ParentId, OperationId, time, Name, DurationMs, OperationName, Properties = {}, ...rest } = message
         const epochDate = new Date(time).getTime()
         const attributes = {
-            ...formatAttributes({ ...rest, ...Properties }),
+            ...normalize(formatAttributes({ ...rest, ...Properties })),
         }
+
         context.log("TraceId: ", OperationId)
         context.log("id: ", Id)
         context.log("ParentId: ", ParentId)
         context.log("Name: ", Name)
         context.log("OperationName: ", OperationName)
+
         const span = new telemetry.spans.Span(
             Id,
             OperationId,

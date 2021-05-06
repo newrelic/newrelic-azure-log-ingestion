@@ -3,7 +3,7 @@ import { telemetry } from "@newrelic/telemetry-sdk"
 import Adapter from "./index"
 import { SpanProcessor } from "./processors"
 
-import { appInsightsAppDependency, appInsightsAppRequest } from "./testdata"
+import { appInsightsAppDependency, appInsightsAppRequest } from "./testdata.test"
 describe("Adapter", () => {
     it("instantiates with api key", () => {
         const adapter = new Adapter("mock-insert-key")
@@ -18,21 +18,11 @@ describe("Adapter", () => {
     it("processes app request and dependency as spans", () => {
         const adapter = new Adapter("mock-insert-key")
 
-        const log = (...args) => {
-            console.log(...args)
-        }
-        log.verbose = (...args) => {
-            console.debug(...args)
-        }
-        log.info = (...args) => {
-            console.info(...args)
-        }
-        log.warn = (...args) => {
-            console.warn(...args)
-        }
-        log.error = (...args) => {
-            console.error(...args)
-        }
+        const log = (...args) => null
+        log.verbose = (...args) => null
+        log.info = (...args) => null
+        log.warn = (...args) => null
+        log.error = (...args) => null
 
         const mockContext = {
             bindings: {},
