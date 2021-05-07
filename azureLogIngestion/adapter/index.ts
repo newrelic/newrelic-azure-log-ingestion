@@ -1,12 +1,18 @@
 import { Context } from "@azure/functions"
 
-import { Message, MessageType, Records } from "./messages"
-import { SpanProcessor } from "./processors"
+import { normalizeAppDependency, normalizeAppRequest } from "./mappings"
+import { EventProcessor, SpanProcessor } from "./processors"
+
+interface Records {
+    records: Record<string, any>[]
+}
 
 export default class Adapter {
+    eventProcessor: EventProcessor
     spanProcessor: SpanProcessor
 
     constructor(apiKey: string) {
+        this.eventProcessor = new EventProcessor(apiKey)
         this.spanProcessor = new SpanProcessor(apiKey)
     }
 
@@ -18,14 +24,20 @@ export default class Adapter {
      * will need to be determined by checking for distinct properties/values for
      * that type.
      */
-    private determineMessageTypeProcessor(message: Message, context: Context): void {
-        switch (message.Type) {
-            case "AppRequests":
-                return this.spanProcessor.processMessage(message, context)
-            case "AppDependencies":
-                return this.spanProcessor.processMessage(message, context)
-            default:
-                return this.spanProcessor.processMessage(message, context)
+    private determineMessageTypeProcessor(message: any, context: Context): void {
+        const type = message.Type || message.itemType
+        if (!type) {
+            return
+        }
+
+        if (["AppRequests", "requests"].indexOf(type) !== -1) {
+            const request = normalizeAppRequest(message)
+            this.eventProcessor.processMessage(request, context)
+            this.spanProcessor.processMessage(request, context)
+        }
+
+        if (["AppDependencies", "dependencies"].indexOf(type) !== -1) {
+            this.spanProcessor.processMessage(normalizeAppDependency(message), context)
         }
     }
 

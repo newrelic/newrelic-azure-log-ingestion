@@ -1,4 +1,4 @@
-const flatten = (obj: Record<string, any>, concatenator = "."): Record<string, unknown> =>
+const flatten = (obj: Record<string, any>, concatenator = "."): Record<string, any> =>
     Object.keys(obj).reduce((acc, key) => {
         if (typeof obj[key] !== "object") {
             return {

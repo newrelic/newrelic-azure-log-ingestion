@@ -1,9 +1,8 @@
 import { telemetry } from "@newrelic/telemetry-sdk"
 import { Context } from "@azure/functions"
 
-import { SpanMessage } from "../messages"
 import { Processor } from "./base"
-import normalize from "../utils/normalize"
+import flatten from "../utils/flatten"
 
 const dbs = ["sql", "mariadb", "postgresql", "cosmos", "table", "storage"]
 
@@ -60,37 +59,37 @@ export default class SpanProcessor implements Processor {
      * Starts a new span batch, setting common attributes
      */
     private startNewBatch(): void {
-        this.batch = new telemetry.spans.SpanBatch({ "cloudProvider.source": "azure" })
+        this.batch = new telemetry.spans.SpanBatch({ "cloud.provider": "azure" })
     }
 
     /**
      * Processes a span message and adds span to current batch
      */
-    processMessage(message: SpanMessage, context: Context): void {
+    processMessage(message: Record<string, any>, context: Context): void {
         // Deleting attributes we do not want to send to New Relic
         // TODO: Make this a part of a processor attribute filter method
-        delete message.IKey
+        delete message.iKey
 
-        const { Id, ParentId, OperationId, time, Name, DurationMs, OperationName, Properties = {}, ...rest } = message
-        const epochDate = new Date(time).getTime()
+        const { id, parentId, operationId, timestamp, name, durationMs, operationName, ...rest } = message
+        const epochDate = new Date(timestamp).getTime()
         const attributes = {
-            ...normalize(formatAttributes({ ...rest, ...Properties })),
+            ...flatten(rest),
         }
 
-        context.log("TraceId: ", OperationId)
-        context.log("id: ", Id)
-        context.log("ParentId: ", ParentId)
-        context.log("Name: ", Name)
-        context.log("OperationName: ", OperationName)
+        context.log("traceId: ", operationId)
+        context.log("id: ", id)
+        context.log("parentId: ", parentId)
+        context.log("name: ", name)
+        context.log("operationName: ", operationName)
 
         const span = new telemetry.spans.Span(
-            Id,
-            OperationId,
+            id,
+            operationId,
             epochDate,
-            Name,
-            ParentId === OperationId ? null : ParentId, // Determining if this is the root span or not and formatting accordingly
-            OperationName,
-            DurationMs,
+            name,
+            parentId === operationId ? null : parentId, // Determining if this is the root span or not and formatting accordingly
+            operationName,
+            durationMs,
             attributes,
         )
 
