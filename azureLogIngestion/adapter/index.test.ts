@@ -1,7 +1,7 @@
 import { telemetry } from "@newrelic/telemetry-sdk"
 
 import Adapter from "./index"
-import { SpanProcessor } from "./processors"
+import { EventProcessor, SpanProcessor } from "./processors"
 
 import { appInsightsAppDependency, appInsightsAppRequest } from "./testdata.test"
 describe("Adapter", () => {
@@ -9,6 +9,12 @@ describe("Adapter", () => {
         const adapter = new Adapter("mock-insert-key")
 
         expect(adapter).toBeInstanceOf(Adapter)
+
+        expect(adapter.eventProcessor).toBeInstanceOf(EventProcessor)
+        expect(adapter.eventProcessor.batch).toBeInstanceOf(telemetry.events.EventBatch)
+        expect(adapter.eventProcessor.batch.getBatchSize()).toEqual(0)
+        expect(adapter.eventProcessor.client).toBeInstanceOf(telemetry.events.EventClient)
+
         expect(adapter.spanProcessor).toBeInstanceOf(SpanProcessor)
         expect(adapter.spanProcessor.batch).toBeInstanceOf(telemetry.spans.SpanBatch)
         expect(adapter.spanProcessor.batch.getBatchSize()).toEqual(0)
@@ -45,5 +51,33 @@ describe("Adapter", () => {
         adapter.processMessages(appInsightsAppDependency, mockContext)
         expect(adapter.spanProcessor.batch.getBatchSize()).toEqual(2)
         expect(adapter.spanProcessor.batch.spans).toMatchSnapshot()
+    })
+
+    it("processes app request as event", () => {
+        const adapter = new Adapter("mock-insert-key")
+
+        const log = (...args) => null
+        log.verbose = (...args) => null
+        log.info = (...args) => null
+        log.warn = (...args) => null
+        log.error = (...args) => null
+
+        const mockContext = {
+            bindings: {},
+            bindingData: {},
+            bindingDefinitions: [],
+            done: () => null,
+            executionContext: { invocationId: "foobar", functionName: "foobar", functionDirectory: "foobar" },
+            invocationId: "foobar",
+            log,
+            traceContext: { attributes: {}, traceparent: "foobar", tracestate: "foobar" },
+        }
+
+        expect(adapter.eventProcessor.batch.getBatchSize()).toEqual(0)
+        expect(adapter.eventProcessor.batch.events).toMatchSnapshot()
+
+        adapter.processMessages(appInsightsAppRequest, mockContext)
+        expect(adapter.eventProcessor.batch.getBatchSize()).toEqual(1)
+        expect(adapter.eventProcessor.batch.events).toMatchSnapshot()
     })
 })

@@ -1,8 +1,8 @@
 import flatten from "./flatten"
-import snakecase from "./snakecase"
+import camelcase from "./camelcase"
 
 const normalize = (obj: Record<string, any>): Record<string, any> => {
-    return flatten(snakecase(obj))
+    return flatten(camelcase(obj))
 }
 
 export default normalize
