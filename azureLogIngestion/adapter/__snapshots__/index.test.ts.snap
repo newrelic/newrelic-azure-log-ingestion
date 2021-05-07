@@ -113,3 +113,48 @@ Array [
   },
 ]
 `;
+
+exports[`Adapter processes app request as event 1`] = `Array []`;
+
+exports[`Adapter processes app request as event 2`] = `
+Array [
+  Event {
+    "attributes": Object {
+      "appRoleInstance": "very long id string",
+      "appRoleName": "functionAppName goes here",
+      "billedSize": 1082,
+      "clientCity": "Portland",
+      "clientCountryOrRegion": "United States",
+      "clientIp": "0.0.0.0",
+      "clientStateOrProvince": "Oregon",
+      "clientType": "PC",
+      "durationMs": 9.1593,
+      "http.statusCode": "200",
+      "http.url": "https://{function app name}.azurewebsites.net/api/{function name}",
+      "id": "09d760d34d75e847",
+      "itemCount": 1,
+      "name": "{function name}",
+      "operationId": "12345",
+      "operationName": "{function name}",
+      "parentId": "12345",
+      "performanceBucket": "<250ms",
+      "properties.category": "Host.Results",
+      "properties.fullName": "Functions.{function name}",
+      "properties.functionExecutionTimeMs": "4.7239",
+      "properties.hostInstanceId": "hostInstanceIdValue",
+      "properties.http.method": "GET",
+      "properties.http.path": "/api/{function name goes here}",
+      "properties.invocationId": "invocationIdValue",
+      "properties.logLevel": "Information",
+      "properties.processId": "8912",
+      "properties.triggerReason": "This function was programmatically called via the host APIs.",
+      "resourceGuid": "resourceGuid",
+      "resourceId": "/SUBSCRIPTIONS/subscriptionID goes here/RESOURCEGROUPS/resource group goes here/PROVIDERS/MICROSOFT.INSIGHTS/COMPONENTS/{function app name}",
+      "sdkVersion": "azurefunctions: 3.0.15571.0",
+      "success": true,
+    },
+    "eventType": "AzureAppRequest",
+    "timestamp": 1619736074123,
+  },
+]
+`;
