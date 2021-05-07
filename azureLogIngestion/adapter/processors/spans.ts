@@ -5,6 +5,7 @@ import { Processor } from "./base"
 import flatten from "../utils/flatten"
 
 const dbs = ["sql", "mariadb", "postgresql", "cosmos", "table", "storage"]
+const debug = process.env["DEBUG"] || false
 
 const nrFormattedAttributes = {
     // Dependency attributes
@@ -75,12 +76,13 @@ export default class SpanProcessor implements Processor {
         const attributes = {
             ...flatten(rest),
         }
-
-        context.log("traceId: ", operationId)
-        context.log("id: ", id)
-        context.log("parentId: ", parentId)
-        context.log("name: ", name)
-        context.log("operationName: ", operationName)
+        if (debug) {
+            context.log("traceId: ", operationId)
+            context.log("id: ", id)
+            context.log("parentId: ", parentId)
+            context.log("name: ", name)
+            context.log("operationName: ", operationName)
+        }
 
         const span = new telemetry.spans.Span(
             id,
