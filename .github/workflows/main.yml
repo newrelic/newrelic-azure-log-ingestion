@@ -47,8 +47,8 @@ jobs:
       run: npm run test
     - name: Install core tools
       run: |
-        sudo apt-get update
-        sudo apt-get install azure-functions-core-tools-3
+        sudo apt-get update --fix-missing
+        sudo apt-get install -fy azure-functions-core-tools-3
     - name: Package
       run: |
         mkdir -p artifacts/zip

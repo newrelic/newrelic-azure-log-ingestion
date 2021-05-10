@@ -4,6 +4,8 @@ import { Context } from "@azure/functions"
 import { Processor } from "./base"
 import flatten from "../utils/flatten"
 
+const debug = process.env["DEBUG"] || false
+
 export default class SpanProcessor implements Processor {
     client: telemetry.spans.SpanClient
     batch: telemetry.spans.SpanBatch
