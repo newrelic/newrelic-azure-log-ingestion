@@ -2,6 +2,7 @@ import { Context } from "@azure/functions"
 
 import { normalizeAppDependency, normalizeAppRequest } from "./mappings"
 import { EventProcessor, SpanProcessor } from "./processors"
+import * as _ from "lodash"
 
 const debug = process.env["DEBUG"] || false
 
@@ -49,11 +50,20 @@ export default class Adapter {
      * There may be situations where a message corresponds to more than one
      * type of telemetry. In this case, the switch/case may not make sense.
      */
-    processMessages(messages: string, context: Context): void {
-        let records: Records
-
+    processMessages(messages: string | string[], context: Context): void {
         try {
-            records = JSON.parse(messages)
+            const messageArray = _.isArray(messages) ? messages : [messages]
+
+            messageArray.forEach((message) => {
+                const records = JSON.parse(message)
+                if (debug) {
+                    context.log("All messages: ", records.records)
+                    context.log("All messages length: ", records.records.length)
+                }
+                records.records.forEach((m) => {
+                    return this.determineMessageTypeProcessor(m, context)
+                })
+            })
         } catch (err) {
             context.log.error(`Error parsing JSON: ${err}`)
             if (debug) {
@@ -62,15 +72,6 @@ export default class Adapter {
 
             return
         }
-
-        if (debug) {
-            context.log("All messages: ", records.records)
-            context.log("All messages length: ", records.records.length)
-        }
-
-        records.records.forEach((message) => {
-            return this.determineMessageTypeProcessor(message, context)
-        })
     }
 
     /**
