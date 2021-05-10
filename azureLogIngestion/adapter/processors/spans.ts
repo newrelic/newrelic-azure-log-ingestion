@@ -4,47 +4,7 @@ import { Context } from "@azure/functions"
 import { Processor } from "./base"
 import flatten from "../utils/flatten"
 
-const dbs = ["sql", "mariadb", "postgresql", "cosmos", "table", "storage"]
 const debug = process.env["DEBUG"] || false
-
-const nrFormattedAttributes = {
-    // Dependency attributes
-    DependencyType: "dependency.type",
-    Target: "xxx.target",
-    Data: {
-        db: "db.statement",
-        http: "http.url",
-    },
-    // Request attributes
-    HttpMethod: "http.method",
-    HttpPath: "http.path",
-    Source: "http.source",
-    ResultCode: "xxx.responseCode",
-    Url: "http.url",
-    // General attributes
-    Type: "log.type",
-}
-
-// TODO: Make this a processor method
-const formatAttributes = (message) => {
-    const formattedAttributes = {}
-    const { DependencyType = "" } = message
-
-    const attributePrefix = dbs.includes(DependencyType.toLowerCase()) ? "db" : "http"
-    Object.entries(message).forEach(([key, value]) => {
-        if (nrFormattedAttributes[key]) {
-            if (key === "Data") {
-                formattedAttributes[nrFormattedAttributes[key][attributePrefix]] = value
-                return
-            }
-            const keyWithPrefix = nrFormattedAttributes[key].replace("xxx", attributePrefix)
-            formattedAttributes[keyWithPrefix] = value
-            return
-        }
-        formattedAttributes[key] = value
-    })
-    return formattedAttributes
-}
 
 export default class SpanProcessor implements Processor {
     client: telemetry.spans.SpanClient
@@ -67,10 +27,6 @@ export default class SpanProcessor implements Processor {
      * Processes a span message and adds span to current batch
      */
     processMessage(message: Record<string, any>, context: Context): void {
-        // Deleting attributes we do not want to send to New Relic
-        // TODO: Make this a part of a processor attribute filter method
-        delete message.iKey
-
         const { id, parentId, operationId, timestamp, name, durationMs, operationName, ...rest } = message
         const epochDate = new Date(timestamp).getTime()
         const attributes = {

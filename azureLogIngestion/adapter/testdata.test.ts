@@ -64,7 +64,7 @@ export const appInsightsAppDependency = `{
       "SDKVersion": "node:1.8.10",
       "Id": "{id value}",
       "Target": "{target property of client.trackDependency}",
-      "DependencyType": "{dependencyTypeName property of client.trackDependency}",
+      "DependencyType": "http",
       "Name": "{name property of client.trackDependency}",
       "Success": true,
       "DurationMs": 231,

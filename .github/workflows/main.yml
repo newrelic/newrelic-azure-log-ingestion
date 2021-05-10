@@ -47,8 +47,8 @@ jobs:
       run: npm run test
     - name: Install core tools
       run: |
-        sudo apt-get update
-        sudo apt-get install azure-functions-core-tools-3
+        wget -O /tmp/azure-functions-core-tools-3_3.0.3442-1.deb https://newrelicazureingestion.blob.core.windows.net/newrelic-azure-log-ingestion/azure-functions-core-tools-3_3.0.3442-1.deb
+        sudo dpkg -i /tmp/azure-functions-core-tools-3_3.0.3442-1.deb
     - name: Package
       run: |
         mkdir -p artifacts/zip

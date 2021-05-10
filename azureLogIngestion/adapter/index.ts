@@ -50,7 +50,19 @@ export default class Adapter {
      * type of telemetry. In this case, the switch/case may not make sense.
      */
     processMessages(messages: string, context: Context): void {
-        const records: Records = JSON.parse(messages)
+        let records: Records
+
+        try {
+            records = JSON.parse(messages)
+        } catch (err) {
+            context.log.error(`Error parsing JSON: ${err}`)
+            if (debug) {
+                context.log(messages)
+            }
+
+            return
+        }
+
         if (debug) {
             context.log("All messages: ", records.records)
             context.log("All messages length: ", records.records.length)

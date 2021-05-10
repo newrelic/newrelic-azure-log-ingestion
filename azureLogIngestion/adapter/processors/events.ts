@@ -32,11 +32,11 @@ export default class EventProcessor implements Processor {
         // TODO: Make this a part of a processor attribute filter method
         delete message.iKey
 
-        const { type, timestamp, ...rest } = message
+        const { type, timestamp, properties = {}, ...rest } = message
         const eventType = `Azure${type}`
         const epochDate = new Date(timestamp).getTime()
         const attributes = {
-            ...flatten(rest),
+            ...flatten({ ...properties, ...rest }),
         }
 
         const event = new telemetry.events.Event(eventType, attributes, epochDate)
