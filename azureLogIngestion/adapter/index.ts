@@ -3,6 +3,8 @@ import { Context } from "@azure/functions"
 import { normalizeAppDependency, normalizeAppRequest } from "./mappings"
 import { EventProcessor, SpanProcessor } from "./processors"
 
+const debug = process.env["DEBUG"] || false
+
 interface Records {
     records: Record<string, any>[]
 }
@@ -49,9 +51,10 @@ export default class Adapter {
      */
     processMessages(messages: string, context: Context): void {
         const records: Records = JSON.parse(messages)
-
-        context.log("All messages: ", records.records)
-        context.log("All messages length: ", records.records.length)
+        if (debug) {
+            context.log("All messages: ", records.records)
+            context.log("All messages length: ", records.records.length)
+        }
 
         records.records.forEach((message) => {
             return this.determineMessageTypeProcessor(message, context)
@@ -65,7 +68,9 @@ export default class Adapter {
      * batches instead of failing on the first reject. We only log promise rejections.
      */
     sendBatches(context: Context): void {
-        context.log("What is being sent to NR: ", this.spanProcessor.batch)
+        if (debug) {
+            context.log("What is being sent to NR: ", this.spanProcessor.batch)
+        }
         const batches = []
         batches.push(this.spanProcessor.sendBatch())
         Promise.allSettled(batches).then((results) => {

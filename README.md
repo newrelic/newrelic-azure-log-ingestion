@@ -37,7 +37,7 @@ Then click the button below to start the installation process via the Azure Port
 1. Install the [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli).
 2. Retrieve your [New Relic Insights Insert Key](https://docs.newrelic.com/docs/apis/get-started/intro-apis/new-relic-api-keys/#insights-insert-key).
 3. Run `az login` to login to Azure.
-4. Run `az group create --name NewRelicLogs --location uswest`
+4. Run `az group create --name NewRelicLogs --location westus`
    to create an Azure Resource Group. Replace `NewRelicLogs` with your preferred
    Resource Group name and `westus` with your prefered Azure location. This step is
    optional but recommended. If you have an existing Resource Group you want to use,
