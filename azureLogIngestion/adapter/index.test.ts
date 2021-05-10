@@ -113,5 +113,4 @@ describe("Adapter", () => {
         expect(adapter.spanProcessor.batch.getBatchSize()).toEqual(4)
         expect(adapter.spanProcessor.batch.spans).toMatchSnapshot()
     })
-
 })

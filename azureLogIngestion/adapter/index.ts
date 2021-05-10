@@ -53,15 +53,10 @@ export default class Adapter {
     processMessages(messages: string | string[], context: Context): void {
         const messageArray = _.isArray(messages) ? messages : [messages]
         messageArray.forEach((message) => {
+            let records: Records
+
             try {
-                const records = JSON.parse(message)
-                if (debug) {
-                    context.log("All messages: ", records.records)
-                    context.log("All messages length: ", records.records.length)
-                }
-                records.records.forEach((m) => {
-                    return this.determineMessageTypeProcessor(m, context)
-                }, this)
+                records = JSON.parse(message)
             } catch (err) {
                 context.log.error(`Error parsing JSON: ${err}`)
                 if (debug) {
@@ -69,6 +64,15 @@ export default class Adapter {
                 }
                 return
             }
+
+            if (debug) {
+                context.log("All messages: ", records.records)
+                context.log("All messages length: ", records.records.length)
+            }
+
+            records.records.forEach((m) => {
+                return this.determineMessageTypeProcessor(m, context)
+            }, this)
         }, this)
     }
 
