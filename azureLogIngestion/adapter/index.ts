@@ -51,10 +51,9 @@ export default class Adapter {
      * type of telemetry. In this case, the switch/case may not make sense.
      */
     processMessages(messages: string | string[], context: Context): void {
-        try {
-            const messageArray = _.isArray(messages) ? messages : [messages]
-
-            messageArray.forEach((message) => {
+        const messageArray = _.isArray(messages) ? messages : [messages]
+        messageArray.forEach((message) => {
+            try {
                 const records = JSON.parse(message)
                 if (debug) {
                     context.log("All messages: ", records.records)
@@ -62,16 +61,15 @@ export default class Adapter {
                 }
                 records.records.forEach((m) => {
                     return this.determineMessageTypeProcessor(m, context)
-                })
-            })
-        } catch (err) {
-            context.log.error(`Error parsing JSON: ${err}`)
-            if (debug) {
-                context.log(messages)
+                }, this)
+            } catch (err) {
+                context.log.error(`Error parsing JSON: ${err}`)
+                if (debug) {
+                    context.log(messages)
+                }
+                return
             }
-
-            return
-        }
+        }, this)
     }
 
     /**
