@@ -48,7 +48,7 @@ export const normalizeAppRequest = (data: Record<string, any>): Record<string, a
 }
 
 export const normalizeAppDependency = (data: Record<string, any>): Record<string, any> => {
-    // This is going to be overwriten by mapper, so keep a copy if exists (app insights only)
+    // This is going to be overwritten by mapper, so keep a copy if exists (app insights only)
     const { type } = data
     let dependency = mapper(camelcase(data), appDependencyMap)
     delete dependency.iKey
