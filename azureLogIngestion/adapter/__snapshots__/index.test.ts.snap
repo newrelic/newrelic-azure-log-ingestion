@@ -1,5 +1,70 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Adapter processes app event as event and span 1`] = `Array []`;
+
+exports[`Adapter processes app event as event and span 2`] = `Array []`;
+
+exports[`Adapter processes app event as event and span 3`] = `
+Array [
+  Event {
+    "attributes": Object {
+      "appRoleInstance": "{role instance value}",
+      "appRoleName": "Web",
+      "billedSize": 742,
+      "clientCity": "San Jose",
+      "clientCountryOrRegion": "United States",
+      "clientIp": "0.0.0.0",
+      "clientOs": "Windows_NT 10.0.14393",
+      "clientStateOrProvince": "California",
+      "clientType": "PC",
+      "itemCount": 1,
+      "myCustomProperty1": "This is my custom property",
+      "myCustomProperty2": "And here is another.",
+      "name": "my custom event",
+      "now": "2021-05-04T19:12:36.185Z",
+      "operationId": "98765",
+      "parentId": "12345",
+      "resourceGuid": "{guid of resource}",
+      "resourceId": "/SUBSCRIPTIONS/{subscription Id}/RESOURCEGROUPS/{resource group in all caps}/PROVIDERS/MICROSOFT.INSIGHTS/COMPONENTS/{function app name in all caps}",
+      "sdkVersion": "node:1.8.10",
+    },
+    "eventType": "AzureAppEvent",
+    "timestamp": 1620155556185,
+  },
+]
+`;
+
+exports[`Adapter processes app event as event and span 4`] = `
+Array [
+  Span {
+    "attributes": Object {
+      "appRoleInstance": "{role instance value}",
+      "appRoleName": "Web",
+      "billedSize": 742,
+      "clientCity": "San Jose",
+      "clientCountryOrRegion": "United States",
+      "clientIp": "0.0.0.0",
+      "clientOs": "Windows_NT 10.0.14393",
+      "clientStateOrProvince": "California",
+      "clientType": "PC",
+      "itemCount": 1,
+      "name": "my custom event",
+      "parent.id": "12345",
+      "properties.myCustomProperty1": "This is my custom property",
+      "properties.myCustomProperty2": "And here is another.",
+      "properties.now": "2021-05-04T19:12:36.185Z",
+      "resourceGuid": "{guid of resource}",
+      "resourceId": "/SUBSCRIPTIONS/{subscription Id}/RESOURCEGROUPS/{resource group in all caps}/PROVIDERS/MICROSOFT.INSIGHTS/COMPONENTS/{function app name in all caps}",
+      "sdkVersion": "node:1.8.10",
+      "type": "AppEvent",
+    },
+    "id": undefined,
+    "timestamp": 1620155556185,
+    "trace.id": "98765",
+  },
+]
+`;
+
 exports[`Adapter processes app request and dependency as spans 1`] = `Array []`;
 
 exports[`Adapter processes app request and dependency as spans 2`] = `

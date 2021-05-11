@@ -40,6 +40,21 @@ const appDependencyMap = {
     url: "http.url",
 }
 
+const appEventMap = {
+    appId: "resourceGuid",
+    applicationVersion: "appVersion",
+    appName: "resourceId",
+    cloudRoleInstance: "appRoleInstance",
+    cloudRoleName: "appRoleName",
+    customDimensions: "properties",
+    customMeasurements: "measurements",
+    duration: "durationMs",
+    itemId: "id",
+    operationParentId: "parentId",
+    time: "timestamp",
+    TimeGenerated: "timestamp",
+}
+
 export const normalizeAppRequest = (data: Record<string, any>): Record<string, any> => {
     const request = mapper(camelcase(data), appRequestMap)
     delete request.IKey
@@ -73,4 +88,11 @@ export const normalizeAppDependency = (data: Record<string, any>): Record<string
     }
     dependency.type = "AppDependency"
     return dependency
+}
+
+export const normalizeAppEvent = (data: Record<string, any>): Record<string, any> => {
+    const event = mapper(camelcase(data), appEventMap)
+    delete event.iKey
+    event.type = "AppEvent"
+    return event
 }

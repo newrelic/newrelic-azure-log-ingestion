@@ -74,6 +74,37 @@ export const appInsightsAppDependency = `{
   ]
 }`
 
+export const appInsightsAppEvent = `{
+  "records": [
+    {
+      "time": "2021-05-04T19:12:36.1850000Z",
+      "resourceId": "/SUBSCRIPTIONS/{subscription Id}/RESOURCEGROUPS/{resource group in all caps}/PROVIDERS/MICROSOFT.INSIGHTS/COMPONENTS/{function app name in all caps}",
+      "ResourceGUID": "{guid of resource}",
+      "Type": "AppEvents",
+      "AppRoleInstance": "{role instance value}",
+      "AppRoleName": "Web",
+      "ClientCity": "San Jose",
+      "ClientCountryOrRegion": "United States",
+      "ClientIP": "0.0.0.0",
+      "ClientOS": "Windows_NT 10.0.14393",
+      "ClientStateOrProvince": "California",
+      "ClientType": "PC",
+      "IKey": "{iKey}",
+      "_BilledSize": 742,
+      "OperationId": "98765",
+      "ParentId": "12345",
+      "SDKVersion": "node:1.8.10",
+      "Properties": {
+        "myCustomProperty1": "This is my custom property",
+        "myCustomProperty2": "And here is another.",
+        "now": "2021-05-04T19:12:36.185Z"
+      },
+      "Name": "my custom event",
+      "ItemCount": 1
+    }
+  ]
+}`
+
 export const arrayOfStrings = [
     '{"records": [{ "time": "2021-05-10T18:10:20.4630000Z", "resourceId": "/SUBSCRIPTIONS/subscriptionId/RESOURCEGROUPS/resourceGroupName/PROVIDERS/MICROSOFT.INSIGHTS/COMPONENTS/functionAppName", "ResourceGUID": "resourceGuid", "Type": "AppPerformanceCounters", "AppRoleInstance": "roleInstance", "AppRoleName": "Web", "ClientCity": "San Jose", "ClientCountryOrRegion": "United States", "ClientIP": "0.0.0.0", "ClientOS": "Windows_NT 10.0.14393", "ClientStateOrProvince": "California", "ClientType": "PC", "IKey": "iKeyUuid", "_BilledSize": 688, "SDKVersion": "node:1.8.10", "Name": "% Processor Time", "Category": "Processor", "Counter": "% Processor Time", "Value": 0.768134898484558},{ "time": "2021-05-10T18:10:20.4630000Z", "resourceId": "/SUBSCRIPTIONS/subscriptionId/RESOURCEGROUPS/resourceGroupName/PROVIDERS/MICROSOFT.INSIGHTS/COMPONENTS/functionAppName", "ResourceGUID": "resourceGuid", "Type": "AppPerformanceCounters", "AppRoleInstance": "roleInstance", "AppRoleName": "Web", "ClientCity": "San Jose", "ClientCountryOrRegion": "United States", "ClientIP": "0.0.0.0", "ClientOS": "Windows_NT 10.0.14393", "ClientStateOrProvince": "California", "ClientType": "PC", "IKey": "iKeyUuid", "_BilledSize": 701, "SDKVersion": "node:1.8.10", "Name": "% Processor Time", "Category": "Process", "Counter": "% Processor Time", "Value": 0.013332147794311},{ "time": "2021-05-10T18:10:20.4630000Z", "resourceId": "/SUBSCRIPTIONS/subscriptionId/RESOURCEGROUPS/resourceGroupName/PROVIDERS/MICROSOFT.INSIGHTS/COMPONENTS/functionAppName", "ResourceGUID": "resourceGuid", "Type": "AppPerformanceCounters", "AppRoleInstance": "roleInstance", "AppRoleName": "Web", "ClientCity": "San Jose", "ClientCountryOrRegion": "United States", "ClientIP": "0.0.0.0", "ClientOS": "Windows_NT 10.0.14393", "ClientStateOrProvince": "California", "ClientType": "PC", "IKey": "iKeyUuid", "_BilledSize": 662, "SDKVersion": "node:1.8.10", "Name": "Private Bytes", "Category": "Process", "Counter": "Private Bytes", "Value": 3739648},{ "time": "2021-05-10T18:10:20.4630000Z", "resourceId": "/SUBSCRIPTIONS/subscriptionId/RESOURCEGROUPS/resourceGroupName/PROVIDERS/MICROSOFT.INSIGHTS/COMPONENTS/functionAppName", "ResourceGUID": "resourceGuid", "Type": "AppPerformanceCounters", "AppRoleInstance": "roleInstance", "AppRoleName": "Web", "ClientCity": "San Jose", "ClientCountryOrRegion": "United States", "ClientIP": "0.0.0.0", "ClientOS": "Windows_NT 10.0.14393", "ClientStateOrProvince": "California", "ClientType": "PC", "IKey": "iKeyUuid", "_BilledSize": 652, "SDKVersion": "node:1.8.10", "Name": "Available Bytes", "Category": "Memory", "Counter": "Available Bytes", "Value": 1997389824},{ "time": "2021-05-10T18:10:20.4630000Z", "resourceId": "/SUBSCRIPTIONS/subscriptionId/RESOURCEGROUPS/resourceGroupName/PROVIDERS/MICROSOFT.INSIGHTS/COMPONENTS/functionAppName", "ResourceGUID": "resourceGuid", "Type": "AppPerformanceCounters", "AppRoleInstance": "roleInstance", "AppRoleName": "Web", "ClientCity": "San Jose", "ClientCountryOrRegion": "United States", "ClientIP": "0.0.0.0", "ClientOS": "Windows_NT 10.0.14393", "ClientStateOrProvince": "California", "ClientType": "PC", "IKey": "iKeyUuid", "_BilledSize": 656, "SDKVersion": "node:1.8.10", "Name": "Requests/Sec", "Category": "ASP.NET Applications", "Counter": "Requests/Sec", "Value": 0},{ "time": "2021-05-10T18:10:20.4630000Z", "resourceId": "/SUBSCRIPTIONS/subscriptionId/RESOURCEGROUPS/resourceGroupName/PROVIDERS/MICROSOFT.INSIGHTS/COMPONENTS/functionAppName", "ResourceGUID": "resourceGuid", "Type": "AppPerformanceCounters", "AppRoleInstance": "roleInstance", "AppRoleName": "Web", "ClientCity": "San Jose", "ClientCountryOrRegion": "United States", "ClientIP": "0.0.0.0", "ClientOS": "Windows_NT 10.0.14393", "ClientStateOrProvince": "California", "ClientType": "PC", "IKey": "iKeyUuid", "_BilledSize": 666, "SDKVersion": "node:1.8.10", "Name": "Request Execution Time", "Category": "ASP.NET Applications", "Counter": "Request Execution Time", "Value": 0}]}',
     '{"records": [{ "time": "2021-05-10T18:14:48.8485302Z", "resourceId": "/SUBSCRIPTIONS/subscriptionId/RESOURCEGROUPS/resourceGroupName/PROVIDERS/MICROSOFT.INSIGHTS/COMPONENTS/functionAppName", "ResourceGUID": "resourceGuid", "Type": "AppMetrics", "AppRoleInstance": "roleInstanceId", "AppRoleName": "functionAppName", "ClientIP": "0.0.0.0", "ClientType": "PC", "IKey": "iKeyUuid", "_BilledSize": 1030, "SDKVersion": "hbnetc:2.16.0-18277", "SyntheticSource": "HeartbeatState", "Properties": {"appSrv_wsOwner":"subscriptionId+resourceGroupName-WestUSwebspace","appSrv_ResourceGroup":"resourceGroupName","appSrv_wsHost":"functionAppName.azurewebsites.net","runtimeFramework":".NET Core 3.1.13","osType":"WINDOWS","processSessionId":"8983b6b6-3eee-47e4-a538-f41abd6c756d","appSrv_SiteName":"functionAppName","appSrv_wsStamp":"waws-prod-bay-153","baseSdkTargetFramework":"netstandard2.0","ProcessId":"7588","appSrv_SlotName":"Production"}, "Name": "HeartbeatState", "Sum": 0, "Min": 0, "Max": 0, "ItemCount": 1}]}',

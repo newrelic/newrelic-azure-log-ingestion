@@ -1,6 +1,6 @@
 import { Context } from "@azure/functions"
 
-import { normalizeAppDependency, normalizeAppRequest } from "./mappings"
+import { normalizeAppDependency, normalizeAppEvent, normalizeAppRequest } from "./mappings"
 import { EventProcessor, SpanProcessor } from "./processors"
 import * as _ from "lodash"
 
@@ -41,6 +41,12 @@ export default class Adapter {
 
         if (["AppDependencies", "dependencies"].indexOf(type) !== -1) {
             this.spanProcessor.processMessage(normalizeAppDependency(message), context)
+        }
+
+        if (["AppEvents", "customEvents"].indexOf(type) !== -1) {
+            const event = normalizeAppEvent(message)
+            this.eventProcessor.processMessage(event, context)
+            this.spanProcessor.processMessage(event, context)
         }
     }
 
