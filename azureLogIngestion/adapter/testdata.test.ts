@@ -105,6 +105,82 @@ export const appInsightsAppEvent = `{
   ]
 }`
 
+export const appInsightsAppException = `{
+  "records": [
+    {
+      "time": "2021-05-05T16:44:56.8020000Z",
+      "resourceId": "/SUBSCRIPTIONS/{subscription ID}/RESOURCEGROUPS/{resource group name}/PROVIDERS/MICROSOFT.INSIGHTS/COMPONENTS/{function app name}",
+      "ResourceGUID": "{resource GUID}",
+      "Type": "AppExceptions",
+      "AppRoleInstance": "{role instance ID}",
+      "AppRoleName": "Web",
+      "ClientCity": "San Jose",
+      "ClientCountryOrRegion": "United States",
+      "ClientIP": "0.0.0.0",
+      "ClientOS": "Windows_NT 10.0.14393",
+      "ClientStateOrProvince": "California",
+      "ClientType": "PC",
+      "IKey": "{iKey}",
+      "_BilledSize": 3379,
+      "OperationId": "{long operation id}",
+      "ParentId": "{long operation id}",
+      "SDKVersion": "node:1.8.10",
+      "Details": [
+        {
+          "severityLevel": "Error",
+          "outerId": "0",
+          "message": "Error: Throwing an uncaught error on purpose.",
+          "type": "Error",
+          "id": "0",
+          "parsedStack": [{
+              "assembly": "at module.exports (path/to/file:lineNumber:charPos)",
+              "method": "module.exports",
+              "level": 0,
+              "line": 266,
+              "fileName": "path/to/file.js"
+            },
+            {
+              "assembly": "at WorkerChannel.invocationRequest (path/to/file:lineNumber:charPos)",
+              "method": "WorkerChannel.invocationRequest (path/to/file:lineNumber:charPos)",
+              "level": 1,
+              "line": 18579,
+              "fileName": "path/to/file.js"
+            },
+            {
+              "assembly": "at ClientDuplexStream.methodName (path/to/file:lineNumber:charPos)",
+              "method": "ClientDuplexStream.methodName (Drive:/Directory",
+              "level": 2,
+              "line": 18359,
+              "fileName": "path/to/file:lineNumber:charPos"
+            },
+            {
+              "assembly": "at ClientDuplexStream.emit (path/to/file:lineNumber:charPos)",
+              "method": "ClientDuplexStream.emit",
+              "level": 3,
+              "line": 314,
+              "fileName": "file.js"
+            }
+          ]
+        }
+      ],
+      "ProblemId": "Error at module.exports",
+      "ExceptionType": "Error",
+      "Assembly": "at module.exports (C:/home/site/wwwroot/functionName/index.js:266:43)",
+      "Method": "module.exports",
+      "OuterType": "Error",
+      "OuterMessage": "Error: Throwing an uncaught error on purpose.",
+      "OuterAssembly": "at module.exports (C:/home/site/wwwroot/functionName/index.js:266:43)",
+      "OuterMethod": "module.exports",
+      "InnermostType": "Error",
+      "InnermostMessage": "Error: Throwing an uncaught error on purpose.",
+      "InnermostAssembly": "at module.exports (C:/home/site/wwwroot/functionName/index.js:266:43)",
+      "InnermostMethod": "module.exports",
+      "SeverityLevel": 3,
+      "ItemCount": 1
+    }
+  ]
+}`
+
 export const arrayOfStrings = [
     '{"records": [{ "time": "2021-05-10T18:10:20.4630000Z", "resourceId": "/SUBSCRIPTIONS/subscriptionId/RESOURCEGROUPS/resourceGroupName/PROVIDERS/MICROSOFT.INSIGHTS/COMPONENTS/functionAppName", "ResourceGUID": "resourceGuid", "Type": "AppPerformanceCounters", "AppRoleInstance": "roleInstance", "AppRoleName": "Web", "ClientCity": "San Jose", "ClientCountryOrRegion": "United States", "ClientIP": "0.0.0.0", "ClientOS": "Windows_NT 10.0.14393", "ClientStateOrProvince": "California", "ClientType": "PC", "IKey": "iKeyUuid", "_BilledSize": 688, "SDKVersion": "node:1.8.10", "Name": "% Processor Time", "Category": "Processor", "Counter": "% Processor Time", "Value": 0.768134898484558},{ "time": "2021-05-10T18:10:20.4630000Z", "resourceId": "/SUBSCRIPTIONS/subscriptionId/RESOURCEGROUPS/resourceGroupName/PROVIDERS/MICROSOFT.INSIGHTS/COMPONENTS/functionAppName", "ResourceGUID": "resourceGuid", "Type": "AppPerformanceCounters", "AppRoleInstance": "roleInstance", "AppRoleName": "Web", "ClientCity": "San Jose", "ClientCountryOrRegion": "United States", "ClientIP": "0.0.0.0", "ClientOS": "Windows_NT 10.0.14393", "ClientStateOrProvince": "California", "ClientType": "PC", "IKey": "iKeyUuid", "_BilledSize": 701, "SDKVersion": "node:1.8.10", "Name": "% Processor Time", "Category": "Process", "Counter": "% Processor Time", "Value": 0.013332147794311},{ "time": "2021-05-10T18:10:20.4630000Z", "resourceId": "/SUBSCRIPTIONS/subscriptionId/RESOURCEGROUPS/resourceGroupName/PROVIDERS/MICROSOFT.INSIGHTS/COMPONENTS/functionAppName", "ResourceGUID": "resourceGuid", "Type": "AppPerformanceCounters", "AppRoleInstance": "roleInstance", "AppRoleName": "Web", "ClientCity": "San Jose", "ClientCountryOrRegion": "United States", "ClientIP": "0.0.0.0", "ClientOS": "Windows_NT 10.0.14393", "ClientStateOrProvince": "California", "ClientType": "PC", "IKey": "iKeyUuid", "_BilledSize": 662, "SDKVersion": "node:1.8.10", "Name": "Private Bytes", "Category": "Process", "Counter": "Private Bytes", "Value": 3739648},{ "time": "2021-05-10T18:10:20.4630000Z", "resourceId": "/SUBSCRIPTIONS/subscriptionId/RESOURCEGROUPS/resourceGroupName/PROVIDERS/MICROSOFT.INSIGHTS/COMPONENTS/functionAppName", "ResourceGUID": "resourceGuid", "Type": "AppPerformanceCounters", "AppRoleInstance": "roleInstance", "AppRoleName": "Web", "ClientCity": "San Jose", "ClientCountryOrRegion": "United States", "ClientIP": "0.0.0.0", "ClientOS": "Windows_NT 10.0.14393", "ClientStateOrProvince": "California", "ClientType": "PC", "IKey": "iKeyUuid", "_BilledSize": 652, "SDKVersion": "node:1.8.10", "Name": "Available Bytes", "Category": "Memory", "Counter": "Available Bytes", "Value": 1997389824},{ "time": "2021-05-10T18:10:20.4630000Z", "resourceId": "/SUBSCRIPTIONS/subscriptionId/RESOURCEGROUPS/resourceGroupName/PROVIDERS/MICROSOFT.INSIGHTS/COMPONENTS/functionAppName", "ResourceGUID": "resourceGuid", "Type": "AppPerformanceCounters", "AppRoleInstance": "roleInstance", "AppRoleName": "Web", "ClientCity": "San Jose", "ClientCountryOrRegion": "United States", "ClientIP": "0.0.0.0", "ClientOS": "Windows_NT 10.0.14393", "ClientStateOrProvince": "California", "ClientType": "PC", "IKey": "iKeyUuid", "_BilledSize": 656, "SDKVersion": "node:1.8.10", "Name": "Requests/Sec", "Category": "ASP.NET Applications", "Counter": "Requests/Sec", "Value": 0},{ "time": "2021-05-10T18:10:20.4630000Z", "resourceId": "/SUBSCRIPTIONS/subscriptionId/RESOURCEGROUPS/resourceGroupName/PROVIDERS/MICROSOFT.INSIGHTS/COMPONENTS/functionAppName", "ResourceGUID": "resourceGuid", "Type": "AppPerformanceCounters", "AppRoleInstance": "roleInstance", "AppRoleName": "Web", "ClientCity": "San Jose", "ClientCountryOrRegion": "United States", "ClientIP": "0.0.0.0", "ClientOS": "Windows_NT 10.0.14393", "ClientStateOrProvince": "California", "ClientType": "PC", "IKey": "iKeyUuid", "_BilledSize": 666, "SDKVersion": "node:1.8.10", "Name": "Request Execution Time", "Category": "ASP.NET Applications", "Counter": "Request Execution Time", "Value": 0}]}',
     '{"records": [{ "time": "2021-05-10T18:14:48.8485302Z", "resourceId": "/SUBSCRIPTIONS/subscriptionId/RESOURCEGROUPS/resourceGroupName/PROVIDERS/MICROSOFT.INSIGHTS/COMPONENTS/functionAppName", "ResourceGUID": "resourceGuid", "Type": "AppMetrics", "AppRoleInstance": "roleInstanceId", "AppRoleName": "functionAppName", "ClientIP": "0.0.0.0", "ClientType": "PC", "IKey": "iKeyUuid", "_BilledSize": 1030, "SDKVersion": "hbnetc:2.16.0-18277", "SyntheticSource": "HeartbeatState", "Properties": {"appSrv_wsOwner":"subscriptionId+resourceGroupName-WestUSwebspace","appSrv_ResourceGroup":"resourceGroupName","appSrv_wsHost":"functionAppName.azurewebsites.net","runtimeFramework":".NET Core 3.1.13","osType":"WINDOWS","processSessionId":"8983b6b6-3eee-47e4-a538-f41abd6c756d","appSrv_SiteName":"functionAppName","appSrv_wsStamp":"waws-prod-bay-153","baseSdkTargetFramework":"netstandard2.0","ProcessId":"7588","appSrv_SlotName":"Production"}, "Name": "HeartbeatState", "Sum": 0, "Min": 0, "Max": 0, "ItemCount": 1}]}',

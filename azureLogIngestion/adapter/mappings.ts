@@ -1,8 +1,7 @@
 import camelcase from "./utils/camelcase"
 import mapper from "./utils/mapper"
 
-// https://docs.microsoft.com/en-us/azure/azure-monitor/app/apm-tables#apprequests
-const appRequestMap = {
+const commonProps = {
     appId: "resourceGuid",
     applicationVersion: "appVersion",
     appName: "resourceId",
@@ -10,63 +9,47 @@ const appRequestMap = {
     cloudRoleName: "appRoleName",
     customDimensions: "properties",
     customMeasurements: "measurements",
+    operationParentId: "parentId",
+    time: "timestamp",
+    TimeGenerated: "timestamp",
+}
+
+// https://docs.microsoft.com/en-us/azure/azure-monitor/app/apm-tables#apprequests
+const appRequestMap = {
+    ...commonProps,
     duration: "durationMs",
     httpMethod: "http.method",
     httpPath: "http.path",
     itemType: "type",
-    operationParentId: "parentId",
     resultCode: "http.statusCode",
-    time: "timestamp",
-    timeGenerated: "timestamp",
     url: "http.url",
 }
 
 // https://docs.microsoft.com/en-us/azure/azure-monitor/app/apm-tables#appdependencies
 const appDependencyMap = {
-    appId: "resourceGuid",
-    applicationVersion: "appVersion",
-    appName: "resourceId",
-    cloudRoleInstance: "appRoleInstance",
-    cloudRoleName: "appRoleName",
-    customDimensions: "properties",
-    customMeasurements: "measurements",
+    ...commonProps,
     duration: "durationMs",
     httpMethod: "http.method",
     httpPath: "http.path",
-    operationParentId: "parentId",
     //resultCode: "http.statusCode",
-    time: "timestamp",
-    TimeGenerated: "timestamp",
     url: "http.url",
 }
 
 const appEventMap = {
-    appId: "resourceGuid",
-    applicationVersion: "appVersion",
-    appName: "resourceId",
-    cloudRoleInstance: "appRoleInstance",
-    cloudRoleName: "appRoleName",
-    customDimensions: "properties",
-    customMeasurements: "measurements",
+    ...commonProps,
     duration: "durationMs",
     itemId: "id",
-    operationParentId: "parentId",
-    time: "timestamp",
-    TimeGenerated: "timestamp",
+}
+
+const appExceptionMap = {
+    ...commonProps,
+    message: "error.message",
+    outerMessage: "error.class",
 }
 
 const appPageViewMap = {
-    appId: "resourceGuid",
-    applicationVersion: "appVersion",
-    appName: "resourceId",
-    cloudRoleInstance: "appRoleInstance",
-    cloudRoleName: "appRoleName",
-    customDimensions: "properties",
-    customMeasurements: "measurements",
+    ...commonProps,
     duration: "durationMs",
-    operationParentId: "parentId",
-    time: "timestamp",
-    TimeGenerated: "timestamp",
 }
 
 export const normalizeAppRequest = (data: Record<string, any>): Record<string, any> => {
@@ -90,7 +73,7 @@ export const normalizeAppDependency = (data: Record<string, any>): Record<string
         ) !== -1
     ) {
         if (dependency.name) {
-            dependency.name = `DAtastore/${dependency.name}`
+            dependency.name = `Datastore/${dependency.name}`
         }
         dependency = mapper(dependency, { data: "db.statement", resultCode: "db.responseCode", target: "db.target" })
     }
@@ -116,4 +99,11 @@ export const normalizeAppPageView = (data: Record<string, any>): Record<string, 
     delete pageView.iKey
     pageView.type = "AppPageView"
     return pageView
+}
+
+export const normalizeAppException = (data: Record<string, any>): Record<string, any> => {
+    const exception = mapper(camelcase(data), appExceptionMap)
+    delete exception.iKey
+    exception.type = "AppException"
+    return exception
 }
