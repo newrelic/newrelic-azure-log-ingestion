@@ -1,6 +1,6 @@
 import { Context } from "@azure/functions"
 
-import { normalizeAppDependency, normalizeAppEvent, normalizeAppRequest } from "./mappings"
+import { normalizeAppDependency, normalizeAppEvent, normalizeAppPageView, normalizeAppRequest } from "./mappings"
 import { EventProcessor, SpanProcessor } from "./processors"
 import * as _ from "lodash"
 
@@ -47,6 +47,12 @@ export default class Adapter {
             const event = normalizeAppEvent(message)
             this.eventProcessor.processMessage(event, context)
             this.spanProcessor.processMessage(event, context)
+        }
+
+        if (["AppPageViews", "pageViews"].indexOf(type) !== -1) {
+            const pageView = normalizeAppPageView(message)
+            this.eventProcessor.processMessage(pageView, context)
+            this.spanProcessor.processMessage(pageView, context)
         }
     }
 

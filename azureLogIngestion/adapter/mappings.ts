@@ -55,6 +55,20 @@ const appEventMap = {
     TimeGenerated: "timestamp",
 }
 
+const appPageViewMap = {
+    appId: "resourceGuid",
+    applicationVersion: "appVersion",
+    appName: "resourceId",
+    cloudRoleInstance: "appRoleInstance",
+    cloudRoleName: "appRoleName",
+    customDimensions: "properties",
+    customMeasurements: "measurements",
+    duration: "durationMs",
+    operationParentId: "parentId",
+    time: "timestamp",
+    TimeGenerated: "timestamp",
+}
+
 export const normalizeAppRequest = (data: Record<string, any>): Record<string, any> => {
     const request = mapper(camelcase(data), appRequestMap)
     delete request.IKey
@@ -95,4 +109,11 @@ export const normalizeAppEvent = (data: Record<string, any>): Record<string, any
     delete event.iKey
     event.type = "AppEvent"
     return event
+}
+
+export const normalizeAppPageView = (data: Record<string, any>): Record<string, any> => {
+    const pageView = mapper(camelcase(data), appPageViewMap)
+    delete pageView.iKey
+    pageView.type = "AppPageView"
+    return pageView
 }
