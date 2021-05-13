@@ -5,6 +5,7 @@ import {
     normalizeAppBrowserTiming,
     normalizeAppDependency,
     normalizeAppEvent,
+    normalizeAppTrace,
     normalizeAppException,
     normalizeAppPageView,
     normalizeAppRequest,
@@ -80,6 +81,12 @@ export default class Adapter {
             const browserTiming = normalizeAppBrowserTiming(message)
             this.eventProcessor.processMessage(browserTiming, context)
             this.spanProcessor.processMessage(browserTiming, context)
+        }
+
+        if (["AppTraces", "traces"].includes(type)) {
+            const trace = normalizeAppTrace(message)
+            this.eventProcessor.processMessage(trace, context)
+            this.spanProcessor.processMessage(trace, context)
         }
     }
 
