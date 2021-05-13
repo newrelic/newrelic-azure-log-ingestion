@@ -62,6 +62,11 @@ Array [
     "timestamp": 1620155556185,
     "trace.id": "98765",
   },
+  Span {
+    "id": "12345",
+    "timestamp": 1620155556185,
+    "trace.id": "98765",
+  },
 ]
 `;
 
@@ -195,6 +200,11 @@ Array [
     "timestamp": 1620233096802,
     "trace.id": "{long operation id}",
   },
+  Span {
+    "id": "{long operation id}",
+    "timestamp": 1620233096802,
+    "trace.id": "{long operation id}",
+  },
 ]
 `;
 
@@ -237,6 +247,14 @@ Array [
       "type": "AppRequest",
     },
     "id": "09d760d34d75e847",
+    "timestamp": 1619736074123,
+    "trace.id": "12345",
+  },
+  Span {
+    "attributes": Object {
+      "service.name": "{function name}",
+    },
+    "id": "12345",
     "timestamp": 1619736074123,
     "trace.id": "12345",
   },
@@ -285,6 +303,14 @@ Array [
   },
   Span {
     "attributes": Object {
+      "service.name": "{function name}",
+    },
+    "id": "12345",
+    "timestamp": 1619736074123,
+    "trace.id": "12345",
+  },
+  Span {
+    "attributes": Object {
       "appRoleInstance": "{role instance id}",
       "appRoleName": "Web",
       "billedSize": 786,
@@ -308,6 +334,11 @@ Array [
       "type": "AppDependency",
     },
     "id": "{id value}",
+    "timestamp": 1620165670940,
+    "trace.id": "67890",
+  },
+  Span {
+    "id": "12345",
     "timestamp": 1620165670940,
     "trace.id": "67890",
   },
@@ -347,6 +378,11 @@ Array [
     "trace.id": "parentId",
   },
   Span {
+    "id": "parentId",
+    "timestamp": 1620674371908,
+    "trace.id": "parentId",
+  },
+  Span {
     "attributes": Object {
       "appRoleInstance": "dw0-hr0-1068-25",
       "appRoleName": "Web",
@@ -372,6 +408,11 @@ Array [
       "type": "AppDependency",
     },
     "id": "id",
+    "timestamp": 1620674372049,
+    "trace.id": "opId",
+  },
+  Span {
+    "id": "parentId",
     "timestamp": 1620674372049,
     "trace.id": "opId",
   },
@@ -410,6 +451,14 @@ Array [
       "type": "AppRequest",
     },
     "id": "bc40802d79559544",
+    "timestamp": 1620674361060,
+    "trace.id": "operationId",
+  },
+  Span {
+    "attributes": Object {
+      "service.name": "functionName",
+    },
+    "id": "parentId",
     "timestamp": 1620674361060,
     "trace.id": "operationId",
   },
@@ -447,6 +496,11 @@ Array [
     "trace.id": "parentId",
   },
   Span {
+    "id": "parentId",
+    "timestamp": 1620674371908,
+    "trace.id": "parentId",
+  },
+  Span {
     "attributes": Object {
       "appRoleInstance": "dw0-hr0-1068-25",
       "appRoleName": "Web",
@@ -472,6 +526,11 @@ Array [
       "type": "AppDependency",
     },
     "id": "id",
+    "timestamp": 1620674372049,
+    "trace.id": "opId",
+  },
+  Span {
+    "id": "parentId",
     "timestamp": 1620674372049,
     "trace.id": "opId",
   },
@@ -515,6 +574,14 @@ Array [
   },
   Span {
     "attributes": Object {
+      "service.name": "functionName",
+    },
+    "id": "parentId",
+    "timestamp": 1620674361060,
+    "trace.id": "operationId",
+  },
+  Span {
+    "attributes": Object {
       "appRoleInstance": "{role instance id}",
       "appRoleName": "Web",
       "billedSize": 786,
@@ -538,6 +605,11 @@ Array [
       "type": "AppDependency",
     },
     "id": "{id value}",
+    "timestamp": 1620165670940,
+    "trace.id": "67890",
+  },
+  Span {
+    "id": "12345",
     "timestamp": 1620165670940,
     "trace.id": "67890",
   },

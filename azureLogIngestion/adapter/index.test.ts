@@ -52,11 +52,11 @@ describe("Adapter", () => {
         expect(adapter.spanProcessor.batch.spans).toMatchSnapshot()
 
         adapter.processMessages(appInsightsAppRequest, mockContext)
-        expect(adapter.spanProcessor.batch.getBatchSize()).toEqual(1)
+        expect(adapter.spanProcessor.batch.getBatchSize()).toEqual(2)
         expect(adapter.spanProcessor.batch.spans).toMatchSnapshot()
 
         adapter.processMessages(appInsightsAppDependency, mockContext)
-        expect(adapter.spanProcessor.batch.getBatchSize()).toEqual(2)
+        expect(adapter.spanProcessor.batch.getBatchSize()).toEqual(4)
         expect(adapter.spanProcessor.batch.spans).toMatchSnapshot()
     })
 
@@ -112,11 +112,11 @@ describe("Adapter", () => {
         expect(adapter.spanProcessor.batch.spans).toMatchSnapshot()
 
         adapter.processMessages(arrayOfStrings, mockContext)
-        expect(adapter.spanProcessor.batch.getBatchSize()).toEqual(3)
+        expect(adapter.spanProcessor.batch.getBatchSize()).toEqual(6)
         expect(adapter.spanProcessor.batch.spans).toMatchSnapshot()
 
         adapter.processMessages(appInsightsAppDependency, mockContext)
-        expect(adapter.spanProcessor.batch.getBatchSize()).toEqual(4)
+        expect(adapter.spanProcessor.batch.getBatchSize()).toEqual(8)
         expect(adapter.spanProcessor.batch.spans).toMatchSnapshot()
     })
 
@@ -148,7 +148,7 @@ describe("Adapter", () => {
         adapter.processMessages(appInsightsAppEvent, mockContext)
 
         expect(adapter.eventProcessor.batch.getBatchSize()).toEqual(1)
-        expect(adapter.spanProcessor.batch.getBatchSize()).toEqual(1)
+        expect(adapter.spanProcessor.batch.getBatchSize()).toEqual(2)
         expect(adapter.eventProcessor.batch.events).toMatchSnapshot()
         expect(adapter.spanProcessor.batch.spans).toMatchSnapshot()
     })
@@ -178,7 +178,7 @@ describe("Adapter", () => {
         adapter.processMessages(appInsightsAppException, mockContext)
 
         expect(adapter.eventProcessor.batch.getBatchSize()).toEqual(1)
-        expect(adapter.spanProcessor.batch.getBatchSize()).toEqual(1)
+        expect(adapter.spanProcessor.batch.getBatchSize()).toEqual(2)
         expect(adapter.eventProcessor.batch.events).toMatchSnapshot()
         expect(adapter.spanProcessor.batch.spans).toMatchSnapshot()
     })
