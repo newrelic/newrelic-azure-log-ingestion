@@ -105,5 +105,6 @@ export const normalizeAppException = (data: Record<string, any>): Record<string,
     const exception = mapper(camelcase(data), appExceptionMap)
     delete exception.iKey
     exception.type = "AppException"
+    exception.error = true
     return exception
 }
