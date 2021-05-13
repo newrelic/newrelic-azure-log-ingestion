@@ -45,13 +45,18 @@ export default class SpanProcessor implements Processor {
             operationId,
             epochDate,
             name,
-            parentId === id ? null : parentId, // Determining if this is the root span or not and formatting accordingly
+            id === parentId ? null : parentId, // Determining if this is the root span or not and formatting accordingly
             operationName,
             durationMs,
             attributes,
         )
 
         this.batch.addSpan(span)
+
+        if (id !== parentId) {
+            const rootSpan = new telemetry.spans.Span(parentId, operationId, epochDate, null, null, operationName)
+            this.batch.addSpan(rootSpan)
+        }
     }
 
     /**
