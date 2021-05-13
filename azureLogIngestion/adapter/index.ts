@@ -108,7 +108,7 @@ export default class Adapter {
      */
     sendBatches(context: Context): void {
         if (debug) {
-            context.log("What is being sent to NR: ", this.spanProcessor.batch)
+            context.log("What is being sent to NR: ", JSON.stringify(this.spanProcessor.batch))
         }
         const batches = []
         batches.push(this.spanProcessor.sendBatch())

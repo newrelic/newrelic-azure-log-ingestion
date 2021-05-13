@@ -49,6 +49,7 @@
   "dependencies": {
     "@newrelic/telemetry-sdk": "^0.4.0",
     "farmhash": "^3.2.1",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "uuid": "^8.3.2"
   }
 }

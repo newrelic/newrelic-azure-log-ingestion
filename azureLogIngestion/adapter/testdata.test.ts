@@ -108,6 +108,7 @@ export const appInsightsAppEvent = `{
 export const appInsightsAppException = `{
   "records": [
     {
+      "id": "uuidWillBeGeneratedForErrorSpans",
       "time": "2021-05-05T16:44:56.8020000Z",
       "resourceId": "/SUBSCRIPTIONS/{subscription ID}/RESOURCEGROUPS/{resource group name}/PROVIDERS/MICROSOFT.INSIGHTS/COMPONENTS/{function app name}",
       "ResourceGUID": "{resource GUID}",

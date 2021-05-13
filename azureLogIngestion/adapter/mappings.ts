@@ -1,5 +1,6 @@
 import camelcase from "./utils/camelcase"
 import mapper from "./utils/mapper"
+import { v4 as uuidv4 } from "uuid"
 
 const commonProps = {
     appId: "resourceGuid",
@@ -104,7 +105,8 @@ export const normalizeAppPageView = (data: Record<string, any>): Record<string, 
 export const normalizeAppException = (data: Record<string, any>): Record<string, any> => {
     const exception = mapper(camelcase(data), appExceptionMap)
     delete exception.iKey
-    exception.type = "AppException"
+    exception.id = exception.id ? exception.id : uuidv4()
+    exception.name = exception.assembly
     exception.error = true
     return exception
 }
