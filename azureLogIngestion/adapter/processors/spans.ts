@@ -45,7 +45,7 @@ export default class SpanProcessor implements Processor {
             operationId,
             epochDate,
             name,
-            parentId === operationId ? null : parentId, // Determining if this is the root span or not and formatting accordingly
+            parentId === id ? null : parentId, // Determining if this is the root span or not and formatting accordingly
             operationName,
             durationMs,
             attributes,
