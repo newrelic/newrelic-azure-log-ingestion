@@ -10,7 +10,7 @@ import {
     normalizeAppPageView,
     normalizeAppRequest,
 } from "./mappings"
-import { EventProcessor, SpanProcessor } from "./processors"
+import { EventProcessor, SpanProcessor, LogProcessor } from "./processors"
 import * as _ from "lodash"
 
 const debug = process.env["DEBUG"] || false
@@ -22,10 +22,12 @@ interface Records {
 export default class Adapter {
     eventProcessor: EventProcessor
     spanProcessor: SpanProcessor
+    logProcessor: LogProcessor
 
     constructor(apiKey: string) {
         this.eventProcessor = new EventProcessor(apiKey)
         this.spanProcessor = new SpanProcessor(apiKey)
+        this.logProcessor = new LogProcessor(apiKey)
     }
 
     /**
@@ -85,8 +87,7 @@ export default class Adapter {
 
         if (["AppTraces", "traces"].includes(type)) {
             const trace = normalizeAppTrace(message)
-            this.eventProcessor.processMessage(trace, context)
-            this.spanProcessor.processMessage(trace, context)
+            this.logProcessor.processMessage(trace, context)
         }
     }
 
@@ -130,10 +131,14 @@ export default class Adapter {
      */
     sendBatches(context: Context): void {
         if (debug) {
-            context.log("What is being sent to NR: ", JSON.stringify(this.spanProcessor.batch))
+            context.log("Spans being sent to NR: ", JSON.stringify(this.spanProcessor.batch))
+            context.log("Events being sent to NR: ", JSON.stringify(this.eventProcessor.batch))
+            context.log("Logs being sent to NR: ", JSON.stringify(this.logProcessor.batch))
         }
         const batches = []
+        batches.push(this.eventProcessor.sendBatch())
         batches.push(this.spanProcessor.sendBatch())
+        batches.push(this.logProcessor.sendBatch())
         Promise.allSettled(batches).then((results) => {
             results
                 .filter((result) => result.status === "rejected")

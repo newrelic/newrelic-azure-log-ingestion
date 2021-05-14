@@ -664,13 +664,11 @@ Array [
 ]
 `;
 
-exports[`Adapter processes app traces as event and span 1`] = `Array []`;
+exports[`Adapter processes app traces as logs 1`] = `Array []`;
 
-exports[`Adapter processes app traces as event and span 2`] = `Array []`;
-
-exports[`Adapter processes app traces as event and span 3`] = `
+exports[`Adapter processes app traces as logs 2`] = `
 Array [
-  Event {
+  Log {
     "attributes": Object {
       "appRoleInstance": "{id of role instance}",
       "appRoleName": "throwerror",
@@ -681,6 +679,7 @@ Array [
       "hostInstanceId": "{host instance uuid4}",
       "itemCount": 1,
       "logLevel": "Information",
+      "logtype": "AzureAppTraces",
       "message": "FUNCTIONS_WORKER_RUNTIME set to node. Skipping WorkerConfig for language:java",
       "processId": "2600",
       "propOriginalFormat": "FUNCTIONS_WORKER_RUNTIME set to node. Skipping WorkerConfig for language:java",
@@ -689,10 +688,10 @@ Array [
       "sdkVersion": "azurefunctions: 3.0.15571.0",
       "severityLevel": 1,
     },
-    "eventType": "AzureAppTraces",
+    "message": "FUNCTIONS_WORKER_RUNTIME set to node. Skipping WorkerConfig for language:java",
     "timestamp": 1619799074901,
   },
-  Event {
+  Log {
     "attributes": Object {
       "appRoleInstance": "{id of role instance}",
       "appRoleName": "throwerror",
@@ -703,6 +702,7 @@ Array [
       "hostInstanceId": "{host instance uuid4}",
       "itemCount": 1,
       "logLevel": "Information",
+      "logtype": "AzureAppTraces",
       "message": "FUNCTIONS_WORKER_RUNTIME set to node. Skipping WorkerConfig for language:powershell",
       "processId": "2600",
       "propOriginalFormat": "FUNCTIONS_WORKER_RUNTIME set to node. Skipping WorkerConfig for language:powershell",
@@ -711,61 +711,8 @@ Array [
       "sdkVersion": "azurefunctions: 3.0.15571.0",
       "severityLevel": 1,
     },
-    "eventType": "AzureAppTraces",
+    "message": "FUNCTIONS_WORKER_RUNTIME set to node. Skipping WorkerConfig for language:powershell",
     "timestamp": 1619799074902,
-  },
-]
-`;
-
-exports[`Adapter processes app traces as event and span 4`] = `
-Array [
-  Span {
-    "attributes": Object {
-      "appRoleInstance": "{id of role instance}",
-      "appRoleName": "throwerror",
-      "billedSize": 803,
-      "clientIp": "0.0.0.0",
-      "clientType": "PC",
-      "itemCount": 1,
-      "message": "FUNCTIONS_WORKER_RUNTIME set to node. Skipping WorkerConfig for language:java",
-      "properties.category": "Host.LanguageWorkerConfig",
-      "properties.hostInstanceId": "{host instance uuid4}",
-      "properties.logLevel": "Information",
-      "properties.processId": "2600",
-      "properties.propOriginalFormat": "FUNCTIONS_WORKER_RUNTIME set to node. Skipping WorkerConfig for language:java",
-      "resourceGuid": "{uuid4 of resource}",
-      "resourceId": "/SUBSCRIPTIONS/{subscription uuid4}/RESOURCEGROUPS/{upper-case name of resource group}/PROVIDERS/MICROSOFT.INSIGHTS/COMPONENTS/{upper-case name of function app}",
-      "sdkVersion": "azurefunctions: 3.0.15571.0",
-      "severityLevel": 1,
-      "type": "AppTraces",
-    },
-    "id": undefined,
-    "timestamp": 1619799074901,
-    "trace.id": undefined,
-  },
-  Span {
-    "attributes": Object {
-      "appRoleInstance": "{id of role instance}",
-      "appRoleName": "throwerror",
-      "billedSize": 815,
-      "clientIp": "0.0.0.0",
-      "clientType": "PC",
-      "itemCount": 1,
-      "message": "FUNCTIONS_WORKER_RUNTIME set to node. Skipping WorkerConfig for language:powershell",
-      "properties.category": "Host.LanguageWorkerConfig",
-      "properties.hostInstanceId": "{host instance uuid4}",
-      "properties.logLevel": "Information",
-      "properties.processId": "2600",
-      "properties.propOriginalFormat": "FUNCTIONS_WORKER_RUNTIME set to node. Skipping WorkerConfig for language:powershell",
-      "resourceGuid": "{uuid4 of resource}",
-      "resourceId": "/SUBSCRIPTIONS/{subscription uuid4}/RESOURCEGROUPS/{upper-case name of resource group}/PROVIDERS/MICROSOFT.INSIGHTS/COMPONENTS/{upper-case name of function app}",
-      "sdkVersion": "azurefunctions: 3.0.15571.0",
-      "severityLevel": 1,
-      "type": "AppTraces",
-    },
-    "id": undefined,
-    "timestamp": 1619799074902,
-    "trace.id": undefined,
   },
 ]
 `;

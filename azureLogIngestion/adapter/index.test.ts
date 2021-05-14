@@ -1,7 +1,7 @@
 import { telemetry } from "@newrelic/telemetry-sdk"
 
 import Adapter from "./index"
-import { EventProcessor, SpanProcessor } from "./processors"
+import { EventProcessor, SpanProcessor, LogProcessor } from "./processors"
 
 import {
     appInsightsAppDependency,
@@ -154,7 +154,7 @@ describe("Adapter", () => {
         expect(adapter.spanProcessor.batch.spans).toMatchSnapshot()
     })
 
-    it("processes app traces as event and span", () => {
+    it("processes app traces as logs", () => {
         const adapter = new Adapter("mock-insert-key")
 
         const log = (...args) => null
@@ -174,17 +174,14 @@ describe("Adapter", () => {
             traceContext: { attributes: {}, traceparent: "foobar", tracestate: "foobar" },
         }
 
-        expect(adapter.eventProcessor.batch.getBatchSize()).toEqual(0)
-        expect(adapter.spanProcessor.batch.getBatchSize()).toEqual(0)
-        expect(adapter.eventProcessor.batch.events).toMatchSnapshot()
-        expect(adapter.spanProcessor.batch.spans).toMatchSnapshot()
+        // TODO: add batch size check to logs in telemetry sdk (currently in PR)
+        // expect(adapter.logProcessor.batch.getBatchSize()).toEqual(0)
+        expect(adapter.logProcessor.batch.logs).toMatchSnapshot()
 
         adapter.processMessages(appInsightsAppTraces, mockContext)
 
-        expect(adapter.eventProcessor.batch.getBatchSize()).toEqual(2)
-        expect(adapter.spanProcessor.batch.getBatchSize()).toEqual(2)
-        expect(adapter.eventProcessor.batch.events).toMatchSnapshot()
-        expect(adapter.spanProcessor.batch.spans).toMatchSnapshot()
+        // expect(adapter.logProcessor.batch.getBatchSize()).toEqual(2)
+        expect(adapter.logProcessor.batch.logs).toMatchSnapshot()
     })
 
     it("processes app exception as event and span", () => {
