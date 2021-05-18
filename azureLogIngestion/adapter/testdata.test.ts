@@ -203,6 +203,7 @@ export const appInsightsAppTraces = `{
             "ClientIP": "0.0.0.0",
             "ClientType": "PC",
             "IKey": "{iKey}",
+            "OperationId": "{operationId}",
             "_BilledSize": 803,
             "SDKVersion": "azurefunctions: 3.0.15571.0",
             "Properties": {
@@ -226,6 +227,7 @@ export const appInsightsAppTraces = `{
             "ClientIP": "0.0.0.0",
             "ClientType": "PC",
             "IKey": "{iKey}",
+            "OperationId": "{operationId2}",
             "_BilledSize": 815,
             "SDKVersion": "azurefunctions: 3.0.15571.0",
             "Properties": {

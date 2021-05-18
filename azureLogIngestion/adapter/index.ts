@@ -130,15 +130,20 @@ export default class Adapter {
      * batches instead of failing on the first reject. We only log promise rejections.
      */
     sendBatches(context: Context): void {
+        const sendSpans = this.spanProcessor.batch.spans.length > 0
+        const sendEvents = this.eventProcessor.batch.events.length > 0
+        const sendLogs = this.logProcessor.batch.logs.length > 0
+
         if (debug) {
-            context.log("Spans being sent to NR: ", JSON.stringify(this.spanProcessor.batch))
-            context.log("Events being sent to NR: ", JSON.stringify(this.eventProcessor.batch))
-            context.log("Logs being sent to NR: ", JSON.stringify(this.logProcessor.batch))
+            sendSpans && context.log("Spans being sent to NR: ", JSON.stringify(this.spanProcessor.batch))
+            sendEvents && context.log("Events being sent to NR: ", JSON.stringify(this.eventProcessor.batch))
+            sendLogs && context.log("Logs being sent to NR: ", JSON.stringify(this.logProcessor.batch))
         }
         const batches = []
-        batches.push(this.eventProcessor.sendBatch())
-        batches.push(this.spanProcessor.sendBatch())
-        batches.push(this.logProcessor.sendBatch())
+        sendSpans && batches.push(this.spanProcessor.sendBatch())
+        sendEvents && batches.push(this.eventProcessor.sendBatch())
+        sendLogs && batches.push(this.logProcessor.sendBatch())
+
         Promise.allSettled(batches).then((results) => {
             results
                 .filter((result) => result.status === "rejected")
