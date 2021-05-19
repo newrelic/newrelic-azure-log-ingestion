@@ -10,6 +10,7 @@ const commonProps = {
     cloudRoleName: "appRoleName",
     customDimensions: "properties",
     customMeasurements: "measurements",
+    duration: "durationMs",
     operationParentId: "parentId",
     time: "timestamp",
     TimeGenerated: "timestamp",
@@ -18,10 +19,8 @@ const commonProps = {
 // https://docs.microsoft.com/en-us/azure/azure-monitor/app/apm-tables#apprequests
 const appRequestMap = {
     ...commonProps,
-    duration: "durationMs",
     httpMethod: "http.method",
     httpPath: "http.path",
-    itemType: "type",
     resultCode: "http.statusCode",
     url: "http.url",
 }
@@ -29,17 +28,13 @@ const appRequestMap = {
 // https://docs.microsoft.com/en-us/azure/azure-monitor/app/apm-tables#appdependencies
 const appDependencyMap = {
     ...commonProps,
-    duration: "durationMs",
     httpMethod: "http.method",
     httpPath: "http.path",
-    //resultCode: "http.statusCode",
     url: "http.url",
 }
 
 const appEventMap = {
     ...commonProps,
-    duration: "durationMs",
-    itemId: "id",
 }
 
 const appExceptionMap = {
@@ -48,9 +43,18 @@ const appExceptionMap = {
     outerMessage: "error.class",
 }
 
+const appAvailabilityResultMap = {
+    ...commonProps,
+}
+
 const appPageViewMap = {
     ...commonProps,
-    duration: "durationMs",
+}
+
+const appBrowserTimingMap = {
+    ...commonProps,
+    totalDuration: "durationMs",
+    totalDurationMs: "durationMs",
 }
 
 export const normalizeAppRequest = (data: Record<string, any>): Record<string, any> => {
@@ -109,4 +113,18 @@ export const normalizeAppException = (data: Record<string, any>): Record<string,
     exception.name = exception.assembly
     exception.error = true
     return exception
+}
+
+export const normalizeAppAvailabilityResult = (data: Record<string, any>): Record<string, any> => {
+    const result = mapper(camelcase(data), appAvailabilityResultMap)
+    delete result.iKey
+    result.type = "AppAvailabilityResult"
+    return result
+}
+
+export const normalizeAppBrowserTiming = (data: Record<string, any>): Record<string, any> => {
+    const timing = mapper(camelcase(data), appBrowserTimingMap)
+    delete timing.iKey
+    timing.type = "AppBrowserTiming"
+    return timing
 }
