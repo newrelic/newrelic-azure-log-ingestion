@@ -1,10 +1,12 @@
 import { Context } from "@azure/functions"
 
 import {
+    normalizeAppAvailabilityResult,
+    normalizeAppBrowserTiming,
     normalizeAppDependency,
     normalizeAppEvent,
-    normalizeAppPageView,
     normalizeAppException,
+    normalizeAppPageView,
     normalizeAppRequest,
 } from "./mappings"
 import { EventProcessor, SpanProcessor } from "./processors"
@@ -35,36 +37,49 @@ export default class Adapter {
      */
     private determineMessageTypeProcessor(message: any, context: Context): void {
         const type = message.Type || message.itemType
+
         if (!type) {
             return
         }
 
-        if (["AppRequests", "requests"].indexOf(type) !== -1) {
+        if (["AppRequests", "requests"].includes(type)) {
             const request = normalizeAppRequest(message)
             this.eventProcessor.processMessage(request, context)
             this.spanProcessor.processMessage(request, context)
         }
 
-        if (["AppDependencies", "dependencies"].indexOf(type) !== -1) {
+        if (["AppDependencies", "dependencies"].includes(type)) {
             this.spanProcessor.processMessage(normalizeAppDependency(message), context)
         }
 
-        if (["AppEvents", "customEvents"].indexOf(type) !== -1) {
+        if (["AppEvents", "customEvents"].includes(type)) {
             const event = normalizeAppEvent(message)
             this.eventProcessor.processMessage(event, context)
             this.spanProcessor.processMessage(event, context)
         }
 
-        if (["AppExceptions", "exceptions"].indexOf(type) !== -1) {
+        if (["AppExceptions", "exceptions"].includes(type)) {
             const exception = normalizeAppException(message)
             this.eventProcessor.processMessage(exception, context)
             this.spanProcessor.processMessage(exception, context)
         }
 
-        if (["AppPageViews", "pageViews"].indexOf(type) !== -1) {
+        if (["AppPageViews", "pageViews"].includes(type)) {
             const pageView = normalizeAppPageView(message)
             this.eventProcessor.processMessage(pageView, context)
             this.spanProcessor.processMessage(pageView, context)
+        }
+
+        if (["AppAvailabilityResults", "availabilityResults"].includes(type)) {
+            const availabilityResult = normalizeAppAvailabilityResult(message)
+            this.eventProcessor.processMessage(availabilityResult, context)
+            this.spanProcessor.processMessage(availabilityResult, context)
+        }
+
+        if (["AppBrowserTimings", "browserTimings"].includes(type)) {
+            const browserTiming = normalizeAppBrowserTiming(message)
+            this.eventProcessor.processMessage(browserTiming, context)
+            this.spanProcessor.processMessage(browserTiming, context)
         }
     }
 
