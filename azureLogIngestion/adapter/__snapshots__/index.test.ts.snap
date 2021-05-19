@@ -663,3 +663,62 @@ Array [
   },
 ]
 `;
+
+exports[`Adapter processes app traces as logs 1`] = `Array []`;
+
+exports[`Adapter processes app traces as logs 2`] = `
+Array [
+  Log {
+    "attributes": Object {
+      "appRoleInstance": "{id of role instance}",
+      "appRoleName": "throwerror",
+      "billedSize": 803,
+      "category": "Host.LanguageWorkerConfig",
+      "clientIp": "0.0.0.0",
+      "clientType": "PC",
+      "hostInstanceId": "{host instance uuid4}",
+      "itemCount": 1,
+      "logLevel": "Information",
+      "logtype": "AzureAppTraces",
+      "message": "FUNCTIONS_WORKER_RUNTIME set to node. Skipping WorkerConfig for language:java",
+      "operationId": "{operationId}",
+      "processId": "2600",
+      "propOriginalFormat": "FUNCTIONS_WORKER_RUNTIME set to node. Skipping WorkerConfig for language:java",
+      "resourceGuid": "{uuid4 of resource}",
+      "resourceId": "/SUBSCRIPTIONS/{subscription uuid4}/RESOURCEGROUPS/{upper-case name of resource group}/PROVIDERS/MICROSOFT.INSIGHTS/COMPONENTS/{upper-case name of function app}",
+      "sdkVersion": "azurefunctions: 3.0.15571.0",
+      "severityLevel": 1,
+      "timestamp": 1619799074901,
+      "trace.id": "{operationId}",
+    },
+    "message": "FUNCTIONS_WORKER_RUNTIME set to node. Skipping WorkerConfig for language:java",
+    "timestamp": 1619799074901,
+  },
+  Log {
+    "attributes": Object {
+      "appRoleInstance": "{id of role instance}",
+      "appRoleName": "throwerror",
+      "billedSize": 815,
+      "category": "Host.LanguageWorkerConfig",
+      "clientIp": "0.0.0.0",
+      "clientType": "PC",
+      "hostInstanceId": "{host instance uuid4}",
+      "itemCount": 1,
+      "logLevel": "Information",
+      "logtype": "AzureAppTraces",
+      "message": "FUNCTIONS_WORKER_RUNTIME set to node. Skipping WorkerConfig for language:powershell",
+      "operationId": "{operationId2}",
+      "processId": "2600",
+      "propOriginalFormat": "FUNCTIONS_WORKER_RUNTIME set to node. Skipping WorkerConfig for language:powershell",
+      "resourceGuid": "{uuid4 of resource}",
+      "resourceId": "/SUBSCRIPTIONS/{subscription uuid4}/RESOURCEGROUPS/{upper-case name of resource group}/PROVIDERS/MICROSOFT.INSIGHTS/COMPONENTS/{upper-case name of function app}",
+      "sdkVersion": "azurefunctions: 3.0.15571.0",
+      "severityLevel": 1,
+      "timestamp": 1619799074902,
+      "trace.id": "{operationId2}",
+    },
+    "message": "FUNCTIONS_WORKER_RUNTIME set to node. Skipping WorkerConfig for language:powershell",
+    "timestamp": 1619799074902,
+  },
+]
+`;

@@ -57,6 +57,11 @@ const appBrowserTimingMap = {
     totalDurationMs: "durationMs",
 }
 
+const appTraceMap = {
+    ...commonProps,
+    itemId: "id",
+}
+
 export const normalizeAppRequest = (data: Record<string, any>): Record<string, any> => {
     const request = mapper(camelcase(data), appRequestMap)
     delete request.IKey
@@ -104,6 +109,12 @@ export const normalizeAppPageView = (data: Record<string, any>): Record<string, 
     delete pageView.iKey
     pageView.type = "AppPageView"
     return pageView
+}
+
+export const normalizeAppTrace = (data: Record<string, any>): Record<string, any> => {
+    const trace = mapper(camelcase(data), appTraceMap)
+    delete trace.iKey
+    return trace
 }
 
 export const normalizeAppException = (data: Record<string, any>): Record<string, any> => {

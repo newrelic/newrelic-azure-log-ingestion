@@ -191,4 +191,57 @@ export const arrayOfStrings = [
     '{"records": [{ "time": "2021-05-10T19:19:21.0600528Z", "resourceId": "/SUBSCRIPTIONS/subscriptionId/RESOURCEGROUPS/resourceGroupName/PROVIDERS/MICROSOFT.INSIGHTS/COMPONENTS/functionAppName", "ResourceGUID": "resourceGuid", "Type": "AppRequests", "AppRoleInstance": "roleInstanceId", "AppRoleName": "functionAppName", "ClientCity": "Pittsburgh", "ClientCountryOrRegion": "United States", "ClientIP": "0.0.0.0", "ClientStateOrProvince": "Pennsylvania", "ClientType": "PC", "IKey": "iKeyUuid", "_BilledSize": 1087, "OperationName": "functionName", "OperationId": "operationId", "ParentId": "parentId", "SDKVersion": "azurefunctions: 3.0.15584.0", "Properties": {"LogLevel":"Information","TriggerReason":"This function was programmatically called via the host APIs.","HostInstanceId":"hostInstance","HttpMethod":"GET","InvocationId":"invocationId","FullName":"Functions.functionName","FunctionExecutionTimeMs":"30020.222","HttpPath":"/api/functionName","Category":"Host.Results","ProcessId":"6904"}, "Id": "bc40802d79559544", "Name": "functionName", "Url": "https://functionAppName.azurewebsites.net/api/functionName", "Success": true, "ResultCode": "200", "DurationMs": 30021.5457, "PerformanceBucket": "30sec-1min", "ItemCount": 1}]}',
 ]
 
+export const appInsightsAppTraces = `{
+    "records": [
+        {
+            "time": "2021-04-30T16:11:14.9011503Z",
+            "resourceId": "/SUBSCRIPTIONS/{subscription uuid4}/RESOURCEGROUPS/{upper-case name of resource group}/PROVIDERS/MICROSOFT.INSIGHTS/COMPONENTS/{upper-case name of function app}",
+            "ResourceGUID": "{uuid4 of resource}",
+            "Type": "AppTraces",
+            "AppRoleInstance": "{id of role instance}",
+            "AppRoleName": "throwerror",
+            "ClientIP": "0.0.0.0",
+            "ClientType": "PC",
+            "IKey": "{iKey}",
+            "OperationId": "{operationId}",
+            "_BilledSize": 803,
+            "SDKVersion": "azurefunctions: 3.0.15571.0",
+            "Properties": {
+                "HostInstanceId": "{host instance uuid4}",
+                "ProcessId": "2600",
+                "LogLevel": "Information",
+                "Category": "Host.LanguageWorkerConfig",
+                "prop__{OriginalFormat}": "FUNCTIONS_WORKER_RUNTIME set to node. Skipping WorkerConfig for language:java"
+            },
+            "Message": "FUNCTIONS_WORKER_RUNTIME set to node. Skipping WorkerConfig for language:java",
+            "SeverityLevel": 1,
+            "ItemCount": 1
+        },
+        {
+            "time": "2021-04-30T16:11:14.9021116Z",
+            "resourceId": "/SUBSCRIPTIONS/{subscription uuid4}/RESOURCEGROUPS/{upper-case name of resource group}/PROVIDERS/MICROSOFT.INSIGHTS/COMPONENTS/{upper-case name of function app}",
+            "ResourceGUID": "{uuid4 of resource}",
+            "Type": "AppTraces",
+            "AppRoleInstance": "{id of role instance}",
+            "AppRoleName": "throwerror",
+            "ClientIP": "0.0.0.0",
+            "ClientType": "PC",
+            "IKey": "{iKey}",
+            "OperationId": "{operationId2}",
+            "_BilledSize": 815,
+            "SDKVersion": "azurefunctions: 3.0.15571.0",
+            "Properties": {
+                "HostInstanceId": "{host instance uuid4}",
+                "ProcessId": "2600",
+                "LogLevel": "Information",
+                "Category": "Host.LanguageWorkerConfig",
+                "prop__{OriginalFormat}": "FUNCTIONS_WORKER_RUNTIME set to node. Skipping WorkerConfig for language:powershell"
+            },
+            "Message": "FUNCTIONS_WORKER_RUNTIME set to node. Skipping WorkerConfig for language:powershell",
+            "SeverityLevel": 1,
+            "ItemCount": 1
+        }
+    ]
+}`
+
 test("shut jest up", () => Promise.resolve(null))

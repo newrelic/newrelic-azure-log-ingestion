@@ -5,11 +5,12 @@ import {
     normalizeAppBrowserTiming,
     normalizeAppDependency,
     normalizeAppEvent,
+    normalizeAppTrace,
     normalizeAppException,
     normalizeAppPageView,
     normalizeAppRequest,
 } from "./mappings"
-import { EventProcessor, SpanProcessor } from "./processors"
+import { EventProcessor, SpanProcessor, LogProcessor } from "./processors"
 import * as _ from "lodash"
 
 const debug = process.env["DEBUG"] || false
@@ -21,10 +22,12 @@ interface Records {
 export default class Adapter {
     eventProcessor: EventProcessor
     spanProcessor: SpanProcessor
+    logProcessor: LogProcessor
 
     constructor(apiKey: string) {
         this.eventProcessor = new EventProcessor(apiKey)
         this.spanProcessor = new SpanProcessor(apiKey)
+        this.logProcessor = new LogProcessor(apiKey)
     }
 
     /**
@@ -81,6 +84,11 @@ export default class Adapter {
             this.eventProcessor.processMessage(browserTiming, context)
             this.spanProcessor.processMessage(browserTiming, context)
         }
+
+        if (["AppTraces", "traces"].includes(type)) {
+            const trace = normalizeAppTrace(message)
+            this.logProcessor.processMessage(trace, context)
+        }
     }
 
     /**
@@ -122,11 +130,20 @@ export default class Adapter {
      * batches instead of failing on the first reject. We only log promise rejections.
      */
     sendBatches(context: Context): void {
+        const sendSpans = this.spanProcessor.batch.spans.length > 0
+        const sendEvents = this.eventProcessor.batch.events.length > 0
+        const sendLogs = this.logProcessor.batch.logs.length > 0
+
         if (debug) {
-            context.log("What is being sent to NR: ", JSON.stringify(this.spanProcessor.batch))
+            sendSpans && context.log("Spans being sent to NR: ", JSON.stringify(this.spanProcessor.batch))
+            sendEvents && context.log("Events being sent to NR: ", JSON.stringify(this.eventProcessor.batch))
+            sendLogs && context.log("Logs being sent to NR: ", JSON.stringify(this.logProcessor.batch))
         }
         const batches = []
-        batches.push(this.spanProcessor.sendBatch())
+        sendSpans && batches.push(this.spanProcessor.sendBatch())
+        sendEvents && batches.push(this.eventProcessor.sendBatch())
+        sendLogs && batches.push(this.logProcessor.sendBatch())
+
         Promise.allSettled(batches).then((results) => {
             results
                 .filter((result) => result.status === "rejected")
