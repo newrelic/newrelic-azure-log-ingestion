@@ -3,6 +3,7 @@ import { Context } from "@azure/functions"
 
 import { Processor } from "./base"
 import flatten from "../utils/flatten"
+import { parse } from "../utils/resource"
 
 const debug = process.env["DEBUG"] || false
 
@@ -27,17 +28,18 @@ export default class SpanProcessor implements Processor {
      * Processes a span message and adds span to current batch
      */
     processMessage(message: Record<string, any>, context: Context): void {
-        const { id, parentId, operationId, timestamp, name, durationMs, operationName, ...rest } = message
+        const { durationMs, id, name, operationId, parentId, properties = {}, resourceId, timestamp, ...rest } = message
         const epochDate = new Date(timestamp).getTime()
-        const attributes = {
-            ...flatten(rest),
-        }
+        const attributes = flatten({ ...properties, ...rest, resourceId })
+        const resource = parse(resourceId)
+
         if (debug) {
-            context.log("traceId: ", operationId)
             context.log("id: ", id)
-            context.log("parentId: ", parentId)
             context.log("name: ", name)
-            context.log("operationName: ", operationName)
+            context.log("parentId: ", parentId)
+            context.log("resourceId: ", resourceId)
+            context.log("resourceName: ", resource.resourceName)
+            context.log("traceId: ", operationId)
         }
 
         const span = new telemetry.spans.Span(
@@ -46,7 +48,7 @@ export default class SpanProcessor implements Processor {
             epochDate,
             name,
             parentId,
-            operationName,
+            resource.resourceName,
             durationMs,
             attributes,
         )
@@ -54,7 +56,14 @@ export default class SpanProcessor implements Processor {
         this.batch.addSpan(span)
 
         if (parentId) {
-            const rootSpan = new telemetry.spans.Span(parentId, operationId, epochDate, null, null, operationName)
+            const rootSpan = new telemetry.spans.Span(
+                parentId,
+                operationId,
+                epochDate,
+                null,
+                null,
+                resource.resourceName,
+            )
             this.batch.addSpan(rootSpan)
         }
     }
