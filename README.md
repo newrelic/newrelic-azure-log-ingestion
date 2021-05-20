@@ -17,6 +17,23 @@ New Relic.
 Currently this integration only targets App Insights. If you have other telemetry data
 you would like to see exported using Diagnostic Settings, [tell us about your use case](https://github.com/newrelic/newrelic-azure-log-ingestion/issues).
 
+## Supported Data Types
+
+| Data Type | Supported? | In New Relic One |
+|-----------|------------|------------------|
+| [AppAvailabilityResults](https://docs.microsoft.com/en-us/azure/azure-monitor/reference/tables/appavailabilityresults) | Yes | [Distributed Tracing](https://docs.newrelic.com/docs/distributed-tracing/concepts/introduction-distributed-tracing/#what-you-can-see-in-the-new-relic-ui) and [Custom Events](https://developer.newrelic.com/collect-data/custom-events/) (as `AzureAppAvailabilityResult` |
+| [AppBrowserTimings](https://docs.microsoft.com/en-us/azure/azure-monitor/reference/tables/appbrowsertimings) | Yes | [Distributed Tracing](https://docs.newrelic.com/docs/distributed-tracing/concepts/introduction-distributed-tracing/#what-you-can-see-in-the-new-relic-ui) and [Custom Events](https://developer.newrelic.com/collect-data/custom-events/) (as `AzureAppBrowserTiming` |
+| [AppDependencies](https://docs.microsoft.com/en-us/azure/azure-monitor/reference/tables/appdependencies) | Yes |  [Distributed Tracing](https://docs.newrelic.com/docs/distributed-tracing/concepts/introduction-distributed-tracing/#what-you-can-see-in-the-new-relic-ui) |
+| [AppEvents](https://docs.microsoft.com/en-us/azure/azure-monitor/reference/tables/appevents) | Yes | [Custom Events](https://developer.newrelic.com/collect-data/custom-events/) (as `AzureAppEvent` |
+| [AppExceptions](https://docs.microsoft.com/en-us/azure/azure-monitor/reference/tables/appexceptions) | Yes | [Distributed Tracing](https://docs.newrelic.com/docs/distributed-tracing/concepts/introduction-distributed-tracing/#what-you-can-see-in-the-new-relic-ui) and [Custom Events](https://developer.newrelic.com/collect-data/custom-events/) (as `AzureAppException` |
+| [AppMetrics](https://docs.microsoft.com/en-us/azure/azure-monitor/reference/tables/appmetrics) | Planned | [Metrics](https://docs.newrelic.com/docs/telemetry-data-platform/ingest-apis/introduction-metric-api/#find-data) |
+| [AppPageViews](https://docs.microsoft.com/en-us/azure/azure-monitor/reference/tables/apppageviews) | Yes | [Distributed Tracing](https://docs.newrelic.com/docs/distributed-tracing/concepts/introduction-distributed-tracing/#what-you-can-see-in-the-new-relic-ui) and [Custom Events](https://developer.newrelic.com/collect-data/custom-events/) (as `AzureAppPageView` |
+| [AppPerformanceCounters](https://docs.microsoft.com/en-us/azure/azure-monitor/reference/tables/appperformancecounters) | Planned | [Metrics](https://docs.newrelic.com/docs/telemetry-data-platform/ingest-apis/introduction-metric-api/#find-data) |
+| [AppRequests](https://docs.microsoft.com/en-us/azure/azure-monitor/reference/tables/apprequests) | Yes | [Distributed Tracing](https://docs.newrelic.com/docs/distributed-tracing/concepts/introduction-distributed-tracing/#what-you-can-see-in-the-new-relic-ui) and [Custom Events](https://developer.newrelic.com/collect-data/custom-events/) (as `AzureAppRequest` |
+| [AppTraces](https://docs.microsoft.com/en-us/azure/azure-monitor/reference/tables/apptraces) | Yes | [Logs](https://docs.newrelic.com/docs/logs/log-management/get-started/get-started-log-management/#find-data) and [Logs In Context](https://newrelic.com/blog/nerdlog/logs-in-context-faster-simpler-access-actionable-insights) |
+
+We also plan to support [Azure Resource Logs](https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/resource-logs). [Let us know](https://github.com/newrelic/newrelic-azure-log-ingestion/issues) which resources we should target first.
+
 ## Installation
 
 This integration requires both a New Relic and Azure account.
@@ -68,7 +85,6 @@ This is the easiest option as it only needs to be setup once and all existing an
 App Insights resources will be automatically configured to report to New Relic. Keep in
 mind there are costs associated with exporting telemetry data from Azure. You will want
 to monitor integration utilization to ensure they meet your expectations.
-
 
 #### Using Azure Portal
 
