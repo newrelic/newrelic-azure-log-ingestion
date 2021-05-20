@@ -54,6 +54,7 @@ jobs:
         mkdir -p artifacts/zip
         func extensions install
         npm prune --production
+        npm install --platform=win32 farmhash
         zip -r artifacts/zip/${{ env.ARCHIVE }} azureLogIngestion/function.json dist host.json LICENSE node_modules package.json package-lock.json
     - name: Upload build package
       run: |
