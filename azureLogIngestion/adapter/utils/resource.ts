@@ -1,5 +1,6 @@
-import { hash64 } from "farmhash"
-
+// import { hash64 } from "farmhash"
+// TODO: replace with platform-independent hashing, or update build pipeline for farmhash
+const hash64 = (input: Buffer) => ""
 const urlSafeChars = { "+": "-", "/": "_", "=": "" }
 
 /**
