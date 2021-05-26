@@ -1,5 +1,111 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Adapter processes AppPerformanceCounters as metrics 1`] = `Array []`;
+
+exports[`Adapter processes AppPerformanceCounters as metrics 2`] = `
+Array [
+  CountMetric {
+    "attributes": Object {
+      "appRoleInstance": "{appRoleInstance Id}",
+      "appRoleName": "{appRoleName}",
+      "billedSize": 815,
+      "clientIp": "0.0.0.0",
+      "clientType": "PC",
+      "hostInstanceId": "{hostInstanceId}",
+      "instance": "??APP_WIN32_PROC??",
+      "processId": "4608",
+      "resourceId": "/SUBSCRIPTIONS/{subscriptionId}/RESOURCEGROUPS/{functionAppName}/PROVIDERS/MICROSOFT.INSIGHTS/COMPONENTS/{resourceGroupName}",
+      "sdkVersion": "af_azwapccore:2.16.0-18277",
+      "timestamp": 1621887508465,
+    },
+    "interval.ms": undefined,
+    "name": "% Processor Time",
+    "timestamp": 1621887508465,
+    "type": "count",
+    "value": 8.09632681121764,
+  },
+  CountMetric {
+    "attributes": Object {
+      "appRoleInstance": "{appRoleInstance Id}",
+      "appRoleName": "{appRoleName}",
+      "billedSize": 829,
+      "clientIp": "0.0.0.0",
+      "clientType": "PC",
+      "hostInstanceId": "{hostInstanceId}",
+      "instance": "??APP_WIN32_PROC??",
+      "processId": "4608",
+      "resourceId": "/SUBSCRIPTIONS/{subscriptionId}/RESOURCEGROUPS/{functionAppName}/PROVIDERS/MICROSOFT.INSIGHTS/COMPONENTS/{resourceGroupName}",
+      "sdkVersion": "af_azwapccore:2.16.0-18277",
+      "timestamp": 1621887508465,
+    },
+    "interval.ms": undefined,
+    "name": "% Processor Time Normalized",
+    "timestamp": 1621887508465,
+    "type": "count",
+    "value": 4.04816372935669,
+  },
+  CountMetric {
+    "attributes": Object {
+      "appRoleInstance": "{appRoleInstance Id}",
+      "appRoleName": "{appRoleName}",
+      "billedSize": 791,
+      "clientIp": "0.0.0.0",
+      "clientType": "PC",
+      "hostInstanceId": "{hostInstanceId}",
+      "instance": "??APP_WIN32_PROC??",
+      "processId": "4608",
+      "resourceId": "/SUBSCRIPTIONS/{subscriptionId}/RESOURCEGROUPS/{functionAppName}/PROVIDERS/MICROSOFT.INSIGHTS/COMPONENTS/{resourceGroupName}",
+      "sdkVersion": "af_azwapccore:2.16.0-18277",
+      "timestamp": 1621887508465,
+    },
+    "interval.ms": undefined,
+    "name": "Private Bytes",
+    "timestamp": 1621887508465,
+    "type": "count",
+    "value": 334188544,
+  },
+  CountMetric {
+    "attributes": Object {
+      "appRoleInstance": "{appRoleInstance Id}",
+      "appRoleName": "{appRoleName}",
+      "billedSize": 732,
+      "clientIp": "0.0.0.0",
+      "clientType": "PC",
+      "hostInstanceId": "{hostInstanceId}",
+      "processId": "4608",
+      "resourceId": "/SUBSCRIPTIONS/{subscriptionId}/RESOURCEGROUPS/{functionAppName}/PROVIDERS/MICROSOFT.INSIGHTS/COMPONENTS/{resourceGroupName}",
+      "sdkVersion": "af_azwapccore:2.16.0-18277",
+      "timestamp": 1621887508465,
+    },
+    "interval.ms": undefined,
+    "name": "Available Bytes",
+    "timestamp": 1621887508465,
+    "type": "count",
+    "value": 1741344768,
+  },
+  CountMetric {
+    "attributes": Object {
+      "appRoleInstance": "{appRoleInstance Id}",
+      "appRoleName": "{appRoleName}",
+      "billedSize": 771,
+      "clientIp": "0.0.0.0",
+      "clientType": "PC",
+      "hostInstanceId": "{hostInstanceId}",
+      "instance": "??APP_WIN32_PROC??",
+      "processId": "4608",
+      "resourceId": "/SUBSCRIPTIONS/{subscriptionId}/RESOURCEGROUPS/{functionAppName}/PROVIDERS/MICROSOFT.INSIGHTS/COMPONENTS/{resourceGroupName}",
+      "sdkVersion": "af_azwapccore:2.16.0-18277",
+      "timestamp": 1621887508465,
+    },
+    "interval.ms": undefined,
+    "name": "IO Data Bytes/sec",
+    "timestamp": 1621887508465,
+    "type": "count",
+    "value": 0,
+  },
+]
+`;
+
 exports[`Adapter processes app event as event and span 1`] = `Array []`;
 
 exports[`Adapter processes app event as event and span 2`] = `Array []`;

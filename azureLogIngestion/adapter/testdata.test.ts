@@ -244,4 +244,118 @@ export const appInsightsAppTraces = `{
     ]
 }`
 
+export const performanceCounters = `{
+    "records": [
+        {
+          "time": "2021-05-24T20:18:28.4650819Z",
+          "resourceId": "/SUBSCRIPTIONS/{subscriptionId}/RESOURCEGROUPS/{functionAppName}/PROVIDERS/MICROSOFT.INSIGHTS/COMPONENTS/{resourceGroupName}",
+          "ResourceGUID": "{resourceGuid}",
+          "Type": "AppPerformanceCounters",
+          "AppRoleInstance": "{appRoleInstance Id}",
+          "AppRoleName": "{appRoleName}",
+          "ClientIP": "0.0.0.0",
+          "ClientType": "PC",
+          "IKey": "{iKey}",
+          "_BilledSize": 815,
+          "SDKVersion": "af_azwapccore:2.16.0-18277",
+          "Properties": {
+            "HostInstanceId": "{hostInstanceId}",
+            "ProcessId": "4608"
+          },
+          "Name": "% Processor Time",
+          "Category": "Process",
+          "Counter": "% Processor Time",
+          "Instance": "??APP_WIN32_PROC??",
+          "Value": 8.09632681121764
+        },
+        {
+          "time": "2021-05-24T20:18:28.4651116Z",
+          "resourceId": "/SUBSCRIPTIONS/{subscriptionId}/RESOURCEGROUPS/{functionAppName}/PROVIDERS/MICROSOFT.INSIGHTS/COMPONENTS/{resourceGroupName}",
+          "ResourceGUID": "{resourceGuid}",
+          "Type": "AppPerformanceCounters",
+          "AppRoleInstance": "{appRoleInstance Id}",
+          "AppRoleName": "{appRoleName}",
+          "ClientIP": "0.0.0.0",
+          "ClientType": "PC",
+          "IKey": "{iKey}",
+          "_BilledSize": 829,
+          "SDKVersion": "af_azwapccore:2.16.0-18277",
+          "Properties": {
+            "HostInstanceId": "{hostInstanceId}",
+            "ProcessId": "4608"
+          },
+          "Name": "% Processor Time Normalized",
+          "Category": "Process",
+          "Counter": "% Processor Time Normalized",
+          "Instance": "??APP_WIN32_PROC??",
+          "Value": 4.04816372935669
+        },
+        {
+          "time": "2021-05-24T20:18:28.4651282Z",
+          "resourceId": "/SUBSCRIPTIONS/{subscriptionId}/RESOURCEGROUPS/{functionAppName}/PROVIDERS/MICROSOFT.INSIGHTS/COMPONENTS/{resourceGroupName}",
+          "ResourceGUID": "{resourceGuid}",
+          "Type": "AppPerformanceCounters",
+          "AppRoleInstance": "{appRoleInstance Id}",
+          "AppRoleName": "{appRoleName}",
+          "ClientIP": "0.0.0.0",
+          "ClientType": "PC",
+          "IKey": "{iKey}",
+          "_BilledSize": 791,
+          "SDKVersion": "af_azwapccore:2.16.0-18277",
+          "Properties": {
+            "HostInstanceId": "{hostInstanceId}",
+            "ProcessId": "4608"
+          },
+          "Name": "Private Bytes",
+          "Category": "Process",
+          "Counter": "Private Bytes",
+          "Instance": "??APP_WIN32_PROC??",
+          "Value": 334188544
+        },
+        {
+          "time": "2021-05-24T20:18:28.4651437Z",
+          "resourceId": "/SUBSCRIPTIONS/{subscriptionId}/RESOURCEGROUPS/{functionAppName}/PROVIDERS/MICROSOFT.INSIGHTS/COMPONENTS/{resourceGroupName}",
+          "ResourceGUID": "{resourceGuid}",
+          "Type": "AppPerformanceCounters",
+          "AppRoleInstance": "{appRoleInstance Id}",
+          "AppRoleName": "{appRoleName}",
+          "ClientIP": "0.0.0.0",
+          "ClientType": "PC",
+          "IKey": "{iKey}",
+          "_BilledSize": 732,
+          "SDKVersion": "af_azwapccore:2.16.0-18277",
+          "Properties": {
+            "HostInstanceId": "{hostInstanceId}",
+            "ProcessId": "4608"
+          },
+          "Name": "Available Bytes",
+          "Category": "Memory",
+          "Counter": "Available Bytes",
+          "Value": 1741344768
+        },
+        {
+          "time": "2021-05-24T20:18:28.4651590Z",
+          "resourceId": "/SUBSCRIPTIONS/{subscriptionId}/RESOURCEGROUPS/{functionAppName}/PROVIDERS/MICROSOFT.INSIGHTS/COMPONENTS/{resourceGroupName}",
+          "ResourceGUID": "{resourceGuid}",
+          "Type": "AppPerformanceCounters",
+          "AppRoleInstance": "{appRoleInstance Id}",
+          "AppRoleName": "{appRoleName}",
+          "ClientIP": "0.0.0.0",
+          "ClientType": "PC",
+          "IKey": "{iKey}",
+          "_BilledSize": 771,
+          "SDKVersion": "af_azwapccore:2.16.0-18277",
+          "Properties": {
+            "HostInstanceId": "{hostInstanceId}",
+            "ProcessId": "4608"
+          },
+          "Name": "IO Data Bytes/sec",
+          "Category": "Process",
+          "Counter": "IO Data Bytes/sec",
+          "Instance": "??APP_WIN32_PROC??",
+          "Value": 0
+        }
+    ]
+}`
+
 test("shut jest up", () => Promise.resolve(null))
