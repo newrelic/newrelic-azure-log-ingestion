@@ -9,8 +9,9 @@ import {
     normalizeAppException,
     normalizeAppPageView,
     normalizeAppRequest,
+    normalizeAppPerformanceCounter,
 } from "./mappings"
-import { EventProcessor, SpanProcessor, LogProcessor } from "./processors"
+import { EventProcessor, SpanProcessor, LogProcessor, MetricsProcessor } from "./processors"
 import * as _ from "lodash"
 
 const debug = process.env["DEBUG"] || false
@@ -23,11 +24,13 @@ export default class Adapter {
     eventProcessor: EventProcessor
     spanProcessor: SpanProcessor
     logProcessor: LogProcessor
+    metricsProcessor: MetricsProcessor
 
     constructor(apiKey: string) {
         this.eventProcessor = new EventProcessor(apiKey)
         this.spanProcessor = new SpanProcessor(apiKey)
         this.logProcessor = new LogProcessor(apiKey)
+        this.metricsProcessor = new MetricsProcessor(apiKey)
     }
 
     /**
@@ -89,6 +92,11 @@ export default class Adapter {
             const trace = normalizeAppTrace(message)
             this.logProcessor.processMessage(trace, context)
         }
+
+        if (["AppPerformanceCounters", "appPerformanceCounters"].includes(type)) {
+            const counter = normalizeAppPerformanceCounter(message)
+            this.metricsProcessor.processMessage(counter, context)
+        }
     }
 
     /**
@@ -133,16 +141,19 @@ export default class Adapter {
         const sendSpans = this.spanProcessor.batch.spans.length > 0
         const sendEvents = this.eventProcessor.batch.events.length > 0
         const sendLogs = this.logProcessor.batch.logs.length > 0
+        const sendMetrics = this.metricsProcessor.batch.metrics.length > 0
 
         if (debug) {
             sendSpans && context.log("Spans being sent to NR: ", JSON.stringify(this.spanProcessor.batch))
             sendEvents && context.log("Events being sent to NR: ", JSON.stringify(this.eventProcessor.batch))
             sendLogs && context.log("Logs being sent to NR: ", JSON.stringify(this.logProcessor.batch))
+            sendMetrics && context.log("Metrics being sent to NR: ", JSON.stringify(this.metricsProcessor.batch))
         }
         const batches = []
         sendSpans && batches.push(this.spanProcessor.sendBatch())
         sendEvents && batches.push(this.eventProcessor.sendBatch())
         sendLogs && batches.push(this.logProcessor.sendBatch())
+        sendMetrics && batches.push(this.metricsProcessor.sendBatch())
 
         Promise.allSettled(batches).then((results) => {
             results
