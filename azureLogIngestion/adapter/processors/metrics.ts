@@ -3,6 +3,7 @@ import { Context } from "@azure/functions"
 
 import { Processor } from "./base"
 import flatten from "../utils/flatten"
+import { GaugeMetric, CountMetric, SummaryMetric } from "@newrelic/telemetry-sdk/dist/src/telemetry/metrics"
 
 export default class MetricsProcessor implements Processor {
     client: telemetry.metrics.MetricClient
@@ -21,17 +22,23 @@ export default class MetricsProcessor implements Processor {
         this.batch = new telemetry.metrics.MetricBatch({ "cloud.provider": "azure" })
     }
 
-    private setMetricType(metric: any): string {
-        const counters = ["Process", "process"]
-        const gauges = ["Memory", "memory"]
+    private createMetric(message: any): GaugeMetric | CountMetric | SummaryMetric {
+        const gaugeCategories = ["Logical Disk", "Memory", "Network", "Physical Disk", "Process", "Processor", "System"]
 
-        if (gauges.includes(metric.Category)) {
-            return "gauge"
+        const { name, value, type, category, timestamp, properties, ...rest } = message
+        const epochDate = new Date(timestamp).getTime()
+        const attributes = {
+            ...flatten({ name, value, type, category, ...properties, ...rest, timestamp: epochDate }),
         }
-        if (counters.includes(metric.Category)) {
-            return "counter"
+
+        if (gaugeCategories.includes(category)) {
+            return new telemetry.metrics.GaugeMetric(name, value, attributes, epochDate)
         }
-        return "counter"
+        if (rest && rest.interval) {
+            const intervalMs = 10000 /// TODO: convert, as this could be in ms, s, m, h, etc.
+            return new telemetry.metrics.CountMetric(name, value, attributes, epochDate, intervalMs)
+        }
+        return new telemetry.metrics.SummaryMetric(name, value, attributes, epochDate)
     }
 
     /**
@@ -41,15 +48,7 @@ export default class MetricsProcessor implements Processor {
         // Deleting attributes we do not want to send to New Relic
         // TODO: Make this a part of a processor attribute filter method
         delete message.iKey
-
-        const { type, timestamp, properties, name, category, counter, value, resourceGuid, ...rest } = message
-        const epochDate = new Date(timestamp).getTime()
-        const attributes = {
-            ...flatten({ ...properties, ...rest, timestamp: epochDate }),
-        }
-
-        // no interval MS on performanceCounters, it seems
-        const metric = new telemetry.metrics.CountMetric(name, value, attributes, epochDate)
+        const metric = this.createMetric(message)
         this.batch.addMetric(metric)
     }
 

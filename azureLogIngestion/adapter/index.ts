@@ -146,7 +146,7 @@ export default class Adapter {
         if (debug) {
             sendSpans && context.log("Spans being sent to NR: ", JSON.stringify(this.spanProcessor.batch))
             sendEvents && context.log("Events being sent to NR: ", JSON.stringify(this.eventProcessor.batch))
-            sendLogs && context.log("Logs being sent to NR: ", JSON.stringify(this.logProcessor.batch))
+            sendLogs && context.log("Logs being sent to NR: ", JSON.stringify(this.logProcessor.batch).substr(0, 255))
             sendMetrics && context.log("Metrics being sent to NR: ", JSON.stringify(this.metricsProcessor.batch))
         }
         const batches = []
