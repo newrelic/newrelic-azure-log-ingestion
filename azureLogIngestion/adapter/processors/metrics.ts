@@ -24,7 +24,6 @@ export default class MetricsProcessor implements Processor {
 
     private createMetric(message: any): GaugeMetric | CountMetric | SummaryMetric {
         const gaugeCategories = ["Logical Disk", "Memory", "Network", "Physical Disk", "Process", "Processor", "System"]
-
         const { name, value, type, category, timestamp, properties, ...rest } = message
         const epochDate = new Date(timestamp).getTime()
         const attributes = {
@@ -35,7 +34,7 @@ export default class MetricsProcessor implements Processor {
             return new telemetry.metrics.GaugeMetric(name, value, attributes, epochDate)
         }
         if (rest && rest.interval) {
-            const intervalMs = 10000 /// TODO: convert, as this could be in ms, s, m, h, etc.
+            const intervalMs = 10000 /// TODO: convert to ms, as this could be in ms, s, m, h, etc.
             return new telemetry.metrics.CountMetric(name, value, attributes, epochDate, intervalMs)
         }
         return new telemetry.metrics.SummaryMetric(name, value, attributes, epochDate)
