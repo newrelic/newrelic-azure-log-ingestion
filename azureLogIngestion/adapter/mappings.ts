@@ -62,6 +62,10 @@ const appTraceMap = {
     itemId: "id",
 }
 
+const appPerformanceCounterMap = {
+    ...commonProps,
+}
+
 export const normalizeAppRequest = (data: Record<string, any>): Record<string, any> => {
     const request = mapper(camelcase(data), appRequestMap)
     delete request.IKey
@@ -138,4 +142,11 @@ export const normalizeAppBrowserTiming = (data: Record<string, any>): Record<str
     delete timing.iKey
     timing.type = "AppBrowserTiming"
     return timing
+}
+
+export const normalizeAppPerformanceCounter = (data: Record<string, any>): Record<string, any> => {
+    const counter = mapper(camelcase(data), appPerformanceCounterMap)
+    delete counter.iKey
+    counter.type = "AppPerformanceCounter"
+    return counter
 }

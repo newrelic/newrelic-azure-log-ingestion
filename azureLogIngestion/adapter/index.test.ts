@@ -1,7 +1,7 @@
 import { telemetry } from "@newrelic/telemetry-sdk"
 
 import Adapter from "./index"
-import { EventProcessor, SpanProcessor, LogProcessor } from "./processors"
+import { EventProcessor, SpanProcessor, LogProcessor, MetricsProcessor } from "./processors"
 
 import {
     appInsightsAppDependency,
@@ -10,6 +10,7 @@ import {
     appInsightsAppRequest,
     appInsightsAppTraces,
     arrayOfStrings,
+    performanceCounters,
 } from "./testdata.test"
 
 describe("Adapter", () => {
@@ -27,6 +28,16 @@ describe("Adapter", () => {
         expect(adapter.spanProcessor.batch).toBeInstanceOf(telemetry.spans.SpanBatch)
         expect(adapter.spanProcessor.batch.getBatchSize()).toEqual(0)
         expect(adapter.spanProcessor.client).toBeInstanceOf(telemetry.spans.SpanClient)
+
+        expect(adapter.logProcessor).toBeInstanceOf(LogProcessor)
+        expect(adapter.logProcessor.batch).toBeInstanceOf(telemetry.logs.LogBatch)
+        expect(adapter.logProcessor.batch.getBatchSize()).toEqual(0)
+        expect(adapter.logProcessor.client).toBeInstanceOf(telemetry.logs.LogClient)
+
+        expect(adapter.metricsProcessor).toBeInstanceOf(MetricsProcessor)
+        expect(adapter.metricsProcessor.batch).toBeInstanceOf(telemetry.metrics.MetricBatch)
+        expect(adapter.metricsProcessor.batch.getBatchSize()).toEqual(0)
+        expect(adapter.metricsProcessor.client).toBeInstanceOf(telemetry.metrics.MetricClient)
     })
 
     it("processes app request and dependency as spans", () => {
@@ -175,12 +186,12 @@ describe("Adapter", () => {
         }
 
         // TODO: add batch size check to logs in telemetry sdk (currently in PR)
-        // expect(adapter.logProcessor.batch.getBatchSize()).toEqual(0)
+        expect(adapter.logProcessor.batch.getBatchSize()).toEqual(0)
         expect(adapter.logProcessor.batch.logs).toMatchSnapshot()
 
         adapter.processMessages(appInsightsAppTraces, mockContext)
 
-        // expect(adapter.logProcessor.batch.getBatchSize()).toEqual(2)
+        expect(adapter.logProcessor.batch.getBatchSize()).toEqual(2)
         expect(adapter.logProcessor.batch.logs).toMatchSnapshot()
     })
 
@@ -212,5 +223,34 @@ describe("Adapter", () => {
         expect(adapter.spanProcessor.batch.getBatchSize()).toEqual(2)
         expect(adapter.eventProcessor.batch.events).toMatchSnapshot()
         expect(adapter.spanProcessor.batch.spans).toMatchSnapshot()
+    })
+
+    it("processes AppPerformanceCounters as metrics", () => {
+        const adapter = new Adapter("mock-insert-key")
+
+        const log = (...args) => null
+        log.verbose = (...args) => null
+        log.info = (...args) => null
+        log.warn = (...args) => null
+        log.error = (...args) => null
+
+        const mockContext = {
+            bindings: {},
+            bindingData: {},
+            bindingDefinitions: [],
+            done: () => null,
+            executionContext: { invocationId: "foobar", functionName: "foobar", functionDirectory: "foobar" },
+            invocationId: "foobar",
+            log,
+            traceContext: { attributes: {}, traceparent: "foobar", tracestate: "foobar" },
+        }
+
+        expect(adapter.metricsProcessor.batch.getBatchSize()).toEqual(0)
+        expect(adapter.metricsProcessor.batch.metrics).toMatchSnapshot()
+
+        adapter.processMessages(performanceCounters, mockContext)
+
+        expect(adapter.metricsProcessor.batch.getBatchSize()).toEqual(5)
+        expect(adapter.metricsProcessor.batch.metrics).toMatchSnapshot()
     })
 })

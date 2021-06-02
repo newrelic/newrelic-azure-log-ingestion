@@ -4,7 +4,7 @@ import { Context } from "@azure/functions"
 import { Processor } from "./base"
 import flatten from "../utils/flatten"
 
-export default class EventProcessor implements Processor {
+export default class LogsProcessor implements Processor {
     client: telemetry.logs.LogClient
     batch: telemetry.logs.LogBatch
 
@@ -22,7 +22,7 @@ export default class EventProcessor implements Processor {
     }
 
     /**
-     * Processes a log message and adds event to current batch
+     * Processes a log message and add to current batch
      */
     processMessage(message: Record<string, any>, context: Context): void {
         // Deleting attributes we do not want to send to New Relic
@@ -42,7 +42,7 @@ export default class EventProcessor implements Processor {
     }
 
     /**
-     * Sends event telemetry batches to New Relic
+     * Sends log batches to New Relic
      *
      * Currently this doesn't create a new batch on failure, allowing for
      * reattempts. This will result in a memory leak for subsequent failures.
