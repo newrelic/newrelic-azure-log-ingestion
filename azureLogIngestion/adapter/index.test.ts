@@ -11,6 +11,7 @@ import {
     appInsightsAppTraces,
     arrayOfStrings,
     performanceCounters,
+    appMetrics,
 } from "./testdata.test"
 
 describe("Adapter", () => {
@@ -251,6 +252,34 @@ describe("Adapter", () => {
         adapter.processMessages(performanceCounters, mockContext)
 
         expect(adapter.metricsProcessor.batch.getBatchSize()).toEqual(5)
+        expect(adapter.metricsProcessor.batch.metrics).toMatchSnapshot()
+    })
+    it("processes AppMetrics as metrics", () => {
+        const adapter = new Adapter("mock-insert-key")
+
+        const log = (...args) => null
+        log.verbose = (...args) => null
+        log.info = (...args) => null
+        log.warn = (...args) => null
+        log.error = (...args) => null
+
+        const mockContext = {
+            bindings: {},
+            bindingData: {},
+            bindingDefinitions: [],
+            done: () => null,
+            executionContext: { invocationId: "foobar", functionName: "foobar", functionDirectory: "foobar" },
+            invocationId: "foobar",
+            log,
+            traceContext: { attributes: {}, traceparent: "foobar", tracestate: "foobar" },
+        }
+
+        expect(adapter.metricsProcessor.batch.getBatchSize()).toEqual(0)
+        expect(adapter.metricsProcessor.batch.metrics).toMatchSnapshot()
+
+        adapter.processMessages(appMetrics, mockContext)
+
+        expect(adapter.metricsProcessor.batch.getBatchSize()).toEqual(11)
         expect(adapter.metricsProcessor.batch.metrics).toMatchSnapshot()
     })
 })

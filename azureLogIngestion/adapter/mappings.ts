@@ -66,6 +66,10 @@ const appPerformanceCounterMap = {
     ...commonProps,
 }
 
+const appMetricMap = {
+    ...commonProps,
+}
+
 export const normalizeAppRequest = (data: Record<string, any>): Record<string, any> => {
     const request = mapper(camelcase(data), appRequestMap)
     delete request.IKey
@@ -148,5 +152,12 @@ export const normalizeAppPerformanceCounter = (data: Record<string, any>): Recor
     const counter = mapper(camelcase(data), appPerformanceCounterMap)
     delete counter.iKey
     counter.type = "AppPerformanceCounter"
+    return counter
+}
+
+export const normalizeAppMetrics = (data: Record<string, any>): Record<string, any> => {
+    const counter = mapper(camelcase(data), appMetricMap)
+    delete counter.iKey
+    counter.type = "AppMetrics"
     return counter
 }

@@ -358,4 +358,277 @@ export const performanceCounters = `{
     ]
 }`
 
+export const appMetrics = `{
+  "records": [
+    {
+      "time": "2021-06-03T22:14:34.2196980Z",
+      "resourceId": "/SUBSCRIPTIONS/{subscriptionId}/RESOURCEGROUPS/{resourceGroupId}/PROVIDERS/MICROSOFT.INSIGHTS/COMPONENTS/{functionAppName}",
+      "ResourceGUID": "{resourceGuid}",
+      "Type": "AppMetrics",
+      "AppRoleInstance": "{roleInstance}",
+      "AppRoleName": "{roleName}",
+      "ClientIP": "0.0.0.0",
+      "ClientType": "PC",
+      "IKey": "{iKey}",
+      "_BilledSize": 708,
+      "SDKVersion": "af_azurefunctions: 3.0.15733.0",
+      "Properties": {
+        "Category": "Host.Aggregator",
+        "LogLevel": "Information",
+        "HostInstanceId": "{hostInstanceId}",
+        "ProcessId": "2064"
+      },
+      "Name": "functionApp Count",
+      "Sum": 13,
+      "Min": 13,
+      "Max": 13,
+      "ItemCount": 1
+    },
+    {
+      "time": "2021-06-03T22:14:34.2197432Z",
+      "resourceId": "/SUBSCRIPTIONS/{subscriptionId}/RESOURCEGROUPS/{resourceGroupId}/PROVIDERS/MICROSOFT.INSIGHTS/COMPONENTS/{functionAppName}",
+      "ResourceGUID": "{resourceGuid}",
+      "Type": "AppMetrics",
+      "AppRoleInstance": "{roleInstance}",
+      "AppRoleName": "{roleName}",
+      "ClientIP": "0.0.0.0",
+      "ClientType": "PC",
+      "IKey": "{iKey}",
+      "_BilledSize": 722,
+      "SDKVersion": "af_azurefunctions: 3.0.15733.0",
+      "Properties": {
+        "Category": "Host.Aggregator",
+        "LogLevel": "Information",
+        "HostInstanceId": "{hostInstanceId}",
+        "ProcessId": "2064"
+      },
+      "Name": "functionApp AvgDurationMs",
+      "Sum": 483.1251,
+      "Min": 483.1251,
+      "Max": 483.1251,
+      "ItemCount": 1
+    },
+    {
+      "time": "2021-06-03T22:14:34.2197694Z",
+      "resourceId": "/SUBSCRIPTIONS/{subscriptionId}/RESOURCEGROUPS/{resourceGroupId}/PROVIDERS/MICROSOFT.INSIGHTS/COMPONENTS/{functionAppName}",
+      "ResourceGUID": "{resourceGuid}",
+      "Type": "AppMetrics",
+      "AppRoleInstance": "{roleInstance}",
+      "AppRoleName": "{roleName}",
+      "ClientIP": "0.0.0.0",
+      "ClientType": "PC",
+      "IKey": "{iKey}",
+      "_BilledSize": 722,
+      "SDKVersion": "af_azurefunctions: 3.0.15733.0",
+      "Properties": {
+        "Category": "Host.Aggregator",
+        "LogLevel": "Information",
+        "HostInstanceId": "{hostInstanceId}",
+        "ProcessId": "2064"
+      },
+      "Name": "functionApp MaxDurationMs",
+      "Sum": 5486.628,
+      "Min": 5486.628,
+      "Max": 5486.628,
+      "ItemCount": 1
+    },
+    {
+      "time": "2021-06-03T22:14:34.2197951Z",
+      "resourceId": "/SUBSCRIPTIONS/{subscriptionId}/RESOURCEGROUPS/{resourceGroupId}/PROVIDERS/MICROSOFT.INSIGHTS/COMPONENTS/{functionAppName}",
+      "ResourceGUID": "{resourceGuid}",
+      "Type": "AppMetrics",
+      "AppRoleInstance": "{roleInstance}",
+      "AppRoleName": "{roleName}",
+      "ClientIP": "0.0.0.0",
+      "ClientType": "PC",
+      "IKey": "{iKey}",
+      "_BilledSize": 721,
+      "SDKVersion": "af_azurefunctions: 3.0.15733.0",
+      "Properties": {
+        "Category": "Host.Aggregator",
+        "LogLevel": "Information",
+        "HostInstanceId": "{hostInstanceId}",
+        "ProcessId": "2064"
+      },
+      "Name": "functionApp MinDurationMs",
+      "Sum": 31.4177,
+      "Min": 31.4177,
+      "Max": 31.4177,
+      "ItemCount": 1
+    },
+    {
+      "time": "2021-06-03T22:14:34.2198196Z",
+      "resourceId": "/SUBSCRIPTIONS/{subscriptionId}/RESOURCEGROUPS/{resourceGroupId}/PROVIDERS/MICROSOFT.INSIGHTS/COMPONENTS/{functionAppName}",
+      "ResourceGUID": "{resourceGuid}",
+      "Type": "AppMetrics",
+      "AppRoleInstance": "{roleInstance}",
+      "AppRoleName": "{roleName}",
+      "ClientIP": "0.0.0.0",
+      "ClientType": "PC",
+      "IKey": "{iKey}",
+      "_BilledSize": 712,
+      "SDKVersion": "af_azurefunctions: 3.0.15733.0",
+      "Properties": {
+        "Category": "Host.Aggregator",
+        "LogLevel": "Information",
+        "HostInstanceId": "{hostInstanceId}",
+        "ProcessId": "2064"
+      },
+      "Name": "functionApp Successes",
+      "Sum": 13,
+      "Min": 13,
+      "Max": 13,
+      "ItemCount": 1
+    },
+    {
+      "time": "2021-06-03T22:14:34.2198474Z",
+      "resourceId": "/SUBSCRIPTIONS/{subscriptionId}/RESOURCEGROUPS/{resourceGroupId}/PROVIDERS/MICROSOFT.INSIGHTS/COMPONENTS/{functionAppName}",
+      "ResourceGUID": "{resourceGuid}",
+      "Type": "AppMetrics",
+      "AppRoleInstance": "{roleInstance}",
+      "AppRoleName": "{roleName}",
+      "ClientIP": "0.0.0.0",
+      "ClientType": "PC",
+      "IKey": "{iKey}",
+      "_BilledSize": 710,
+      "SDKVersion": "af_azurefunctions: 3.0.15733.0",
+      "Properties": {
+        "Category": "Host.Aggregator",
+        "LogLevel": "Information",
+        "HostInstanceId": "{hostInstanceId}",
+        "ProcessId": "2064"
+      },
+      "Name": "functionApp Failures",
+      "Sum": 0,
+      "Min": 0,
+      "Max": 0,
+      "ItemCount": 1
+    },
+    {
+      "time": "2021-06-03T22:14:34.2198724Z",
+      "resourceId": "/SUBSCRIPTIONS/{subscriptionId}/RESOURCEGROUPS/{resourceGroupId}/PROVIDERS/MICROSOFT.INSIGHTS/COMPONENTS/{functionAppName}",
+      "ResourceGUID": "{resourceGuid}",
+      "Type": "AppMetrics",
+      "AppRoleInstance": "{roleInstance}",
+      "AppRoleName": "{roleName}",
+      "ClientIP": "0.0.0.0",
+      "ClientType": "PC",
+      "IKey": "{iKey}",
+      "_BilledSize": 715,
+      "SDKVersion": "af_azurefunctions: 3.0.15733.0",
+      "Properties": {
+        "Category": "Host.Aggregator",
+        "LogLevel": "Information",
+        "HostInstanceId": "{hostInstanceId}",
+        "ProcessId": "2064"
+      },
+      "Name": "functionApp SuccessRate",
+      "Sum": 100,
+      "Min": 100,
+      "Max": 100,
+      "ItemCount": 1
+    },
+    {
+      "time": "2021-06-03T22:15:04.2178438Z",
+      "resourceId": "/SUBSCRIPTIONS/{subscriptionId}/RESOURCEGROUPS/{resourceGroupId}/PROVIDERS/MICROSOFT.INSIGHTS/COMPONENTS/{functionAppName}",
+      "ResourceGUID": "{resourceGuid}",
+      "Type": "AppMetrics",
+      "AppRoleInstance": "{roleInstance}",
+      "AppRoleName": "{roleName}",
+      "ClientIP": "0.0.0.0",
+      "ClientType": "PC",
+      "IKey": "{iKey}",
+      "_BilledSize": 707,
+      "SDKVersion": "af_azurefunctions: 3.0.15733.0",
+      "Properties": {
+        "Category": "Host.Aggregator",
+        "LogLevel": "Information",
+        "HostInstanceId": "{hostInstanceId}",
+        "ProcessId": "2064"
+      },
+      "Name": "functionApp Count",
+      "Sum": 17,
+      "Min": 1,
+      "Max": 8,
+      "ItemCount": 8,
+      "Interval": "225ms"
+    },
+    {
+      "time": "2021-06-03T22:15:04.2179487Z",
+      "resourceId": "/SUBSCRIPTIONS/{subscriptionId}/RESOURCEGROUPS/{resourceGroupId}/PROVIDERS/MICROSOFT.INSIGHTS/COMPONENTS/{functionAppName}",
+      "ResourceGUID": "{resourceGuid}",
+      "Type": "AppMetrics",
+      "AppRoleInstance": "{roleInstance}",
+      "AppRoleName": "{roleName}",
+      "ClientIP": "0.0.0.0",
+      "ClientType": "PC",
+      "IKey": "{iKey}",
+      "_BilledSize": 722,
+      "SDKVersion": "af_azurefunctions: 3.0.15733.0",
+      "Properties": {
+        "Category": "Host.Aggregator",
+        "LogLevel": "Information",
+        "HostInstanceId": "{hostInstanceId}",
+        "ProcessId": "2064"
+      },
+      "Name": "functionApp MaxDurationMs",
+      "Sum": 1572.945,
+      "Min": 157.2945,
+      "Max": 157.2945,
+      "ItemCount": 10,
+      "Interval": "2s"
+    },
+    {
+      "time": "2021-06-03T22:15:04.2179671Z",
+      "resourceId": "/SUBSCRIPTIONS/{subscriptionId}/RESOURCEGROUPS/{resourceGroupId}/PROVIDERS/MICROSOFT.INSIGHTS/COMPONENTS/{functionAppName}",
+      "ResourceGUID": "{resourceGuid}",
+      "Type": "AppMetrics",
+      "AppRoleInstance": "{roleInstance}",
+      "AppRoleName": "{roleName}",
+      "ClientIP": "0.0.0.0",
+      "ClientType": "PC",
+      "IKey": "{iKey}",
+      "_BilledSize": 720,
+      "SDKVersion": "af_azurefunctions: 3.0.15733.0",
+      "Properties": {
+        "Category": "Host.Aggregator",
+        "LogLevel": "Information",
+        "HostInstanceId": "{hostInstanceId}",
+        "ProcessId": "2064"
+      },
+      "Name": "functionApp MinDurationMs",
+      "Sum": 27.328,
+      "Min": 2.0142,
+      "Max": 8.0078,
+      "ItemCount": 6,
+      "Interval": "1m"  
+    },
+    {
+      "time": "2021-06-03T22:15:04.2180267Z",
+      "resourceId": "/SUBSCRIPTIONS/{subscriptionId}/RESOURCEGROUPS/{resourceGroupId}/PROVIDERS/MICROSOFT.INSIGHTS/COMPONENTS/{functionAppName}",
+      "ResourceGUID": "{resourceGuid}",
+      "Type": "AppMetrics",
+      "AppRoleInstance": "{roleInstance}",
+      "AppRoleName": "{roleName}",
+      "ClientIP": "0.0.0.0",
+      "ClientType": "PC",
+      "IKey": "{iKey}",
+      "_BilledSize": 711,
+      "SDKVersion": "af_azurefunctions: 3.0.15733.0",
+      "Properties": {
+        "Category": "Host.Aggregator",
+        "LogLevel": "Information",
+        "HostInstanceId": "{hostInstanceId}",
+        "ProcessId": "2064"
+      },
+      "Name": "functionApp Successes",
+      "Sum": 8,
+      "Min": 8,
+      "Max": 8,
+      "ItemCount": 1,
+      "Interval": 300
+    }
+  ]
+}`
+
 test("shut jest up", () => Promise.resolve(null))
