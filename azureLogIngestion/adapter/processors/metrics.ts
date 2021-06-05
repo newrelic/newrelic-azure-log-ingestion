@@ -22,22 +22,84 @@ export default class MetricsProcessor implements Processor {
         this.batch = new telemetry.metrics.MetricBatch({ "cloud.provider": "azure" })
     }
 
-    private createMetric(message: any): GaugeMetric | CountMetric | SummaryMetric {
-        const gaugeCategories = ["Logical Disk", "Memory", "Network", "Physical Disk", "Process", "Processor", "System"]
+    // performance counter intervals come with a scale string appended
+    private convertToMs(interval: string): number {
+        const scale = String(interval).match(/[a-zA-Z]+/g)
+        const intervalNumber = String(interval).match(/[0-9.]+/g)
+        let ms
+        if (!scale) {
+            return Number(interval)
+        }
+        const units = scale[0].toLowerCase()
+        if (units === "ms") {
+            ms = Number(intervalNumber[0])
+        } else if (units === "s") {
+            ms = Number(intervalNumber[0]) * 1000
+        } else if (units === "m") {
+            ms = Number(intervalNumber[0]) * 1000 * 60
+        }
+        return ms
+    }
+
+    private performanceCounter(message: any): GaugeMetric | CountMetric {
         const { name, value, type, category, timestamp, properties, ...rest } = message
         const epochDate = new Date(timestamp).getTime()
         const attributes = {
             ...flatten({ name, value, type, category, ...properties, ...rest, timestamp: epochDate }),
         }
-
-        if (gaugeCategories.includes(category)) {
-            return new telemetry.metrics.GaugeMetric(name, value, attributes, epochDate)
-        }
-        if (rest && rest.interval) {
-            const intervalMs = 10000 /// TODO: convert to ms, as this could be in ms, s, m, h, etc.
+        if ((rest && rest.interval) || (properties && properties.interval)) {
+            const intVal = (rest && rest.interval) || (properties && properties.interval)
+            const intervalMs = this.convertToMs(intVal)
             return new telemetry.metrics.CountMetric(name, value, attributes, epochDate, intervalMs)
         }
-        return new telemetry.metrics.SummaryMetric(name, value, attributes, epochDate)
+        // Most performance counters are likely to be gauges.
+        return new telemetry.metrics.GaugeMetric(name, value, attributes, epochDate)
+    }
+
+    private metric(message: any): GaugeMetric | CountMetric | SummaryMetric {
+        const { name, value, min, max, sum, itemCount, interval, timestamp, properties, ...rest } = message
+        let { count } = message
+        let intervalMs
+        // example AppMetrics we've seen use itemCount instead of count
+        if (!count) {
+            count = itemCount
+        }
+        const epochDate = new Date(timestamp).getTime()
+        if (interval) {
+            intervalMs = this.convertToMs(interval)
+        } else {
+            // otherwise, assume default 10s.
+            intervalMs = 10000
+        }
+        const attributes = {
+            ...flatten({ name, ...properties, ...rest, timestamp: epochDate, intervalMs }),
+        }
+        if (value !== undefined) attributes.value = value
+        if (sum !== undefined) attributes.sum = sum
+        if (min !== undefined) attributes.min = min
+        if (max !== undefined) attributes.max = max
+
+        // this could be a summary metric
+        if (count || sum || min || max) {
+            return new telemetry.metrics.SummaryMetric(
+                name,
+                { count, sum, min, max },
+                attributes,
+                epochDate,
+                intervalMs,
+            )
+        }
+        if (value) {
+            return new telemetry.metrics.CountMetric(name, value, attributes, epochDate, intervalMs)
+        }
+    }
+
+    private createMetric(message: any): GaugeMetric | CountMetric | SummaryMetric {
+        const { type } = message
+        if (["AppPerformanceCounter", "appPerformanceCounter"].includes(type)) {
+            return this.performanceCounter(message)
+        }
+        return this.metric(message)
     }
 
     /**

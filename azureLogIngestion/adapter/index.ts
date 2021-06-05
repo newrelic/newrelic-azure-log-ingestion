@@ -10,6 +10,7 @@ import {
     normalizeAppPageView,
     normalizeAppRequest,
     normalizeAppPerformanceCounter,
+    normalizeAppMetrics,
 } from "./mappings"
 import { EventProcessor, SpanProcessor, LogProcessor, MetricsProcessor } from "./processors"
 import * as _ from "lodash"
@@ -97,6 +98,10 @@ export default class Adapter {
             const counter = normalizeAppPerformanceCounter(message)
             this.metricsProcessor.processMessage(counter, context)
         }
+        if (["AppMetrics", "appMetrics"].includes(type)) {
+            const counter = normalizeAppMetrics(message)
+            this.metricsProcessor.processMessage(counter, context)
+        }
     }
 
     /**
@@ -140,20 +145,22 @@ export default class Adapter {
     sendBatches(context: Context): void {
         const sendSpans = this.spanProcessor.batch.spans.length > 0
         const sendEvents = this.eventProcessor.batch.events.length > 0
-        const sendLogs = this.logProcessor.batch.logs.length > 0
         const sendMetrics = this.metricsProcessor.batch.metrics.length > 0
+        const sendLogs = this.logProcessor.batch.logs.length > 0
 
         if (debug) {
             sendSpans && context.log("Spans being sent to NR: ", JSON.stringify(this.spanProcessor.batch))
             sendEvents && context.log("Events being sent to NR: ", JSON.stringify(this.eventProcessor.batch))
-            sendLogs && context.log("Logs being sent to NR: ", JSON.stringify(this.logProcessor.batch).substr(0, 255))
             sendMetrics && context.log("Metrics being sent to NR: ", JSON.stringify(this.metricsProcessor.batch))
+
+            // Substring here to reduce chatter in debug: log lines here would be sent as more traces
+            sendLogs && context.log("Logs being sent to NR: ", JSON.stringify(this.logProcessor.batch).substr(0, 255))
         }
         const batches = []
         sendSpans && batches.push(this.spanProcessor.sendBatch())
         sendEvents && batches.push(this.eventProcessor.sendBatch())
-        sendLogs && batches.push(this.logProcessor.sendBatch())
         sendMetrics && batches.push(this.metricsProcessor.sendBatch())
+        sendLogs && batches.push(this.logProcessor.sendBatch())
 
         Promise.allSettled(batches).then((results) => {
             results
