@@ -1,7 +1,16 @@
+import opentelemetry, { SpanStatus, SpanStatusCode, SpanKind } from "@opentelemetry/api"
 import { Context } from "@azure/functions"
-import opentelemetry from "@opentelemetry/api"
 import { BasicTracerProvider, BatchSpanProcessor } from "@opentelemetry/tracing"
 import { CollectorTraceExporter } from "@opentelemetry/exporter-collector"
+import { timeStampToHr, endTimeHrFromDuration, convertToMs } from "../utils/time"
+
+const traceMap = {
+    name: "name",
+    context: "spanContext",
+    attributes: "spanAttributes",
+    parentId: "parentSpanId",
+}
+//
 
 export class OpenTelemetryAdapter {
     spanProcessor: BatchSpanProcessor
@@ -25,9 +34,26 @@ export class OpenTelemetryAdapter {
         this.traceProvider.register()
     }
 
-    addSpan(): void {
-        const span = this.traceProvider.getTracer("default").startSpan("foo")
-        span.setAttribute("key", "value")
+    addSpan(appSpan): void {
+        const span = opentelemetry.trace.getTracer("default").startSpan(appSpan.name)
+        span.setAttribute("spanKind", SpanKind.INTERNAL) // TODO: determine whether CLIENT, SERVER, PRODUCER, CONSUMER, INTERNAL
+        span.setAttribute("startTime", timeStampToHr(appSpan.timestamp))
+        if (appSpan.durationMs) {
+            span.setAttribute("endTime", endTimeHrFromDuration(appSpan.timestamp, appSpan.durationMs))
+            span.setAttribute("duration", convertToMs(appSpan.durationMs) * 1000)
+        }
+        if (appSpan.type === "AppExceptions" || appSpan.ExceptionType) {
+            const message = appSpan.innermostMessage || appSpan.outerMessage
+            span.setStatus({ code: SpanStatusCode.ERROR, message })
+        } else {
+            span.setStatus({ code: SpanStatusCode.OK })
+        }
+        for (const prop in appSpan) {
+            if (traceMap[prop]) {
+                span.setAttribute(traceMap[prop], appSpan[prop])
+            }
+        }
+
         span.end()
     }
 
