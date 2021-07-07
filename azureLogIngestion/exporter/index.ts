@@ -52,7 +52,7 @@ export class OpenTelemetryAdapter {
     }
 
     addSpan(appSpan: Record<any, any>, context: Context): void {
-        const span = opentelemetry.trace.getTracer("default").startSpan(appSpan.name)
+        const span = this.traceProvider.getTracer("default").startSpan(appSpan.name)
         span.setAttribute("spanKind", SpanKind.INTERNAL) // TODO: determine whether CLIENT, SERVER, PRODUCER, CONSUMER, INTERNAL
         span.setAttribute("spanContext", this.createContext(appSpan, context))
         span.setAttribute("startTime", timeStampToHr(appSpan.timestamp))
@@ -74,6 +74,7 @@ export class OpenTelemetryAdapter {
         }
         span.end()
         // OT batch processor doesn't give access to current batch size
+        // or batch content. This lets us do snapshot tests.
         this.currentBatch.push(span)
     }
 
