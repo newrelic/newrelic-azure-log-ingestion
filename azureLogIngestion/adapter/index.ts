@@ -53,41 +53,41 @@ export default class Adapter {
         if (["AppRequests", "requests"].includes(type)) {
             const request = normalizeAppRequest(message)
             this.eventProcessor.processMessage(request, context)
-            this.otelAdapter.createSpan(request, context)
+            this.otelAdapter.addSpan(request, context)
         }
 
         if (["AppDependencies", "dependencies"].includes(type)) {
-            this.otelAdapter.createSpan(normalizeAppDependency(message), context)
+            this.otelAdapter.addSpan(normalizeAppDependency(message), context)
         }
 
         if (["AppEvents", "customEvents"].includes(type)) {
             const event = normalizeAppEvent(message)
             this.eventProcessor.processMessage(event, context)
-            this.otelAdapter.createSpan(event, context)
+            this.otelAdapter.addSpan(event, context)
         }
 
         if (["AppExceptions", "exceptions"].includes(type)) {
             const exception = normalizeAppException(message)
             this.eventProcessor.processMessage(exception, context)
-            this.otelAdapter.createSpan(exception, context)
+            this.otelAdapter.addSpan(exception, context)
         }
 
         if (["AppPageViews", "pageViews"].includes(type)) {
             const pageView = normalizeAppPageView(message)
             this.eventProcessor.processMessage(pageView, context)
-            this.otelAdapter.createSpan(pageView, context)
+            this.otelAdapter.addSpan(pageView, context)
         }
 
         if (["AppAvailabilityResults", "availabilityResults"].includes(type)) {
             const availabilityResult = normalizeAppAvailabilityResult(message)
             this.eventProcessor.processMessage(availabilityResult, context)
-            this.otelAdapter.createSpan(availabilityResult, context)
+            this.otelAdapter.addSpan(availabilityResult, context)
         }
 
         if (["AppBrowserTimings", "browserTimings"].includes(type)) {
             const browserTiming = normalizeAppBrowserTiming(message)
             this.eventProcessor.processMessage(browserTiming, context)
-            this.otelAdapter.createSpan(browserTiming, context)
+            this.otelAdapter.addSpan(browserTiming, context)
         }
 
         if (["AppTraces", "traces"].includes(type)) {
