@@ -1,5 +1,5 @@
 import { Context } from "@azure/functions"
-import opentelemetry, { SpanStatusCode, SpanKind, TraceFlags } from "@opentelemetry/api"
+import opentelemetry, { SpanStatusCode, SpanKind, TraceFlags, Span } from "@opentelemetry/api"
 import { BasicTracerProvider, BatchSpanProcessor } from "@opentelemetry/tracing"
 import { CollectorTraceExporter } from "@opentelemetry/exporter-collector"
 import { timeStampToHr, endTimeHrFromDuration, convertToMs } from "../utils/time"
@@ -17,6 +17,7 @@ const traceMap = {
 export class OpenTelemetryAdapter {
     spanProcessor: BatchSpanProcessor
     traceProvider: BasicTracerProvider
+    currentBatch: Array<Span>
 
     constructor(apiKey: string) {
         const traceExporter = new CollectorTraceExporter({
@@ -34,16 +35,18 @@ export class OpenTelemetryAdapter {
         })
         this.traceProvider.addSpanProcessor(this.spanProcessor)
         this.traceProvider.register()
+        this.currentBatch = []
     }
 
-    private convertContext(appSpan: Record<string, any>, ctx: Context): any {
-        let obj: { traceId: string; spanId: string; traceFlags: TraceFlags; traceState: any }
+    private createContext(appSpan: Record<string, any>, ctx: Context): any {
+        let obj: { traceId: string; spanId: string; traceFlags: TraceFlags; traceState: any; attributes: any }
         // eslint-disable-next-line prefer-const
         obj = {
-            traceId: appSpan.parentId,
+            traceId: appSpan.parentId || ctx.traceContext.traceparent,
             spanId: appSpan.id,
             traceFlags: 0,
             traceState: ctx.traceContext.tracestate,
+            attributes: ctx.traceContext.attributes,
         }
         return obj
     }
@@ -51,7 +54,7 @@ export class OpenTelemetryAdapter {
     addSpan(appSpan: Record<any, any>, context: Context): void {
         const span = opentelemetry.trace.getTracer("default").startSpan(appSpan.name)
         span.setAttribute("spanKind", SpanKind.INTERNAL) // TODO: determine whether CLIENT, SERVER, PRODUCER, CONSUMER, INTERNAL
-        span.setAttribute("spanContext", this.convertContext(appSpan, context))
+        span.setAttribute("spanContext", this.createContext(appSpan, context))
         span.setAttribute("startTime", timeStampToHr(appSpan.timestamp))
         if (appSpan.durationMs) {
             span.setAttribute("endTime", endTimeHrFromDuration(appSpan.timestamp, appSpan.durationMs))
@@ -70,6 +73,8 @@ export class OpenTelemetryAdapter {
             }
         }
         span.end()
+        // OT batch processor doesn't give access to current batch size
+        this.currentBatch.push(span)
     }
 
     sendBatches(context: Context): void {
@@ -84,9 +89,18 @@ export class OpenTelemetryAdapter {
         })
     }
 
+    getBatchSize(): number {
+        return this.currentBatch.length
+    }
+
+    resetBatch(): void {
+        this.currentBatch.length = 0 // truncate
+    }
+
     shutdown(): void {
         const processors = []
         processors.push(this.traceProvider.shutdown())
+        this.resetBatch()
         Promise.allSettled(processors)
     }
 }
