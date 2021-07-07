@@ -2,7 +2,6 @@ import { telemetry } from "@newrelic/telemetry-sdk"
 
 import Adapter from "./index"
 import { EventProcessor, SpanProcessor, LogProcessor, MetricsProcessor } from "./processors"
-import { OpenTelemetryAdapter } from "./opentelemetry"
 
 import {
     appInsightsAppDependency,
@@ -26,11 +25,10 @@ describe("Adapter", () => {
         expect(adapter.eventProcessor.batch.getBatchSize()).toEqual(0)
         expect(adapter.eventProcessor.client).toBeInstanceOf(telemetry.events.EventClient)
 
-        // expect(adapter.spanProcessor).toBeInstanceOf(SpanProcessor)
-        // expect(adapter.spanProcessor.batch).toBeInstanceOf(telemetry.spans.SpanBatch)
-        // expect(adapter.spanProcessor.batch.getBatchSize()).toEqual(0)
-        // expect(adapter.spanProcessor.client).toBeInstanceOf(telemetry.spans.SpanClient)
-        expect(adapter.otelAdapter).toBeInstanceOf(OpenTelemetryAdapter)
+        expect(adapter.spanProcessor).toBeInstanceOf(SpanProcessor)
+        expect(adapter.spanProcessor.batch).toBeInstanceOf(telemetry.spans.SpanBatch)
+        expect(adapter.spanProcessor.batch.getBatchSize()).toEqual(0)
+        expect(adapter.spanProcessor.client).toBeInstanceOf(telemetry.spans.SpanClient)
 
         expect(adapter.logProcessor).toBeInstanceOf(LogProcessor)
         expect(adapter.logProcessor.batch).toBeInstanceOf(telemetry.logs.LogBatch)
@@ -63,16 +61,16 @@ describe("Adapter", () => {
             traceContext: { attributes: {}, traceparent: "foobar", tracestate: "foobar" },
         }
 
-        // expect(adapter.spanProcessor.batch.getBatchSize()).toEqual(0)
-        // expect(adapter.spanProcessor.batch.spans).toMatchSnapshot()
+        expect(adapter.spanProcessor.batch.getBatchSize()).toEqual(0)
+        expect(adapter.spanProcessor.batch.spans).toMatchSnapshot()
 
         adapter.processMessages(appInsightsAppRequest, mockContext)
-        // expect(adapter.spanProcessor.batch.getBatchSize()).toEqual(2)
-        // expect(adapter.spanProcessor.batch.spans).toMatchSnapshot()
+        expect(adapter.spanProcessor.batch.getBatchSize()).toEqual(2)
+        expect(adapter.spanProcessor.batch.spans).toMatchSnapshot()
 
         adapter.processMessages(appInsightsAppDependency, mockContext)
-        // expect(adapter.spanProcessor.batch.getBatchSize()).toEqual(4)
-        // expect(adapter.spanProcessor.batch.spans).toMatchSnapshot()
+        expect(adapter.spanProcessor.batch.getBatchSize()).toEqual(4)
+        expect(adapter.spanProcessor.batch.spans).toMatchSnapshot()
     })
 
     it("processes app request as event", () => {
@@ -123,16 +121,16 @@ describe("Adapter", () => {
             traceContext: { attributes: {}, traceparent: "foobar", tracestate: "foobar" },
         }
 
-        // expect(adapter.spanProcessor.batch.getBatchSize()).toEqual(0)
-        // expect(adapter.spanProcessor.batch.spans).toMatchSnapshot()
+        expect(adapter.spanProcessor.batch.getBatchSize()).toEqual(0)
+        expect(adapter.spanProcessor.batch.spans).toMatchSnapshot()
 
         adapter.processMessages(arrayOfStrings, mockContext)
-        // expect(adapter.spanProcessor.batch.getBatchSize()).toEqual(6)
-        // expect(adapter.spanProcessor.batch.spans).toMatchSnapshot()
+        expect(adapter.spanProcessor.batch.getBatchSize()).toEqual(6)
+        expect(adapter.spanProcessor.batch.spans).toMatchSnapshot()
 
         adapter.processMessages(appInsightsAppDependency, mockContext)
-        // expect(adapter.spanProcessor.batch.getBatchSize()).toEqual(8)
-        // expect(adapter.spanProcessor.batch.spans).toMatchSnapshot()
+        expect(adapter.spanProcessor.batch.getBatchSize()).toEqual(8)
+        expect(adapter.spanProcessor.batch.spans).toMatchSnapshot()
     })
 
     it("processes app event as event and span", () => {
@@ -156,16 +154,16 @@ describe("Adapter", () => {
         }
 
         expect(adapter.eventProcessor.batch.getBatchSize()).toEqual(0)
-        // expect(adapter.spanProcessor.batch.getBatchSize()).toEqual(0)
+        expect(adapter.spanProcessor.batch.getBatchSize()).toEqual(0)
         expect(adapter.eventProcessor.batch.events).toMatchSnapshot()
-        // expect(adapter.spanProcessor.batch.spans).toMatchSnapshot()
+        expect(adapter.spanProcessor.batch.spans).toMatchSnapshot()
 
         adapter.processMessages(appInsightsAppEvent, mockContext)
 
         expect(adapter.eventProcessor.batch.getBatchSize()).toEqual(1)
-        // expect(adapter.spanProcessor.batch.getBatchSize()).toEqual(2)
+        expect(adapter.spanProcessor.batch.getBatchSize()).toEqual(2)
         expect(adapter.eventProcessor.batch.events).toMatchSnapshot()
-        // expect(adapter.spanProcessor.batch.spans).toMatchSnapshot()
+        expect(adapter.spanProcessor.batch.spans).toMatchSnapshot()
     })
 
     it("processes app traces as logs", () => {
@@ -217,15 +215,15 @@ describe("Adapter", () => {
             log,
             traceContext: { attributes: {}, traceparent: "foobar", tracestate: "foobar" },
         }
-        // expect(adapter.spanProcessor.batch.getBatchSize()).toEqual(0)
-        // expect(adapter.spanProcessor.batch.spans).toMatchSnapshot()
+        expect(adapter.spanProcessor.batch.getBatchSize()).toEqual(0)
+        expect(adapter.spanProcessor.batch.spans).toMatchSnapshot()
 
         adapter.processMessages(appInsightsAppException, mockContext)
 
         expect(adapter.eventProcessor.batch.getBatchSize()).toEqual(1)
-        // expect(adapter.spanProcessor.batch.getBatchSize()).toEqual(2)
+        expect(adapter.spanProcessor.batch.getBatchSize()).toEqual(2)
         expect(adapter.eventProcessor.batch.events).toMatchSnapshot()
-        // expect(adapter.spanProcessor.batch.spans).toMatchSnapshot()
+        expect(adapter.spanProcessor.batch.spans).toMatchSnapshot()
     })
 
     it("processes AppPerformanceCounters as metrics", () => {
