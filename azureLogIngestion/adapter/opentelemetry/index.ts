@@ -1,3 +1,4 @@
+import { Context } from "@azure/functions"
 import opentelemetry from "@opentelemetry/api"
 import { BasicTracerProvider, BatchSpanProcessor } from "@opentelemetry/tracing"
 import { CollectorTraceExporter } from "@opentelemetry/exporter-collector"
@@ -24,9 +25,27 @@ export class OpenTelemetryAdapter {
         this.traceProvider.register()
     }
 
-    createSpan(): void {
-        const span = opentelemetry.trace.getTracer("default").startSpan("foo")
+    addSpan(): void {
+        const span = this.traceProvider.getTracer("default").startSpan("foo")
         span.setAttribute("key", "value")
         span.end()
+    }
+
+    sendBatches(context: Context): void {
+        const processors = []
+        processors.push(this.traceProvider.forceFlush())
+        Promise.allSettled(processors).then((results) => {
+            results
+                .filter((result) => result.status === "rejected")
+                .map((result: PromiseRejectedResult) =>
+                    context.log(`Error occurred while sending telemetry to New Relic: ${result.reason}`),
+                )
+        })
+    }
+
+    shutdown(): void {
+        const processors = []
+        processors.push(this.traceProvider.shutdown())
+        Promise.allSettled(processors)
     }
 }
