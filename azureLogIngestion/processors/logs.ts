@@ -2,7 +2,7 @@ import { telemetry } from "@newrelic/telemetry-sdk"
 import { Context } from "@azure/functions"
 
 import { Processor } from "./base"
-import flatten from "../../utils/flatten"
+import flatten from "../utils/flatten"
 
 export default class LogsProcessor implements Processor {
     client: telemetry.logs.LogClient

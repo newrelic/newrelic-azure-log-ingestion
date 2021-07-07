@@ -1,5 +1,5 @@
-import camelcase from "../utils/camelcase"
-import mapper from "../utils/mapper"
+import camelcase from "./utils/camelcase"
+import mapper from "./utils/mapper"
 import { v4 as uuidv4 } from "uuid"
 
 const commonProps = {

@@ -4,6 +4,22 @@ import { BasicTracerProvider, BatchSpanProcessor } from "@opentelemetry/tracing"
 import { CollectorTraceExporter } from "@opentelemetry/exporter-collector"
 import { timeStampToHr, endTimeHrFromDuration, convertToMs } from "../utils/time"
 
+const debug = process.env["DEBUG"] || false
+
+import {
+    normalizeAppAvailabilityResult,
+    normalizeAppBrowserTiming,
+    normalizeAppDependency,
+    normalizeAppEvent,
+    normalizeAppTrace,
+    normalizeAppException,
+    normalizeAppPageView,
+    normalizeAppRequest,
+    normalizeAppPerformanceCounter,
+    normalizeAppMetrics,
+} from "../mappings"
+import * as _ from "lodash"
+
 interface Records {
     records: Record<string, any>[]
 }
@@ -14,7 +30,7 @@ const traceMap = {
     parentId: "parentSpanId",
 }
 
-export class OpenTelemetryAdapter {
+export default class OpenTelemetryAdapter {
     spanProcessor: BatchSpanProcessor
     traceProvider: BasicTracerProvider
     currentBatch: Array<Span>
@@ -36,6 +52,80 @@ export class OpenTelemetryAdapter {
         this.traceProvider.addSpanProcessor(this.spanProcessor)
         this.traceProvider.register()
         this.currentBatch = []
+    }
+
+    private determineMessageTypeProcessor(message: any, context: Context): void {
+        const type = message.Type || message.itemType
+
+        if (!type) {
+            return
+        }
+
+        if (["AppRequests", "requests"].includes(type)) {
+            const request = normalizeAppRequest(message)
+            this.addSpan(request, context)
+        }
+
+        if (["AppDependencies", "dependencies"].includes(type)) {
+            this.addSpan(normalizeAppDependency(message), context)
+        }
+
+        if (["AppEvents", "customEvents"].includes(type)) {
+            const event = normalizeAppEvent(message)
+            this.addSpan(event, context)
+        }
+
+        if (["AppExceptions", "exceptions"].includes(type)) {
+            const exception = normalizeAppException(message)
+            this.addSpan(exception, context)
+        }
+
+        if (["AppPageViews", "pageViews"].includes(type)) {
+            const pageView = normalizeAppPageView(message)
+            this.addSpan(pageView, context)
+        }
+
+        if (["AppAvailabilityResults", "availabilityResults"].includes(type)) {
+            const availabilityResult = normalizeAppAvailabilityResult(message)
+            this.addSpan(availabilityResult, context)
+        }
+
+        if (["AppBrowserTimings", "browserTimings"].includes(type)) {
+            const browserTiming = normalizeAppBrowserTiming(message)
+            this.addSpan(browserTiming, context)
+        }
+    }
+
+    /**
+     * Identifies messages and hands them off to the appropriate processor
+     *
+     * There may be situations where a message corresponds to more than one
+     * type of telemetry. In this case, the switch/case may not make sense.
+     */
+    processMessages(messages: string | string[], context: Context): void {
+        const messageArray = _.isArray(messages) ? messages : [messages]
+        messageArray.forEach((message) => {
+            let records: Records
+
+            try {
+                records = JSON.parse(message)
+            } catch (err) {
+                context.log.error(`Error parsing JSON: ${err}`)
+                if (debug) {
+                    context.log(messages)
+                }
+                return
+            }
+
+            if (debug) {
+                context.log("All messages: ", records.records)
+                context.log("All messages length: ", records.records.length)
+            }
+
+            records.records.forEach((m) => {
+                return this.determineMessageTypeProcessor(m, context)
+            }, this)
+        }, this)
     }
 
     private createContext(appSpan: Record<string, any>, ctx: Context): any {
