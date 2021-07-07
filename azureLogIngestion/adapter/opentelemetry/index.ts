@@ -1,16 +1,18 @@
-import opentelemetry, { SpanStatus, SpanStatusCode, SpanKind } from "@opentelemetry/api"
 import { Context } from "@azure/functions"
+import opentelemetry, { SpanStatusCode, SpanKind, TraceFlags } from "@opentelemetry/api"
 import { BasicTracerProvider, BatchSpanProcessor } from "@opentelemetry/tracing"
 import { CollectorTraceExporter } from "@opentelemetry/exporter-collector"
 import { timeStampToHr, endTimeHrFromDuration, convertToMs } from "../utils/time"
 
+interface Records {
+    records: Record<string, any>[]
+}
+
 const traceMap = {
     name: "name",
-    context: "spanContext",
     attributes: "spanAttributes",
     parentId: "parentSpanId",
 }
-//
 
 export class OpenTelemetryAdapter {
     spanProcessor: BatchSpanProcessor
@@ -34,9 +36,22 @@ export class OpenTelemetryAdapter {
         this.traceProvider.register()
     }
 
-    addSpan(appSpan): void {
+    private convertContext(appSpan: Record<string, any>, ctx: Context): any {
+        let obj: { traceId: string; spanId: string; traceFlags: TraceFlags; traceState: any }
+        // eslint-disable-next-line prefer-const
+        obj = {
+            traceId: appSpan.parentId,
+            spanId: appSpan.id,
+            traceFlags: 0,
+            traceState: ctx.traceContext.tracestate,
+        }
+        return obj
+    }
+
+    addSpan(appSpan: Record<any, any>, context: Context): void {
         const span = opentelemetry.trace.getTracer("default").startSpan(appSpan.name)
         span.setAttribute("spanKind", SpanKind.INTERNAL) // TODO: determine whether CLIENT, SERVER, PRODUCER, CONSUMER, INTERNAL
+        span.setAttribute("spanContext", this.convertContext(appSpan, context))
         span.setAttribute("startTime", timeStampToHr(appSpan.timestamp))
         if (appSpan.durationMs) {
             span.setAttribute("endTime", endTimeHrFromDuration(appSpan.timestamp, appSpan.durationMs))
@@ -48,12 +63,12 @@ export class OpenTelemetryAdapter {
         } else {
             span.setStatus({ code: SpanStatusCode.OK })
         }
+        // TODO: handle Links and Events
         for (const prop in appSpan) {
-            if (traceMap[prop]) {
+            if (traceMap[prop] && appSpan.hasOwnProperty(prop)) {
                 span.setAttribute(traceMap[prop], appSpan[prop])
             }
         }
-
         span.end()
     }
 
