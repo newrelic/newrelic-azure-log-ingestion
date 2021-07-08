@@ -1,8 +1,21 @@
 import { Context } from "@azure/functions"
-import opentelemetry, { SpanStatusCode, SpanKind, TraceFlags, Span } from "@opentelemetry/api"
+import opentelemetry, {
+    SpanStatusCode,
+    SpanKind,
+    TraceFlags,
+    Span,
+    SpanContext,
+    HrTime,
+    SpanStatus,
+    SpanAttributes,
+    Link,
+} from "@opentelemetry/api"
 import { BasicTracerProvider, BatchSpanProcessor } from "@opentelemetry/tracing"
+import { Resource } from "@opentelemetry/resources"
+import { ResourceAttributes } from "@opentelemetry/semantic-conventions"
+
 import { CollectorTraceExporter } from "@opentelemetry/exporter-collector"
-import { timeStampToHr, endTimeHrFromDuration, convertToMs } from "../utils/time"
+import { timeStampToHr, endTimeHrFromDuration } from "../utils/time"
 
 const debug = process.env["DEBUG"] || false
 
@@ -19,6 +32,8 @@ import {
     normalizeAppMetrics,
 } from "../mappings"
 import * as _ from "lodash"
+import { opentelemetryProto } from "@opentelemetry/exporter-collector/build/esm/types"
+import InstrumentationLibrary = opentelemetryProto.common.v1.InstrumentationLibrary
 
 interface Records {
     records: Record<string, any>[]
@@ -30,12 +45,49 @@ const traceMap = {
     parentId: "parentSpanId",
 }
 
+const loggableSpan = (span: Span): any => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const s: {
+        instrumentationLibrary: opentelemetryProto.common.v1.InstrumentationLibrary
+        resource: Resource
+        kind: SpanKind
+        parentSpanId: string
+        duration: [number, number]
+        name: string
+        ended: boolean
+        spanContext: () => SpanContext
+        startTime: [number, number]
+        attributes: SpanAttributes
+        links: any
+        endTime: [number, number]
+        events: any
+        status: SpanStatus
+    } = { ...span }
+    return {
+        name: s.name,
+        kind: s.kind,
+        spanContext: s.spanContext,
+        parentSpanId: s.parentSpanId,
+        startTime: s.startTime,
+        endTime: s.endTime,
+        status: s.status,
+        attributes: s.attributes,
+        links: s.links,
+        events: s.events,
+        duration: s.duration,
+        ended: s.ended,
+        resource: s.resource,
+        instrumentationLibrary: s.instrumentationLibrary,
+    }
+}
+
 export default class OpenTelemetryAdapter {
     spanProcessor: BatchSpanProcessor
     traceProvider: BasicTracerProvider
     currentBatch: Array<Span>
 
-    constructor(apiKey: string) {
+    constructor(apiKey: string, serviceName: string) {
         const traceExporter = new CollectorTraceExporter({
             headers: { "api-key": apiKey },
             url:
@@ -44,7 +96,11 @@ export default class OpenTelemetryAdapter {
                     : "https://otlp.nr-data.net:4317/v1/traces",
         })
 
-        this.traceProvider = new BasicTracerProvider()
+        this.traceProvider = new BasicTracerProvider({
+            resource: new Resource({
+                [ResourceAttributes.SERVICE_NAME]: serviceName,
+            }),
+        })
         this.spanProcessor = new BatchSpanProcessor(traceExporter, {
             // The maximum queue size. After the size is reached spans are dropped.
             maxQueueSize: 1000,
@@ -150,6 +206,10 @@ export default class OpenTelemetryAdapter {
         if (appSpan.type === "AppExceptions" || appSpan.ExceptionType) {
             const message = appSpan.innermostMessage || appSpan.outerMessage
             span.setStatus({ code: SpanStatusCode.ERROR, message })
+            span.recordException(
+                { message: message, name: appSpan.assembly, stack: appSpan.details },
+                timeStampToHr(appSpan.timestamp),
+            )
         } else {
             span.setStatus({ code: SpanStatusCode.OK })
         }
@@ -162,7 +222,7 @@ export default class OpenTelemetryAdapter {
         span.end(endTimeHrFromDuration(appSpan.timestamp, appSpan.durationMs))
         // OT batch processor doesn't give access to current batch size
         // or batch content. This lets us do snapshot tests.
-        this.currentBatch.push(span)
+        this.currentBatch.push(loggableSpan(span))
     }
 
     sendBatches(context: Context): void {

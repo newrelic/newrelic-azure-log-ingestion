@@ -13,7 +13,7 @@ process.env["OTEL"] = "true"
 
 describe("OpenTelemetryAdapter", () => {
     it("instantiates with api key", () => {
-        const adapter = new OpenTelemetryAdapter("mock-insert-key")
+        const adapter = new OpenTelemetryAdapter("mock-insert-key", "my-test-service")
 
         expect(adapter).toBeInstanceOf(OpenTelemetryAdapter)
 
@@ -24,7 +24,7 @@ describe("OpenTelemetryAdapter", () => {
     })
 
     it("processes app request and dependency as spans", () => {
-        const adapter = new OpenTelemetryAdapter("mock-insert-key")
+        const adapter = new OpenTelemetryAdapter("mock-insert-key", "my-test-service")
 
         const log = (...args) => null
         log.verbose = (...args) => null
@@ -56,7 +56,7 @@ describe("OpenTelemetryAdapter", () => {
     })
 
     it("processes app request and dependency when sent as array of strings", () => {
-        const adapter = new OpenTelemetryAdapter("mock-insert-key")
+        const adapter = new OpenTelemetryAdapter("mock-insert-key", "my-test-service")
 
         const log = (...args) => null
         log.verbose = (...args) => null
@@ -88,7 +88,7 @@ describe("OpenTelemetryAdapter", () => {
     })
 
     it("processes app event as span", () => {
-        const adapter = new OpenTelemetryAdapter("mock-insert-key")
+        const adapter = new OpenTelemetryAdapter("mock-insert-key", "my-test-service")
 
         const log = (...args) => null
         log.verbose = (...args) => null
@@ -117,7 +117,7 @@ describe("OpenTelemetryAdapter", () => {
     })
 
     it("processes app exception as span", () => {
-        const adapter = new OpenTelemetryAdapter("mock-insert-key")
+        const adapter = new OpenTelemetryAdapter("mock-insert-key", "my-test-service")
 
         const log = (...args) => null
         log.verbose = (...args) => null
