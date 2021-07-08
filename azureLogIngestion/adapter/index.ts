@@ -11,8 +11,8 @@ import {
     normalizeAppRequest,
     normalizeAppPerformanceCounter,
     normalizeAppMetrics,
-} from "./mappings"
-import { EventProcessor, SpanProcessor, LogProcessor, MetricsProcessor } from "./processors"
+} from "../mappings"
+import { EventProcessor, SpanProcessor, LogProcessor, MetricsProcessor } from "../processors"
 import * as _ from "lodash"
 
 const debug = process.env["DEBUG"] || false
