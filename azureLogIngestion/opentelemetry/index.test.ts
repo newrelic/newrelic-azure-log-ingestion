@@ -10,6 +10,7 @@ import {
 import { BasicTracerProvider, BatchSpanProcessor } from "@opentelemetry/tracing"
 
 process.env["OTEL"] = "true"
+process.env["otelJestTests"] = "true"
 
 describe("OpenTelemetryAdapter", () => {
     it("instantiates with api key", () => {

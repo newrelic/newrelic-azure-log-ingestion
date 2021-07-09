@@ -222,7 +222,8 @@ export default class OpenTelemetryAdapter {
         span.end(endTimeHrFromDuration(appSpan.timestamp, appSpan.durationMs))
         // OT batch processor doesn't give access to current batch size
         // or batch content. This lets us do snapshot tests.
-        this.currentBatch.push(loggableSpan(span))
+        const spanRecord = process.env["otelJestTests"] ? loggableSpan(span) : appSpan.id
+        this.currentBatch.push(spanRecord)
     }
 
     sendBatches(context: Context): void {

@@ -1,7 +1,7 @@
 import { AzureFunction, Context } from "@azure/functions"
 import Adapter from "./adapter"
 import OpenTelemetryAdapter from "./opentelemetry"
-import * as _ from "lodash"
+import { parse } from "./utils/resource"
 
 const apiKey = process.env["NEW_RELIC_INSERT_KEY"]
 const debug = process.env["DEBUG"] || false
@@ -16,9 +16,10 @@ const eventHubTrigger: AzureFunction = async function (context: Context, eventHu
         context.log(`eventHubMessages type: ${typeof eventHubMessages}`)
     }
     if (otel) {
-        const serviceName = _.get(eventHubMessages, "records.0.resourceId", null)
-        console.log("serviceName", serviceName)
-        otelAdapter = new OpenTelemetryAdapter(apiKey, serviceName)
+        const { resourceId } = eventHubMessages.records[0]
+        const resource = parse(resourceId)
+
+        otelAdapter = new OpenTelemetryAdapter(apiKey, resource.resourceName)
         otelAdapter.processMessages(eventHubMessages, context)
         otelAdapter.sendBatches(context)
     }
