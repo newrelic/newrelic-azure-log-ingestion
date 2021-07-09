@@ -21,7 +21,6 @@ const eventHubTrigger: AzureFunction = async function (context: Context, eventHu
         context.log("*** Executing OTEL ***")
         const resourceId = _.get(eventHubMessages, "records.0.resourceId", null)
         const resourceName = resourceId ? parse(resourceId).resourceName : null
-        context.log("*** resource name ***", resourceName)
 
         otelAdapter = new OpenTelemetryAdapter(apiKey, resourceName)
         otelAdapter.processMessages(eventHubMessages, context)
