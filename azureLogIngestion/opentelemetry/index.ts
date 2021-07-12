@@ -207,15 +207,11 @@ export default class OpenTelemetryAdapter {
             }),
         )
         context.log(`THIS RESOURCE: ${this.traceProvider.resource}`)
-        const span = this.traceProvider.getTracer("default").startSpan(
-            appSpan.name,
-            {
-                startTime: timeStampToHr(appSpan.timestamp),
-                kind: SpanKind.INTERNAL,
-            },
-            this.createContext(appSpan, context), // setting context earlier
-        )
-
+        const span = this.traceProvider.getTracer("default").startSpan(appSpan.name, {
+            startTime: timeStampToHr(appSpan.timestamp),
+            kind: SpanKind.INTERNAL,
+        })
+        span.setAttribute("spanContext", this.createContext(appSpan, context)) // setting context earlier)
         if (appSpan.type === "AppExceptions" || appSpan.ExceptionType) {
             const message = appSpan.innermostMessage || appSpan.outerMessage
             span.setStatus({ code: SpanStatusCode.ERROR, message })
