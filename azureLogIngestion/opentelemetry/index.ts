@@ -10,12 +10,14 @@ import opentelemetry, {
     SpanAttributes,
     Link,
 } from "@opentelemetry/api"
-import { BasicTracerProvider, BatchSpanProcessor } from "@opentelemetry/tracing"
+import { BatchSpanProcessor } from "@opentelemetry/tracing"
 import { Resource } from "@opentelemetry/resources"
 import { ResourceAttributes } from "@opentelemetry/semantic-conventions"
+import NrOtelTracerProvider from "./nrOtelTracerProvider"
 
 import { CollectorTraceExporter } from "@opentelemetry/exporter-collector"
 import { timeStampToHr, endTimeHrFromDuration } from "../utils/time"
+import { parse } from "../utils/resource"
 
 const debug = process.env["DEBUG"] || false
 
@@ -84,10 +86,10 @@ const loggableSpan = (span: Span): any => {
 
 export default class OpenTelemetryAdapter {
     spanProcessor: BatchSpanProcessor
-    traceProvider: BasicTracerProvider
+    traceProvider: NrOtelTracerProvider
     currentBatch: Array<Span>
 
-    constructor(apiKey: string, serviceName: string) {
+    constructor(apiKey: string) {
         const traceExporter = new CollectorTraceExporter({
             headers: { "api-key": apiKey },
             url:
@@ -96,11 +98,7 @@ export default class OpenTelemetryAdapter {
                     : "https://otlp.nr-data.net:4317/v1/traces",
         })
 
-        this.traceProvider = new BasicTracerProvider({
-            resource: new Resource({
-                [ResourceAttributes.SERVICE_NAME]: serviceName,
-            }),
-        })
+        this.traceProvider = new NrOtelTracerProvider({})
         this.spanProcessor = new BatchSpanProcessor(traceExporter, {
             // The maximum queue size. After the size is reached spans are dropped.
             maxQueueSize: 1000,
@@ -198,11 +196,26 @@ export default class OpenTelemetryAdapter {
     }
 
     addSpan(appSpan: Record<any, any>, context: Context): void {
-        const span = this.traceProvider.getTracer("default").startSpan(appSpan.name, {
-            startTime: timeStampToHr(appSpan.timestamp),
-            kind: SpanKind.INTERNAL,
-        })
-        span.setAttribute("spanContext", this.createContext(appSpan, context))
+        const resourceId = _.get(appSpan, "resourceId", null)
+        const resourceName = resourceId ? parse(resourceId).resourceName : null
+        context.log(`RESOURCE ID ${resourceId}`)
+        context.log(`resourceName ${resourceName}`)
+
+        this.traceProvider.updateResource(
+            new Resource({
+                [ResourceAttributes.SERVICE_NAME]: resourceName,
+            }),
+        )
+        context.log(`THIS RESOURCE: ${this.traceProvider.resource}`)
+        const span = this.traceProvider.getTracer("default").startSpan(
+            appSpan.name,
+            {
+                startTime: timeStampToHr(appSpan.timestamp),
+                kind: SpanKind.INTERNAL,
+            },
+            this.createContext(appSpan, context), // setting context earlier
+        )
+
         if (appSpan.type === "AppExceptions" || appSpan.ExceptionType) {
             const message = appSpan.innermostMessage || appSpan.outerMessage
             span.setStatus({ code: SpanStatusCode.ERROR, message })
