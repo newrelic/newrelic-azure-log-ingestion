@@ -2,11 +2,12 @@ import { Resource } from "@opentelemetry/resources"
 import { BasicTracerProvider } from "@opentelemetry/tracing"
 
 export class NRTracerProvider extends BasicTracerProvider {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    resource: Resource
+    azureResource: Resource
 
-    updateResource(resource: Resource): void {
-        this.resource = resource
+    public get resource(): Resource {
+        return this.azureResource
+    }
+    public set resource(resource: Resource) {
+        this.azureResource = resource
     }
 }

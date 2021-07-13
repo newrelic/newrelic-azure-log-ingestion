@@ -208,11 +208,9 @@ export default class OpenTelemetryAdapter {
         context.log(`RESOURCE ID ${resourceId}`)
         context.log(`resourceName ${resourceName}`)
 
-        this.traceProvider.updateResource(
-            new Resource({
-                [ResourceAttributes.SERVICE_NAME]: resourceName,
-            }),
-        )
+        this.traceProvider.resource = new Resource({
+            [ResourceAttributes.SERVICE_NAME]: resourceName,
+        })
         context.log(`THIS RESOURCE: ${this.traceProvider.resource}`)
         const span = this.traceProvider.getTracer("default").startSpan(appSpan.name, {
             startTime: timeStampToHr(appSpan.timestamp),
