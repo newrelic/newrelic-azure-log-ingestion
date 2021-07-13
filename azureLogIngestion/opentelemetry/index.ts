@@ -1,5 +1,6 @@
-import { Context } from "@azure/functions"
+import { Context as AzureContext } from "@azure/functions"
 import opentelemetry, {
+    Context,
     SpanStatusCode,
     SpanKind,
     TraceFlags,
@@ -9,6 +10,8 @@ import opentelemetry, {
     SpanStatus,
     SpanAttributes,
     Link,
+    TraceState,
+    ContextAPI,
 } from "@opentelemetry/api"
 import { BatchSpanProcessor } from "@opentelemetry/tracing"
 import { Resource } from "@opentelemetry/resources"
@@ -39,6 +42,36 @@ import { parse } from "../utils/resource"
 
 interface Records {
     records: Record<string, any>[]
+}
+
+class ContextImpl implements Context {
+    traceId: string
+    spanId: string
+    traceFlags: TraceFlags
+    traceState: TraceState
+    attributes: any
+
+    constructor(config: any) {
+        this.traceId = config.traceId
+        this.spanId = config.spanId
+        this.traceFlags = config.traceFlags
+        this.traceState = config.traceState
+        this.attributes = config.attributes
+    }
+
+    deleteValue(key: symbol): Context {
+        delete this[key]
+        return this
+    }
+
+    getValue(key: symbol): any {
+        return this[key]
+    }
+
+    setValue(key: symbol, value: unknown): Context {
+        this[key] = value
+        return this
+    }
 }
 
 const traceMap = {
@@ -113,7 +146,7 @@ export default class OpenTelemetryAdapter {
         this.currentBatch = []
     }
 
-    private determineMessageTypeProcessor(message: any, context: Context): void {
+    private determineMessageTypeProcessor(message: any, context: AzureContext): void {
         const type = message.Type || message.itemType
 
         if (!type) {
@@ -161,7 +194,7 @@ export default class OpenTelemetryAdapter {
      * There may be situations where a message corresponds to more than one
      * type of telemetry. In this case, the switch/case may not make sense.
      */
-    processMessages(messages: string | string[], context: Context): void {
+    processMessages(messages: string | string[], context: AzureContext): void {
         const messageArray = _.isArray(messages) ? messages : [messages]
         messageArray.forEach((message) => {
             let records: Records
@@ -187,38 +220,37 @@ export default class OpenTelemetryAdapter {
         }, this)
     }
 
-    private createContext(appSpan: Record<string, any>, ctx: Context): any {
+    private createContext(appSpan: Record<string, any>, ctx: AzureContext): ContextImpl {
         let obj: { traceId: string; spanId: string; traceFlags: TraceFlags; traceState: any; attributes: any }
         // eslint-disable-next-line prefer-const
-        obj = {
+        return new ContextImpl({
             traceId: appSpan.parentId || ctx.traceContext.traceparent,
             spanId: appSpan.id,
             traceFlags: 0,
             traceState: ctx.traceContext.tracestate,
             attributes: ctx.traceContext.attributes,
-        }
-        return obj
+        })
     }
 
-    addSpan(appSpan: Record<any, any>, context: Context): void {
-        // "service.name": "my-test-service",
-        //     "telemetry.sdk.language": "nodejs",
-        //     "telemetry.sdk.name": "opentelemetry",
-        //     "telemetry.sdk.version": "0.23.0",
+    addSpan(appSpan: Record<any, any>, context: AzureContext): void {
         const resourceId = _.get(appSpan, "resourceId", null)
         const resourceName = resourceId ? parse(resourceId).resourceName : null
-
-        context.log(`RESOURCE ID ${resourceId}`)
-        context.log(`resourceName ${resourceName}`)
 
         this.traceProvider.resource = new Resource({
             [ResourceAttributes.SERVICE_NAME]: resourceName,
         })
-        const span = this.traceProvider.getTracer("default").startSpan(appSpan.name, {
-            startTime: timeStampToHr(appSpan.timestamp),
-            kind: SpanKind.INTERNAL,
-        })
-        span.setAttribute("spanContext", this.createContext(appSpan, context))
+        const ctx = this.createContext(appSpan, context)
+        const span = this.traceProvider.getTracer("default").startSpan(
+            appSpan.name,
+            {
+                startTime: timeStampToHr(appSpan.timestamp),
+                kind: SpanKind.INTERNAL,
+            },
+            ctx,
+        )
+        context.log("SPAN CREATED ********")
+        context.log(span)
+
         if (appSpan.type === "AppExceptions" || appSpan.ExceptionType) {
             const message = appSpan.innermostMessage || appSpan.outerMessage
             span.setStatus({ code: SpanStatusCode.ERROR, message })
@@ -239,10 +271,11 @@ export default class OpenTelemetryAdapter {
         // OT batch processor doesn't give access to current batch size
         // or batch content. This lets us do snapshot tests.
         const spanRecord = process.env["otelJestTests"] ? loggableSpan(span) : appSpan.id
+        context.log(`span ended! ${span}`)
         this.currentBatch.push(spanRecord)
     }
 
-    sendBatches(context: Context): void {
+    sendBatches(context: AzureContext): void {
         const processors = []
         processors.push(this.traceProvider.forceFlush())
         Promise.allSettled(processors).then((results) => {
