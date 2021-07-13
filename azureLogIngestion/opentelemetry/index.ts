@@ -1,6 +1,6 @@
 import { Context as AzureContext } from "@azure/functions"
 import opentelemetry, {
-    Context,
+    Context as OtContext,
     SpanStatusCode,
     SpanKind,
     TraceFlags,
@@ -44,7 +44,7 @@ interface Records {
     records: Record<string, any>[]
 }
 
-class ContextImpl implements Context {
+class ContextImpl implements OtContext {
     traceId: string
     spanId: string
     traceFlags: TraceFlags
@@ -59,7 +59,7 @@ class ContextImpl implements Context {
         this.attributes = config.attributes
     }
 
-    deleteValue(key: symbol): Context {
+    deleteValue(key: symbol): ContextImpl {
         delete this[key]
         return this
     }
@@ -68,10 +68,18 @@ class ContextImpl implements Context {
         return this[key]
     }
 
-    setValue(key: symbol, value: unknown): Context {
+    setValue(key: symbol, value: unknown): ContextImpl {
         this[key] = value
         return this
     }
+}
+
+class SpanContextImpl implements SpanContext {
+    isRemote: boolean
+    spanId: string
+    traceFlags: number
+    traceId: string
+    traceState: TraceState
 }
 
 const traceMap = {
@@ -154,35 +162,42 @@ export default class OpenTelemetryAdapter {
         }
 
         if (["AppRequests", "requests"].includes(type)) {
+            context.log("App request")
             const request = normalizeAppRequest(message)
             this.addSpan(request, context)
         }
 
         if (["AppDependencies", "dependencies"].includes(type)) {
+            context.log("App dependency")
             this.addSpan(normalizeAppDependency(message), context)
         }
 
         if (["AppEvents", "customEvents"].includes(type)) {
+            context.log("App events")
             const event = normalizeAppEvent(message)
             this.addSpan(event, context)
         }
 
         if (["AppExceptions", "exceptions"].includes(type)) {
+            context.log("App exceptions")
             const exception = normalizeAppException(message)
             this.addSpan(exception, context)
         }
 
         if (["AppPageViews", "pageViews"].includes(type)) {
+            context.log("App page views")
             const pageView = normalizeAppPageView(message)
             this.addSpan(pageView, context)
         }
 
         if (["AppAvailabilityResults", "availabilityResults"].includes(type)) {
+            context.log("App availability results")
             const availabilityResult = normalizeAppAvailabilityResult(message)
             this.addSpan(availabilityResult, context)
         }
 
         if (["AppBrowserTimings", "browserTimings"].includes(type)) {
+            context.log("App browser timings")
             const browserTiming = normalizeAppBrowserTiming(message)
             this.addSpan(browserTiming, context)
         }
@@ -221,8 +236,9 @@ export default class OpenTelemetryAdapter {
     }
 
     private createContext(appSpan: Record<string, any>, ctx: AzureContext): ContextImpl {
-        let obj: { traceId: string; spanId: string; traceFlags: TraceFlags; traceState: any; attributes: any }
+        // let obj: { traceId: string; spanId: string; traceFlags: TraceFlags; traceState: any; attributes: any }
         // eslint-disable-next-line prefer-const
+        ctx.log(`creating context ${appSpan.id} ${appSpan.parentId}`)
         return new ContextImpl({
             traceId: appSpan.parentId || ctx.traceContext.traceparent,
             spanId: appSpan.id,
@@ -233,13 +249,17 @@ export default class OpenTelemetryAdapter {
     }
 
     addSpan(appSpan: Record<any, any>, context: AzureContext): void {
+        context.log(`In AddSpan ${appSpan.id}`)
         const resourceId = _.get(appSpan, "resourceId", null)
         const resourceName = resourceId ? parse(resourceId).resourceName : null
-
+        context.log(`resource id ${resourceId}`)
+        context.log(`resource name ${resourceName}`)
         this.traceProvider.resource = new Resource({
-            [ResourceAttributes.SERVICE_NAME]: resourceName,
+            [ResourceAttributes.SERVICE_NAME]: `${resourceName}_otlp`,
         })
         const ctx = this.createContext(appSpan, context)
+        context.log(`createContext ${ctx}`)
+
         const span = this.traceProvider.getTracer("default").startSpan(
             appSpan.name,
             {
@@ -250,6 +270,7 @@ export default class OpenTelemetryAdapter {
         )
         context.log("SPAN CREATED ********")
         context.log(span)
+        context.log("SPAN CREATED ********")
 
         if (appSpan.type === "AppExceptions" || appSpan.ExceptionType) {
             const message = appSpan.innermostMessage || appSpan.outerMessage
@@ -267,6 +288,7 @@ export default class OpenTelemetryAdapter {
                 span.setAttribute(traceMap[prop], appSpan[prop])
             }
         }
+        context.log("about to end span")
         span.end(endTimeHrFromDuration(appSpan.timestamp, appSpan.durationMs))
         // OT batch processor doesn't give access to current batch size
         // or batch content. This lets us do snapshot tests.
@@ -276,6 +298,7 @@ export default class OpenTelemetryAdapter {
     }
 
     sendBatches(context: AzureContext): void {
+        context.log("Sending batches")
         const processors = []
         processors.push(this.traceProvider.forceFlush())
         Promise.allSettled(processors).then((results) => {
