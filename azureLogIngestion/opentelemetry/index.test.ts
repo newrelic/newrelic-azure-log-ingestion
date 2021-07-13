@@ -7,7 +7,9 @@ import {
     appInsightsAppRequest,
     arrayOfStrings,
 } from "../adapter/testdata.test"
-import { BasicTracerProvider, BatchSpanProcessor } from "@opentelemetry/tracing"
+import { BatchSpanProcessor } from "@opentelemetry/tracing"
+
+import { NRTracerProvider } from "./provider"
 
 process.env["OTEL"] = "true"
 process.env["otelJestTests"] = "true"
@@ -19,7 +21,7 @@ describe("OpenTelemetryAdapter", () => {
         expect(adapter).toBeInstanceOf(OpenTelemetryAdapter)
 
         expect(adapter.spanProcessor).toBeInstanceOf(BatchSpanProcessor)
-        expect(adapter.traceProvider).toBeInstanceOf(BasicTracerProvider)
+        expect(adapter.traceProvider).toBeInstanceOf(NRTracerProvider)
         expect(adapter.currentBatch).toBeInstanceOf(Array)
         expect(adapter.getBatchSize()).toEqual(0)
     })

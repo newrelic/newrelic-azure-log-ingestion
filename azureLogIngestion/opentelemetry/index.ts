@@ -10,11 +10,13 @@ import opentelemetry, {
     SpanAttributes,
     Link,
 } from "@opentelemetry/api"
-import { BasicTracerProvider, BatchSpanProcessor } from "@opentelemetry/tracing"
+import { BatchSpanProcessor } from "@opentelemetry/tracing"
 import { Resource } from "@opentelemetry/resources"
 import { ResourceAttributes } from "@opentelemetry/semantic-conventions"
 
 import { CollectorTraceExporter } from "@opentelemetry/exporter-collector"
+
+import { NRTracerProvider } from "./provider"
 import { timeStampToHr, endTimeHrFromDuration } from "../utils/time"
 
 const debug = process.env["DEBUG"] || false
@@ -84,7 +86,7 @@ const loggableSpan = (span: Span): any => {
 
 export default class OpenTelemetryAdapter {
     spanProcessor: BatchSpanProcessor
-    traceProvider: BasicTracerProvider
+    traceProvider: NRTracerProvider
     currentBatch: Array<Span>
 
     constructor(apiKey: string, serviceName: string) {
@@ -96,7 +98,7 @@ export default class OpenTelemetryAdapter {
                     : "https://otlp.nr-data.net:4317/v1/traces",
         })
 
-        this.traceProvider = new BasicTracerProvider({
+        this.traceProvider = new NRTracerProvider({
             resource: new Resource({
                 [ResourceAttributes.SERVICE_NAME]: serviceName,
             }),
