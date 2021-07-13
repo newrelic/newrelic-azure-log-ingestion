@@ -13,5 +13,6 @@ module.exports = {
         // We'll want to remove these
         "@typescript-eslint/no-explicit-any": "off",
         "@typescript-eslint/no-unused-vars": "off",
+        "@typescript-eslint/ban-ts-comment": "off",
     },
 }

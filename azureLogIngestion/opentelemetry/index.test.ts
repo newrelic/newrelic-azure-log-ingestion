@@ -7,25 +7,27 @@ import {
     appInsightsAppRequest,
     arrayOfStrings,
 } from "../adapter/testdata.test"
-import { BasicTracerProvider, BatchSpanProcessor } from "@opentelemetry/tracing"
+import { BatchSpanProcessor } from "@opentelemetry/tracing"
+
+import { NRTracerProvider } from "./provider"
 
 process.env["OTEL"] = "true"
 process.env["otelJestTests"] = "true"
 
 describe("OpenTelemetryAdapter", () => {
     it("instantiates with api key", () => {
-        const adapter = new OpenTelemetryAdapter("mock-insert-key", "my-test-service")
+        const adapter = new OpenTelemetryAdapter("mock-insert-key")
 
         expect(adapter).toBeInstanceOf(OpenTelemetryAdapter)
 
         expect(adapter.spanProcessor).toBeInstanceOf(BatchSpanProcessor)
-        expect(adapter.traceProvider).toBeInstanceOf(BasicTracerProvider)
+        expect(adapter.traceProvider).toBeInstanceOf(NRTracerProvider)
         expect(adapter.currentBatch).toBeInstanceOf(Array)
         expect(adapter.getBatchSize()).toEqual(0)
     })
 
     it("processes app request and dependency as spans", () => {
-        const adapter = new OpenTelemetryAdapter("mock-insert-key", "my-test-service")
+        const adapter = new OpenTelemetryAdapter("mock-insert-key")
 
         const log = (...args) => null
         log.verbose = (...args) => null
@@ -57,7 +59,7 @@ describe("OpenTelemetryAdapter", () => {
     })
 
     it("processes app request and dependency when sent as array of strings", () => {
-        const adapter = new OpenTelemetryAdapter("mock-insert-key", "my-test-service")
+        const adapter = new OpenTelemetryAdapter("mock-insert-key")
 
         const log = (...args) => null
         log.verbose = (...args) => null
@@ -89,7 +91,7 @@ describe("OpenTelemetryAdapter", () => {
     })
 
     it("processes app event as span", () => {
-        const adapter = new OpenTelemetryAdapter("mock-insert-key", "my-test-service")
+        const adapter = new OpenTelemetryAdapter("mock-insert-key")
 
         const log = (...args) => null
         log.verbose = (...args) => null
@@ -118,7 +120,7 @@ describe("OpenTelemetryAdapter", () => {
     })
 
     it("processes app exception as span", () => {
-        const adapter = new OpenTelemetryAdapter("mock-insert-key", "my-test-service")
+        const adapter = new OpenTelemetryAdapter("mock-insert-key")
 
         const log = (...args) => null
         log.verbose = (...args) => null

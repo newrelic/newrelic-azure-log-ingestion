@@ -26,10 +26,7 @@ Array [
     "parentSpanId": undefined,
     "resource": Resource {
       "attributes": Object {
-        "service.name": "my-test-service",
-        "telemetry.sdk.language": "nodejs",
-        "telemetry.sdk.name": "opentelemetry",
-        "telemetry.sdk.version": "0.23.0",
+        "service.name": "{function app name in all caps}",
       },
     },
     "spanContext": undefined,
@@ -121,10 +118,7 @@ Array [
     "parentSpanId": undefined,
     "resource": Resource {
       "attributes": Object {
-        "service.name": "my-test-service",
-        "telemetry.sdk.language": "nodejs",
-        "telemetry.sdk.name": "opentelemetry",
-        "telemetry.sdk.version": "0.23.0",
+        "service.name": "{function app name}",
       },
     },
     "spanContext": undefined,
@@ -166,10 +160,7 @@ Array [
     "parentSpanId": undefined,
     "resource": Resource {
       "attributes": Object {
-        "service.name": "my-test-service",
-        "telemetry.sdk.language": "nodejs",
-        "telemetry.sdk.name": "opentelemetry",
-        "telemetry.sdk.version": "0.23.0",
+        "service.name": "{function app name}",
       },
     },
     "spanContext": undefined,
@@ -208,10 +199,7 @@ Array [
     "parentSpanId": undefined,
     "resource": Resource {
       "attributes": Object {
-        "service.name": "my-test-service",
-        "telemetry.sdk.language": "nodejs",
-        "telemetry.sdk.name": "opentelemetry",
-        "telemetry.sdk.version": "0.23.0",
+        "service.name": "{function app name}",
       },
     },
     "spanContext": undefined,
@@ -245,10 +233,7 @@ Array [
     "parentSpanId": undefined,
     "resource": Resource {
       "attributes": Object {
-        "service.name": "my-test-service",
-        "telemetry.sdk.language": "nodejs",
-        "telemetry.sdk.name": "opentelemetry",
-        "telemetry.sdk.version": "0.23.0",
+        "service.name": "{function app name}",
       },
     },
     "spanContext": undefined,
@@ -289,10 +274,7 @@ Array [
     "parentSpanId": undefined,
     "resource": Resource {
       "attributes": Object {
-        "service.name": "my-test-service",
-        "telemetry.sdk.language": "nodejs",
-        "telemetry.sdk.name": "opentelemetry",
-        "telemetry.sdk.version": "0.23.0",
+        "service.name": "functionAppName",
       },
     },
     "spanContext": undefined,
@@ -326,10 +308,7 @@ Array [
     "parentSpanId": undefined,
     "resource": Resource {
       "attributes": Object {
-        "service.name": "my-test-service",
-        "telemetry.sdk.language": "nodejs",
-        "telemetry.sdk.name": "opentelemetry",
-        "telemetry.sdk.version": "0.23.0",
+        "service.name": "functionAppName",
       },
     },
     "spanContext": undefined,
@@ -363,10 +342,7 @@ Array [
     "parentSpanId": undefined,
     "resource": Resource {
       "attributes": Object {
-        "service.name": "my-test-service",
-        "telemetry.sdk.language": "nodejs",
-        "telemetry.sdk.name": "opentelemetry",
-        "telemetry.sdk.version": "0.23.0",
+        "service.name": "functionAppName",
       },
     },
     "spanContext": undefined,
@@ -405,10 +381,7 @@ Array [
     "parentSpanId": undefined,
     "resource": Resource {
       "attributes": Object {
-        "service.name": "my-test-service",
-        "telemetry.sdk.language": "nodejs",
-        "telemetry.sdk.name": "opentelemetry",
-        "telemetry.sdk.version": "0.23.0",
+        "service.name": "functionAppName",
       },
     },
     "spanContext": undefined,
@@ -442,10 +415,7 @@ Array [
     "parentSpanId": undefined,
     "resource": Resource {
       "attributes": Object {
-        "service.name": "my-test-service",
-        "telemetry.sdk.language": "nodejs",
-        "telemetry.sdk.name": "opentelemetry",
-        "telemetry.sdk.version": "0.23.0",
+        "service.name": "functionAppName",
       },
     },
     "spanContext": undefined,
@@ -479,10 +449,7 @@ Array [
     "parentSpanId": undefined,
     "resource": Resource {
       "attributes": Object {
-        "service.name": "my-test-service",
-        "telemetry.sdk.language": "nodejs",
-        "telemetry.sdk.name": "opentelemetry",
-        "telemetry.sdk.version": "0.23.0",
+        "service.name": "functionAppName",
       },
     },
     "spanContext": undefined,
@@ -516,10 +483,7 @@ Array [
     "parentSpanId": undefined,
     "resource": Resource {
       "attributes": Object {
-        "service.name": "my-test-service",
-        "telemetry.sdk.language": "nodejs",
-        "telemetry.sdk.name": "opentelemetry",
-        "telemetry.sdk.version": "0.23.0",
+        "service.name": "functionAppName",
       },
     },
     "spanContext": undefined,
