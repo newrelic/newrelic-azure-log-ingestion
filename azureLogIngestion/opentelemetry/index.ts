@@ -35,7 +35,7 @@ import {
 } from "../mappings"
 import * as _ from "lodash"
 import { opentelemetryProto } from "@opentelemetry/exporter-collector/build/esm/types"
-import InstrumentationLibrary = opentelemetryProto.common.v1.InstrumentationLibrary
+import { parse } from "../utils/resource"
 
 interface Records {
     records: Record<string, any>[]
@@ -89,7 +89,7 @@ export default class OpenTelemetryAdapter {
     traceProvider: NRTracerProvider
     currentBatch: Array<Span>
 
-    constructor(apiKey: string, serviceName: string) {
+    constructor(apiKey: string) {
         const traceExporter = new CollectorTraceExporter({
             headers: { "api-key": apiKey },
             url:
@@ -98,9 +98,10 @@ export default class OpenTelemetryAdapter {
                     : "https://otlp.nr-data.net:4317/v1/traces",
         })
 
+        // initializing with a service name which we'll override for each span
         this.traceProvider = new NRTracerProvider({
             resource: new Resource({
-                [ResourceAttributes.SERVICE_NAME]: serviceName,
+                [ResourceAttributes.SERVICE_NAME]: "newrelic-azure-log-ingestion",
             }),
         })
         this.spanProcessor = new BatchSpanProcessor(traceExporter, {
@@ -200,6 +201,19 @@ export default class OpenTelemetryAdapter {
     }
 
     addSpan(appSpan: Record<any, any>, context: Context): void {
+        // "service.name": "my-test-service",
+        //     "telemetry.sdk.language": "nodejs",
+        //     "telemetry.sdk.name": "opentelemetry",
+        //     "telemetry.sdk.version": "0.23.0",
+        const resourceId = _.get(appSpan, "resourceId", null)
+        const resourceName = resourceId ? parse(resourceId).resourceName : null
+
+        context.log(`RESOURCE ID ${resourceId}`)
+        context.log(`resourceName ${resourceName}`)
+
+        this.traceProvider.resource = new Resource({
+            [ResourceAttributes.SERVICE_NAME]: resourceName,
+        })
         const span = this.traceProvider.getTracer("default").startSpan(appSpan.name, {
             startTime: timeStampToHr(appSpan.timestamp),
             kind: SpanKind.INTERNAL,
