@@ -18,6 +18,7 @@ import { CollectorTraceExporter } from "@opentelemetry/exporter-collector"
 
 import { NRTracerProvider } from "./provider"
 import { timeStampToHr, endTimeHrFromDuration } from "../utils/time"
+import { parse } from "../utils/resource"
 
 const debug = process.env["DEBUG"] || false
 
@@ -89,7 +90,7 @@ export default class OpenTelemetryAdapter {
     traceProvider: NRTracerProvider
     currentBatch: Array<Span>
 
-    constructor(apiKey: string, serviceName: string) {
+    constructor(apiKey: string) {
         const traceExporter = new CollectorTraceExporter({
             headers: { "api-key": apiKey },
             url:
@@ -98,9 +99,10 @@ export default class OpenTelemetryAdapter {
                     : "https://otlp.nr-data.net:4317/v1/traces",
         })
 
+        // hardcoding service name; we'll override with each span
         this.traceProvider = new NRTracerProvider({
             resource: new Resource({
-                [ResourceAttributes.SERVICE_NAME]: serviceName,
+                [ResourceAttributes.SERVICE_NAME]: "newrelic-azure-log-ingestion",
             }),
         })
         this.spanProcessor = new BatchSpanProcessor(traceExporter, {
@@ -200,6 +202,18 @@ export default class OpenTelemetryAdapter {
     }
 
     addSpan(appSpan: Record<any, any>, context: Context): void {
+        const resourceId = _.get(appSpan, "resourceId", null)
+        const resourceName = resourceId ? parse(resourceId).resourceName : null
+
+        context.log(`RESOURCE ID ${resourceId}`)
+        context.log(`resourceName ${resourceName}`)
+
+        this.traceProvider.updateResource(
+            new Resource({
+                [ResourceAttributes.SERVICE_NAME]: resourceName,
+            }),
+        )
+        context.log(`THIS RESOURCE: ${this.traceProvider.resource}`)
         const span = this.traceProvider.getTracer("default").startSpan(appSpan.name, {
             startTime: timeStampToHr(appSpan.timestamp),
             kind: SpanKind.INTERNAL,
