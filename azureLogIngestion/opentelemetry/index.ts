@@ -1,17 +1,14 @@
 import { Context as AzureContext } from "@azure/functions"
-import opentelemetry, {
+import {
     Context as OtContext,
-    SpanStatusCode,
-    SpanKind,
-    TraceFlags,
     Span,
-    SpanContext,
-    HrTime,
-    SpanStatus,
     SpanAttributes,
-    Link,
+    SpanContext,
+    SpanKind,
+    SpanStatus,
+    SpanStatusCode,
+    TraceFlags,
     TraceState,
-    ContextAPI,
 } from "@opentelemetry/api"
 import { BatchSpanProcessor } from "@opentelemetry/tracing"
 import { Resource } from "@opentelemetry/resources"
@@ -20,25 +17,21 @@ import { ResourceAttributes } from "@opentelemetry/semantic-conventions"
 import { CollectorTraceExporter } from "@opentelemetry/exporter-collector"
 
 import { NRTracerProvider } from "./provider"
-import { timeStampToHr, endTimeHrFromDuration } from "../utils/time"
-
-const debug = process.env["DEBUG"] || false
-
+import { endTimeHrFromDuration, timeStampToHr } from "../utils/time"
 import {
     normalizeAppAvailabilityResult,
     normalizeAppBrowserTiming,
     normalizeAppDependency,
     normalizeAppEvent,
-    normalizeAppTrace,
     normalizeAppException,
     normalizeAppPageView,
     normalizeAppRequest,
-    normalizeAppPerformanceCounter,
-    normalizeAppMetrics,
 } from "../mappings"
 import * as _ from "lodash"
 import { opentelemetryProto } from "@opentelemetry/exporter-collector/build/esm/types"
 import { parse } from "../utils/resource"
+
+const debug = process.env["DEBUG"] || false
 
 interface Records {
     records: Record<string, any>[]
@@ -84,7 +77,6 @@ class SpanContextImpl implements SpanContext {
 
 const traceMap = {
     name: "name",
-    attributes: "spanAttributes",
     parentId: "parentSpanId",
 }
 
@@ -123,6 +115,13 @@ const loggableSpan = (span: Span): any => {
         resource: s.resource,
         instrumentationLibrary: s.instrumentationLibrary,
     }
+}
+
+const getSpanKind = (type: string): SpanKind => {
+    if (type === "AppRequest") {
+        return SpanKind.SERVER
+    }
+    return SpanKind.INTERNAL
 }
 
 export default class OpenTelemetryAdapter {
@@ -236,9 +235,6 @@ export default class OpenTelemetryAdapter {
     }
 
     private createContext(appSpan: Record<string, any>, ctx: AzureContext): ContextImpl {
-        // let obj: { traceId: string; spanId: string; traceFlags: TraceFlags; traceState: any; attributes: any }
-        // eslint-disable-next-line prefer-const
-        ctx.log(`creating context ${appSpan.id} ${appSpan.parentId}`)
         return new ContextImpl({
             traceId: appSpan.parentId || ctx.traceContext.traceparent,
             spanId: appSpan.id,
@@ -249,28 +245,32 @@ export default class OpenTelemetryAdapter {
     }
 
     addSpan(appSpan: Record<any, any>, context: AzureContext): void {
-        context.log(`In AddSpan ${appSpan.id}`)
         const resourceId = _.get(appSpan, "resourceId", null)
-        const resourceName = resourceId ? parse(resourceId).resourceName : null
-        context.log(`resource id ${resourceId}`)
-        context.log(`resource name ${resourceName}`)
+        // Much of the time, the resourceId is for the log ingestion function, not the calling function
+        // operation name is least-bad, but needs to be processed, at least for web requests
+        const resourceName = resourceId
+            ? parse(resourceId).resourceName
+            : appSpan.operationName
+            ? appSpan.operationName
+            : appSpan.appRoleName
+            ? appSpan.appRoleName
+            : null
         this.traceProvider.resource = new Resource({
-            [ResourceAttributes.SERVICE_NAME]: `${resourceName}_otlp`,
+            [ResourceAttributes.SERVICE_NAME]: `${resourceName}`,
+            // TODO: add more resource attributes
         })
         const ctx = this.createContext(appSpan, context)
-        context.log(`createContext ${ctx}`)
 
         const span = this.traceProvider.getTracer("default").startSpan(
             appSpan.name,
             {
                 startTime: timeStampToHr(appSpan.timestamp),
-                kind: SpanKind.INTERNAL,
+                kind: getSpanKind(appSpan.type),
+                attributes: appSpan,
+                root: _.isUndefined(appSpan.parentId) || _.isNull(appSpan.parentId),
             },
             ctx,
         )
-        context.log("SPAN CREATED ********")
-        context.log(span)
-        context.log("SPAN CREATED ********")
 
         if (appSpan.type === "AppExceptions" || appSpan.ExceptionType) {
             const message = appSpan.innermostMessage || appSpan.outerMessage
@@ -285,20 +285,18 @@ export default class OpenTelemetryAdapter {
         // TODO: handle Links and Events
         for (const prop in appSpan) {
             if (traceMap[prop] && appSpan.hasOwnProperty(prop)) {
-                span.setAttribute(traceMap[prop], appSpan[prop])
+                span.setAttribute(traceMap[prop], appSpan[prop]) // still not setting parentid
             }
         }
-        context.log("about to end span")
+
         span.end(endTimeHrFromDuration(appSpan.timestamp, appSpan.durationMs))
         // OT batch processor doesn't give access to current batch size
         // or batch content. This lets us do snapshot tests.
         const spanRecord = process.env["otelJestTests"] ? loggableSpan(span) : appSpan.id
-        context.log(`span ended! ${span}`)
         this.currentBatch.push(spanRecord)
     }
 
     sendBatches(context: AzureContext): void {
-        context.log("Sending batches")
         const processors = []
         processors.push(this.traceProvider.forceFlush())
         Promise.allSettled(processors).then((results) => {
