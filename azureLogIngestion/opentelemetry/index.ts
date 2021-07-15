@@ -172,16 +172,16 @@ export default class OpenTelemetryAdapter {
             this.addSpan(request, context)
         }
 
-        if (["AppDependencies", "dependencies"].includes(type)) {
-            context.log("App dependency")
-            this.addSpan(normalizeAppDependency(message), context)
-        }
-
-        if (["AppEvents", "customEvents"].includes(type)) {
-            context.log("App events")
-            const event = normalizeAppEvent(message)
-            this.addSpan(event, context)
-        }
+        // if (["AppDependencies", "dependencies"].includes(type)) {
+        //     context.log("App dependency")
+        //     this.addSpan(normalizeAppDependency(message), context)
+        // }
+        //
+        // if (["AppEvents", "customEvents"].includes(type)) {
+        //     context.log("App events")
+        //     const event = normalizeAppEvent(message)
+        //     this.addSpan(event, context)
+        // }
 
         if (["AppExceptions", "exceptions"].includes(type)) {
             context.log("App exceptions")
@@ -189,23 +189,23 @@ export default class OpenTelemetryAdapter {
             this.addSpan(exception, context)
         }
 
-        if (["AppPageViews", "pageViews"].includes(type)) {
-            context.log("App page views")
-            const pageView = normalizeAppPageView(message)
-            this.addSpan(pageView, context)
-        }
-
-        if (["AppAvailabilityResults", "availabilityResults"].includes(type)) {
-            context.log("App availability results")
-            const availabilityResult = normalizeAppAvailabilityResult(message)
-            this.addSpan(availabilityResult, context)
-        }
-
-        if (["AppBrowserTimings", "browserTimings"].includes(type)) {
-            context.log("App browser timings")
-            const browserTiming = normalizeAppBrowserTiming(message)
-            this.addSpan(browserTiming, context)
-        }
+        // if (["AppPageViews", "pageViews"].includes(type)) {
+        //     context.log("App page views")
+        //     const pageView = normalizeAppPageView(message)
+        //     this.addSpan(pageView, context)
+        // }
+        //
+        // if (["AppAvailabilityResults", "availabilityResults"].includes(type)) {
+        //     context.log("App availability results")
+        //     const availabilityResult = normalizeAppAvailabilityResult(message)
+        //     this.addSpan(availabilityResult, context)
+        // }
+        //
+        // if (["AppBrowserTimings", "browserTimings"].includes(type)) {
+        //     context.log("App browser timings")
+        //     const browserTiming = normalizeAppBrowserTiming(message)
+        //     this.addSpan(browserTiming, context)
+        // }
     }
 
     /**
@@ -267,7 +267,6 @@ export default class OpenTelemetryAdapter {
             [ResourceAttributes.SERVICE_NAME]: resourceName,
         }
         this.traceProvider.resource = new Resource(resourceAttrs)
-        const ctx = this.createContext(appSpan, context)
 
         const span = this.traceProvider.getTracer("default").startSpan(
             appSpan.name,
@@ -277,7 +276,7 @@ export default class OpenTelemetryAdapter {
                 attributes: appSpan,
                 root: _.isUndefined(appSpan.parentId) || _.isNull(appSpan.parentId),
             },
-            ctx,
+            this.createContext(appSpan, context),
         )
 
         if (appSpan.type === "AppExceptions" || appSpan.ExceptionType) {
