@@ -128,6 +128,7 @@ export default class OpenTelemetryAdapter {
     spanProcessor: BatchSpanProcessor
     traceProvider: NRTracerProvider
     currentBatch: Array<Span>
+    resourceAttrs: any
 
     constructor(apiKey: string) {
         const traceExporter = new CollectorTraceExporter({
@@ -138,11 +139,16 @@ export default class OpenTelemetryAdapter {
                     : "https://otlp.nr-data.net:4317/v1/traces",
         })
 
+        this.resourceAttrs = {
+            [ResourceAttributes.SERVICE_NAME]: "newrelic-azure-log-ingestion",
+            [ResourceAttributes.TELEMETRY_SDK_LANGUAGE]: "nodejs",
+            [ResourceAttributes.TELEMETRY_SDK_NAME]: "opentelemetry",
+            [ResourceAttributes.TELEMETRY_SDK_VERSION]: "0.23.0",
+        }
+
         // initializing with a service name which we'll override for each span
         this.traceProvider = new NRTracerProvider({
-            resource: new Resource({
-                [ResourceAttributes.SERVICE_NAME]: "newrelic-azure-log-ingestion",
-            }),
+            resource: new Resource(this.resourceAttrs),
         })
         this.spanProcessor = new BatchSpanProcessor(traceExporter, {
             // The maximum queue size. After the size is reached spans are dropped.
@@ -255,10 +261,12 @@ export default class OpenTelemetryAdapter {
             : appSpan.appRoleName
             ? appSpan.appRoleName
             : null
-        this.traceProvider.resource = new Resource({
-            [ResourceAttributes.SERVICE_NAME]: `${resourceName}`,
-            // TODO: add more resource attributes
-        })
+
+        const resourceAttrs = {
+            ...this.resourceAttrs,
+            [ResourceAttributes.SERVICE_NAME]: resourceName,
+        }
+        this.traceProvider.resource = new Resource(resourceAttrs)
         const ctx = this.createContext(appSpan, context)
 
         const span = this.traceProvider.getTracer("default").startSpan(
