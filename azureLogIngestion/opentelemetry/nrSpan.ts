@@ -10,8 +10,6 @@ import {
     SpanStatus,
     TimeInput,
 } from "@opentelemetry/api"
-import { Event } from "@newrelic/telemetry-sdk/dist/src/telemetry/events"
-import { AttributeMap } from "@newrelic/telemetry-sdk/dist/src/telemetry/attributeMap"
 import { Resource } from "@opentelemetry/resources"
 import { InstrumentationLibrary } from "@opentelemetry/core"
 import NrSpanContext from "./nrSpanContext"
@@ -33,7 +31,7 @@ export class NrSpan implements Span {
     ended: boolean
     resource: Resource
     instrumentationLibrary: InstrumentationLibrary
-    _spanLimits: AttributeMap
+    _spanLimits: any
     _spanProcessor: MultiSpanProcessor
     _isRecording: boolean
 
@@ -77,7 +75,6 @@ export class NrSpan implements Span {
         return undefined
     }
 }
-
 
 /*
 

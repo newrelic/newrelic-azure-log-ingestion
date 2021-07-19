@@ -110,6 +110,8 @@ export default class OpenTelemetryAdapter {
             url:
                 process.env.NEW_RELIC_REGION === "eu"
                     ? "grpc://otlp.eu01.nr-data.net:4317"
+                    : process.env.NEW_RELIC_REGION === "staging"
+                    ? "grpc://staging.otlp.nr-data.net:4317"
                     : "grpc://otlp.nr-data.net:4317",
             metadata,
         })
@@ -220,6 +222,8 @@ export default class OpenTelemetryAdapter {
     }
 
     private createContext(appSpan: Record<string, any>, ctx: AzureContext): NrSpanContext {
+        ctx.log("create context, setting parent")
+        ctx.log(`id: ${appSpan.id} parent id: ${appSpan.parentId} traceparent: ${ctx.traceContext.traceparent}`)
         return new NrSpanContext({
             traceId: appSpan.parentId || ctx.traceContext.traceparent,
             spanId: appSpan.id,
