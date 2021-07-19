@@ -1,5 +1,4 @@
-import { Context } from "@opentelemetry/api/build/src/context/types"
-import { TraceFlags, TraceState } from "@opentelemetry/api"
+import { Context, TraceFlags, TraceState } from "@opentelemetry/api"
 
 export default class NrSpanContext implements Context {
     traceId: string
