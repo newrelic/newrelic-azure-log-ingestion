@@ -233,7 +233,7 @@ export default class OpenTelemetryAdapter {
         const resourceId = _.get(appSpan, "resourceId", null)
         // Much of the time, the resourceId is for the log ingestion function, not the calling function
         // operation name is least-bad, but needs to be processed, at least for web requests
-        const resourceName = resourceId
+        const serviceName = resourceId
             ? parse(resourceId).resourceName
             : appSpan.operationName
             ? appSpan.operationName
@@ -279,7 +279,7 @@ export default class OpenTelemetryAdapter {
             }
         }
 
-        // We may need to reset id and parent id before end, if the span is sent immediately
+        // We need to reset id and parent id here
 
         span.end(endTimeHrFromDuration(appSpan.timestamp, appSpan.durationMs))
 
@@ -299,6 +299,9 @@ export default class OpenTelemetryAdapter {
         const processors = []
         processors.push(this.traceProvider.forceFlush())
         Promise.allSettled(processors).then((results) => {
+            context.log(`++++++ Sending batches of traces; haven't yet seen this logged.`)
+            context.log(results)
+            context.log(`filtering results`)
             results
                 .filter((result) => result.status === "rejected")
                 .map((result: PromiseRejectedResult) =>
