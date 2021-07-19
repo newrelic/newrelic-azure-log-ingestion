@@ -14,7 +14,8 @@ import { BatchSpanProcessor } from "@opentelemetry/tracing"
 import { Resource } from "@opentelemetry/resources"
 import { ResourceAttributes } from "@opentelemetry/semantic-conventions"
 
-import { CollectorTraceExporter } from "@opentelemetry/exporter-collector"
+import { CollectorTraceExporter } from "@opentelemetry/exporter-collector-grpc"
+import * as grpc from "@grpc/grpc-js"
 
 import { NRTracerProvider } from "./provider"
 import { endTimeHrFromDuration, timeStampToHr } from "../utils/time"
@@ -30,49 +31,12 @@ import {
 import * as _ from "lodash"
 import { opentelemetryProto } from "@opentelemetry/exporter-collector/build/esm/types"
 import { parse } from "../utils/resource"
+import NrSpanContext from "./nrSpanContext"
 
 const debug = process.env["DEBUG"] || false
 
 interface Records {
     records: Record<string, any>[]
-}
-
-class ContextImpl implements OtContext {
-    traceId: string
-    spanId: string
-    traceFlags: TraceFlags
-    traceState: TraceState
-    attributes: any
-
-    constructor(config: any) {
-        this.traceId = config.traceId
-        this.spanId = config.spanId
-        this.traceFlags = config.traceFlags
-        this.traceState = config.traceState
-        this.attributes = config.attributes
-    }
-
-    deleteValue(key: symbol): ContextImpl {
-        delete this[key]
-        return this
-    }
-
-    getValue(key: symbol): any {
-        return this[key]
-    }
-
-    setValue(key: symbol, value: unknown): ContextImpl {
-        this[key] = value
-        return this
-    }
-}
-
-class SpanContextImpl implements SpanContext {
-    isRemote: boolean
-    spanId: string
-    traceFlags: number
-    traceId: string
-    traceState: TraceState
 }
 
 const traceMap = {
@@ -121,7 +85,16 @@ const getSpanKind = (type: string): SpanKind => {
     if (type === "AppRequest") {
         return SpanKind.SERVER
     }
-    return SpanKind.INTERNAL
+    return SpanKind.SERVER
+}
+const getSpanTrigger = (type: string): string => {
+    // if (type === "AppRequest") {
+    return "http"
+    // }
+    // datasource
+    // pubsub
+    // timer
+    // other
 }
 
 export default class OpenTelemetryAdapter {
@@ -131,14 +104,15 @@ export default class OpenTelemetryAdapter {
     resourceAttrs: any
 
     constructor(apiKey: string) {
+        const metadata = new grpc.Metadata()
+        metadata.set("api-key", apiKey)
         const traceExporter = new CollectorTraceExporter({
-            headers: { "api-key": apiKey },
             url:
                 process.env.NEW_RELIC_REGION === "eu"
-                    ? "https://otlp.eu01.nr-data.net:4317/v1/traces"
-                    : "https://otlp.nr-data.net:4317/v1/traces",
+                    ? "grpc://otlp.eu01.nr-data.net:4317"
+                    : "grpc://otlp.nr-data.net:4317",
+            metadata,
         })
-
         this.resourceAttrs = {
             [ResourceAttributes.SERVICE_NAME]: "newrelic-azure-log-ingestion",
             [ResourceAttributes.TELEMETRY_SDK_LANGUAGE]: "nodejs",
@@ -157,6 +131,11 @@ export default class OpenTelemetryAdapter {
         this.traceProvider.addSpanProcessor(this.spanProcessor)
         this.traceProvider.register()
         this.currentBatch = []
+
+        const signals = ["SIGINT", "SIGTERM"]
+        signals.forEach((signal) => {
+            process.on(signal, () => this.traceProvider.shutdown().catch(console.error))
+        })
     }
 
     private determineMessageTypeProcessor(message: any, context: AzureContext): void {
@@ -240,8 +219,8 @@ export default class OpenTelemetryAdapter {
         }, this)
     }
 
-    private createContext(appSpan: Record<string, any>, ctx: AzureContext): ContextImpl {
-        return new ContextImpl({
+    private createContext(appSpan: Record<string, any>, ctx: AzureContext): NrSpanContext {
+        return new NrSpanContext({
             traceId: appSpan.parentId || ctx.traceContext.traceparent,
             spanId: appSpan.id,
             traceFlags: 0,
@@ -264,7 +243,11 @@ export default class OpenTelemetryAdapter {
 
         const resourceAttrs = {
             ...this.resourceAttrs,
-            [ResourceAttributes.SERVICE_NAME]: resourceName,
+            [ResourceAttributes.SERVICE_NAME]: serviceName,
+            [ResourceAttributes.FAAS_ID]: appSpan.id,
+            [ResourceAttributes.FAAS_INSTANCE]: appSpan.operationId,
+            [ResourceAttributes.FAAS_NAME]: appSpan.name,
+            [ResourceAttributes.FAAS_VERSION]: appSpan.sdkVersion,
         }
         this.traceProvider.resource = new Resource(resourceAttrs)
 
@@ -296,7 +279,16 @@ export default class OpenTelemetryAdapter {
             }
         }
 
+        // We may need to reset id and parent id before end, if the span is sent immediately
+
         span.end(endTimeHrFromDuration(appSpan.timestamp, appSpan.durationMs))
+
+        context.log("----- appspan ------")
+        context.log(appSpan)
+        context.log("----- span ------")
+        context.log(span)
+        context.log("----- span done ------")
+
         // OT batch processor doesn't give access to current batch size
         // or batch content. This lets us do snapshot tests.
         const spanRecord = process.env["otelJestTests"] ? loggableSpan(span) : appSpan.id
