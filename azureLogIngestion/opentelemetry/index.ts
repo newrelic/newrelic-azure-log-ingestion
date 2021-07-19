@@ -1,6 +1,11 @@
 import { Context as AzureContext } from "@azure/functions"
 import {
-    Context as OtContext,
+    diag,
+    DiagConsoleLogger,
+    DiagLogger,
+    DiagAPI,
+    DiagLogLevel,
+    DiagLogFunction,
     Span,
     SpanAttributes,
     SpanContext,
@@ -10,11 +15,11 @@ import {
     TraceFlags,
     TraceState,
 } from "@opentelemetry/api"
-import { BatchSpanProcessor } from "@opentelemetry/tracing"
+import { BatchSpanProcessor, ConsoleSpanExporter, ReadableSpan, SimpleSpanProcessor } from "@opentelemetry/tracing"
 import { Resource } from "@opentelemetry/resources"
 import { ResourceAttributes } from "@opentelemetry/semantic-conventions"
 
-import { CollectorTraceExporter } from "@opentelemetry/exporter-collector-grpc"
+import { CollectorTraceExporter, CollectorMetricExporter } from "@opentelemetry/exporter-collector-grpc"
 import * as grpc from "@grpc/grpc-js"
 
 import { NRTracerProvider } from "./provider"
@@ -98,15 +103,20 @@ const getSpanTrigger = (type: string): string => {
 }
 
 export default class OpenTelemetryAdapter {
+    batchSpanProcessor: BatchSpanProcessor
     spanProcessor: BatchSpanProcessor
     traceProvider: NRTracerProvider
-    currentBatch: Array<Span>
+    currentBatch: Array<ReadableSpan>
     resourceAttrs: any
+    exporter: CollectorTraceExporter
+    consoleExporter: ConsoleSpanExporter
 
     constructor(apiKey: string) {
+        diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG)
+
         const metadata = new grpc.Metadata()
         metadata.set("api-key", apiKey)
-        const traceExporter = new CollectorTraceExporter({
+        this.exporter = new CollectorTraceExporter({
             url:
                 process.env.NEW_RELIC_REGION === "eu"
                     ? "grpc://otlp.eu01.nr-data.net:4317"
@@ -114,6 +124,7 @@ export default class OpenTelemetryAdapter {
                     ? "grpc://staging.otlp.nr-data.net:4317"
                     : "grpc://otlp.nr-data.net:4317",
             metadata,
+            credentials: grpc.credentials.createSsl(),
         })
         this.resourceAttrs = {
             [ResourceAttributes.SERVICE_NAME]: "newrelic-azure-log-ingestion",
@@ -126,18 +137,26 @@ export default class OpenTelemetryAdapter {
         this.traceProvider = new NRTracerProvider({
             resource: new Resource(this.resourceAttrs),
         })
-        this.spanProcessor = new BatchSpanProcessor(traceExporter, {
+        this.spanProcessor = new BatchSpanProcessor(this.exporter, {
             // The maximum queue size. After the size is reached spans are dropped.
-            maxQueueSize: 1000,
+            maxQueueSize: 100,
+            maxExportBatchSize: 10,
         })
+        // this.spanProcessor = new SimpleSpanProcessor(this.exporter)
+
+        // const consoleExporter = new ConsoleSpanExporter()
+        // const consoleProcessor = new SimpleSpanProcessor(consoleExporter)
+
         this.traceProvider.addSpanProcessor(this.spanProcessor)
+        // this.traceProvider.addSpanProcessor(consoleProcessor)
+
         this.traceProvider.register()
         this.currentBatch = []
 
-        const signals = ["SIGINT", "SIGTERM"]
-        signals.forEach((signal) => {
-            process.on(signal, () => this.traceProvider.shutdown().catch(console.error))
-        })
+        // const signals = ["SIGINT", "SIGTERM"]
+        // signals.forEach((signal) => {
+        //     process.on(signal, () => this.traceProvider.shutdown().catch(console.error))
+        // })
     }
 
     private determineMessageTypeProcessor(message: any, context: AzureContext): void {
@@ -295,13 +314,30 @@ export default class OpenTelemetryAdapter {
 
         // OT batch processor doesn't give access to current batch size
         // or batch content. This lets us do snapshot tests.
-        const spanRecord = process.env["otelJestTests"] ? loggableSpan(span) : appSpan.id
-        this.currentBatch.push(spanRecord)
+        // const spanRecord = process.env["otelJestTests"] ? loggableSpan(span) : appSpan.id
+        //this.currentBatch.push(spanRecord)
+        this.currentBatch.push(loggableSpan(span))
+
+        // this.sendBatches(context)
+        // this.traceProvider.forceFlush()
     }
 
     sendBatches(context: AzureContext): void {
         const processors = []
-        processors.push(this.traceProvider.forceFlush())
+        processors.push(this.traceProvider.shutdown())
+        context.log("in sendBatches")
+        // const send = this.exporter.send(
+        //     this.currentBatch,
+        //     () => {
+        //         context.log(`*******************************`)
+        //         context.log(`exporter send, on success`)
+        //     },
+        //     (err) => {
+        //         context.log(`!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!`)
+        //         context.log(`EXPORTER ERROR`, err)
+        //     },
+        // )
+        // processors.push(send)
         Promise.allSettled(processors).then((results) => {
             context.log(`++++++ Sending batches of traces; haven't yet seen this logged.`)
             context.log(results)
