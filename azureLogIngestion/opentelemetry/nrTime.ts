@@ -5,7 +5,8 @@ export default class NrTimedEvent implements TimedEvent {
     attributes: SpanAttributes
     name: string
     time: HrTime
-    constructor(name, attributes, time) {
+
+    constructor(name: string, attributes: SpanAttributes, time: HrTime) {
         this.name = name
         this.attributes = attributes
         this.time = time

@@ -153,10 +153,10 @@ export default class OpenTelemetryAdapter {
         this.traceProvider.register()
         this.currentBatch = []
 
-        // const signals = ["SIGINT", "SIGTERM"]
-        // signals.forEach((signal) => {
-        //     process.on(signal, () => this.traceProvider.shutdown().catch(console.error))
-        // })
+        const signals = ["SIGINT", "SIGTERM"]
+        signals.forEach((signal) => {
+            process.on(signal, () => this.traceProvider.shutdown().catch(console.error))
+        })
     }
 
     private determineMessageTypeProcessor(message: any, context: AzureContext): void {
