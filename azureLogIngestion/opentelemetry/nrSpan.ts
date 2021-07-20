@@ -11,7 +11,7 @@ import {
     TimeInput,
 } from "@opentelemetry/api"
 import { Resource } from "@opentelemetry/resources"
-import { InstrumentationLibrary } from "@opentelemetry/core"
+import { InstrumentationLibrary, timeInputToHrTime } from "@opentelemetry/core"
 import NrSpanContext from "./nrSpanContext"
 import NrTimedEvent from "./nrTime"
 import { MultiSpanProcessor } from "@opentelemetry/tracing/build/src/MultiSpanProcessor"
@@ -35,8 +35,8 @@ export class NrSpan implements Span {
     _spanProcessor: MultiSpanProcessor
     _isRecording: boolean
 
-    addEvent(name: string, attributesOrStartTime?: SpanAttributes | TimeInput, startTime?: TimeInput): this {
-        const event = new NrTimedEvent(name, attributesOrStartTime, startTime)
+    addEvent(name: string, attributes?: SpanAttributes, startTime?: TimeInput): this {
+        const event = new NrTimedEvent(name, attributes, timeInputToHrTime(startTime))
         this.events.push(event)
         return this
     }
