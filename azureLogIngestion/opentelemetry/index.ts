@@ -103,7 +103,7 @@ const getSpanTrigger = (type: string): string => {
 }
 
 export default class OpenTelemetryAdapter {
-    batchSpanProcessor: BatchSpanProcessor
+    defaultServiceName: string
     spanProcessor: BatchSpanProcessor
     traceProvider: NRTracerProvider
     currentBatch: Array<ReadableSpan>
@@ -111,8 +111,9 @@ export default class OpenTelemetryAdapter {
     exporter: CollectorTraceExporter
     consoleExporter: ConsoleSpanExporter
 
-    constructor(apiKey: string) {
-        diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG)
+    constructor(apiKey: string, azContext: AzureContext) {
+        // diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG)
+        this.defaultServiceName = "newrelic-azure-log-ingestion"
 
         const metadata = new grpc.Metadata()
         metadata.set("api-key", apiKey)
@@ -127,7 +128,7 @@ export default class OpenTelemetryAdapter {
             credentials: grpc.credentials.createSsl(),
         })
         this.resourceAttrs = {
-            [ResourceAttributes.SERVICE_NAME]: "newrelic-azure-log-ingestion",
+            [ResourceAttributes.SERVICE_NAME]: this.defaultServiceName,
             [ResourceAttributes.TELEMETRY_SDK_LANGUAGE]: "nodejs",
             [ResourceAttributes.TELEMETRY_SDK_NAME]: "opentelemetry",
             [ResourceAttributes.TELEMETRY_SDK_VERSION]: "0.23.0",
@@ -155,7 +156,7 @@ export default class OpenTelemetryAdapter {
 
         const signals = ["SIGINT", "SIGTERM"]
         signals.forEach((signal) => {
-            process.on(signal, () => this.traceProvider.shutdown().catch(console.error))
+            process.on(signal, () => this.traceProvider.shutdown().catch(azContext.log))
         })
     }
 
@@ -256,17 +257,17 @@ export default class OpenTelemetryAdapter {
         const resourceId = _.get(appSpan, "resourceId", null)
         // Much of the time, the resourceId is for the log ingestion function, not the calling function
         // operation name is least-bad, but needs to be processed, at least for web requests
-        const serviceName = resourceId
-            ? parse(resourceId).resourceName
-            : appSpan.operationName
-            ? appSpan.operationName
+        const serviceName = appSpan.operationName
+            ? this.sanitizeOpName(appSpan.operationName)
             : appSpan.appRoleName
             ? appSpan.appRoleName
-            : null
+            : this.defaultServiceName
+
+        // resourceId ? parse(resourceId).resourceName
 
         const resourceAttrs = {
             ...this.resourceAttrs,
-            [ResourceAttributes.SERVICE_NAME]: serviceName,
+            [ResourceAttributes.SERVICE_NAME]: this.defaultServiceName,
             [ResourceAttributes.FAAS_ID]: appSpan.id,
             [ResourceAttributes.FAAS_INSTANCE]: appSpan.operationId,
             [ResourceAttributes.FAAS_NAME]: appSpan.name,
@@ -320,6 +321,15 @@ export default class OpenTelemetryAdapter {
 
         // this.sendBatches(context)
         // this.traceProvider.forceFlush()
+    }
+
+    private sanitizeOpName(name: string): string {
+        const ptn = /.*\/api\/(.*)/
+        const opCheck = name.match(ptn)
+        if (opCheck) {
+            return opCheck[1]
+        }
+        return name
     }
 
     sendBatches(context: AzureContext): void {
