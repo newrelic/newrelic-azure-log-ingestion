@@ -72,7 +72,7 @@ const appMetricMap = {
 
 export const normalizeAppRequest = (data: Record<string, any>): Record<string, any> => {
     const request = mapper(camelcase(data), appRequestMap)
-    delete request.IKey
+    delete request.iKey
     request.type = "AppRequest"
     return request
 }
