@@ -17,7 +17,7 @@ const eventHubTrigger: AzureFunction = async function (context: Context, eventHu
     }
     if (otel) {
         context.log("*** Executing OTEL ***")
-        otelAdapter = new OpenTelemetryAdapter(apiKey)
+        otelAdapter = new OpenTelemetryAdapter(apiKey, context)
         otelAdapter.processMessages(eventHubMessages, context)
         otelAdapter.sendBatches(context)
     }

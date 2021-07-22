@@ -99,7 +99,7 @@ To set up this Azure Policy, run the following commands using the [Azure CLI](ht
     az policy definition create \
         --name New-Relic-Diagnostic \
         --mode All \
-        --rules "https://raw.githubusercontent.com/newrelic/newrelic-azure-log-ingestion/main/policies/rules.json" 
+        --rules "https://raw.githubusercontent.com/newrelic/newrelic-azure-log-ingestion/main/policies/rules.json" \
         --params "https://raw.githubusercontent.com/newrelic/newrelic-azure-log-ingestion/main/policies/params.json"
 
     az policy assignment create \
@@ -108,7 +108,7 @@ To set up this Azure Policy, run the following commands using the [Azure CLI](ht
         --assign-identity \
         --role Contributor \
         --identity-scope /subscriptions/${subscriptionId} \
-        --location westus2 
+        --location westus \
         -p '{ "eventHubAuthorizationRuleId": { "value": "/subscriptions/${subscriptionId}/resourceGroups/${resource-group}/providers/Microsoft.EventHub/namespaces/${namespace-name)/authorizationRules/NewRelicLogsSharedAccessKey" } }'
 
     az policy remediation create \
