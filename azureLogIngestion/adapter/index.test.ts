@@ -1,7 +1,7 @@
 import { telemetry } from "@newrelic/telemetry-sdk"
 
 import Adapter from "./index"
-import { EventProcessor, SpanProcessor, LogProcessor, MetricsProcessor } from "../processors"
+import { EventProcessor, SpanProcessor, LogProcessor, MetricsProcessor } from "./processors"
 
 import {
     appInsightsAppDependency,
