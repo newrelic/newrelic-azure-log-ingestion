@@ -140,8 +140,13 @@ export default class OpenTelemetryAdapter {
         })
         this.spanProcessor = new BatchSpanProcessor(this.exporter, {
             // The maximum queue size. After the size is reached spans are dropped.
-            maxQueueSize: 100,
-            maxExportBatchSize: 10,
+            maxQueueSize: 1000,
+            // The maximum batch size of every export. It must be smaller or equal to maxQueueSize.
+            maxExportBatchSize: 100,
+            // The interval between two consecutive exports
+            scheduledDelayMillis: 500,
+            // How long the export can run before it is cancelled
+            exportTimeoutMillis: 30000,
         })
         // this.spanProcessor = new SimpleSpanProcessor(this.exporter)
 
@@ -154,9 +159,10 @@ export default class OpenTelemetryAdapter {
         this.traceProvider.register()
         this.currentBatch = []
 
+        // CollectorExporterBase has the shutDown interface, rather than the traceProvider
         const signals = ["SIGINT", "SIGTERM"]
         signals.forEach((signal) => {
-            process.on(signal, () => this.traceProvider.shutdown().catch(azContext.log))
+            process.on(signal, () => this.exporter.shutdown().catch(azContext.log))
         })
     }
 
@@ -267,7 +273,7 @@ export default class OpenTelemetryAdapter {
 
         const resourceAttrs = {
             ...this.resourceAttrs,
-            [ResourceAttributes.SERVICE_NAME]: this.defaultServiceName,
+            [ResourceAttributes.SERVICE_NAME]: serviceName,
             [ResourceAttributes.FAAS_ID]: appSpan.id,
             [ResourceAttributes.FAAS_INSTANCE]: appSpan.operationId,
             [ResourceAttributes.FAAS_NAME]: appSpan.name,
@@ -315,9 +321,9 @@ export default class OpenTelemetryAdapter {
 
         // OT batch processor doesn't give access to current batch size
         // or batch content. This lets us do snapshot tests.
-        // const spanRecord = process.env["otelJestTests"] ? loggableSpan(span) : appSpan.id
-        //this.currentBatch.push(spanRecord)
-        this.currentBatch.push(loggableSpan(span))
+        const spanRecord = process.env["otelJestTests"] ? loggableSpan(span) : appSpan.id
+        this.currentBatch.push(spanRecord)
+        //this.currentBatch.push(loggableSpan(span))
 
         // this.sendBatches(context)
         // this.traceProvider.forceFlush()
@@ -334,7 +340,7 @@ export default class OpenTelemetryAdapter {
 
     sendBatches(context: AzureContext): void {
         const processors = []
-        processors.push(this.traceProvider.shutdown())
+        processors.push(this.exporter.shutdown())
         context.log("in sendBatches")
         // const send = this.exporter.send(
         //     this.currentBatch,
