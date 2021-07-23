@@ -173,16 +173,16 @@ export default class OpenTelemetryAdapter {
             this.addSpan(request, context)
         }
 
-        // if (["AppDependencies", "dependencies"].includes(type)) {
-        //     context.log("App dependency")
-        //     this.addSpan(normalizeAppDependency(message), context)
-        // }
-        //
-        // if (["AppEvents", "customEvents"].includes(type)) {
-        //     context.log("App events")
-        //     const event = normalizeAppEvent(message)
-        //     this.addSpan(event, context)
-        // }
+        if (["AppDependencies", "dependencies"].includes(type)) {
+            context.log("App dependency")
+            this.addSpan(normalizeAppDependency(message), context)
+        }
+
+        if (["AppEvents", "customEvents"].includes(type)) {
+            context.log("App events")
+            const event = normalizeAppEvent(message)
+            this.addSpan(event, context)
+        }
 
         if (["AppExceptions", "exceptions"].includes(type)) {
             context.log("App exceptions")
@@ -190,23 +190,23 @@ export default class OpenTelemetryAdapter {
             this.addSpan(exception, context)
         }
 
-        // if (["AppPageViews", "pageViews"].includes(type)) {
-        //     context.log("App page views")
-        //     const pageView = normalizeAppPageView(message)
-        //     this.addSpan(pageView, context)
-        // }
-        //
-        // if (["AppAvailabilityResults", "availabilityResults"].includes(type)) {
-        //     context.log("App availability results")
-        //     const availabilityResult = normalizeAppAvailabilityResult(message)
-        //     this.addSpan(availabilityResult, context)
-        // }
-        //
-        // if (["AppBrowserTimings", "browserTimings"].includes(type)) {
-        //     context.log("App browser timings")
-        //     const browserTiming = normalizeAppBrowserTiming(message)
-        //     this.addSpan(browserTiming, context)
-        // }
+        if (["AppPageViews", "pageViews"].includes(type)) {
+            context.log("App page views")
+            const pageView = normalizeAppPageView(message)
+            this.addSpan(pageView, context)
+        }
+
+        if (["AppAvailabilityResults", "availabilityResults"].includes(type)) {
+            context.log("App availability results")
+            const availabilityResult = normalizeAppAvailabilityResult(message)
+            this.addSpan(availabilityResult, context)
+        }
+
+        if (["AppBrowserTimings", "browserTimings"].includes(type)) {
+            context.log("App browser timings")
+            const browserTiming = normalizeAppBrowserTiming(message)
+            this.addSpan(browserTiming, context)
+        }
     }
 
     /**

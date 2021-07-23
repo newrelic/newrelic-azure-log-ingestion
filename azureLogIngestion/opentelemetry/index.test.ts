@@ -1,3 +1,5 @@
+jest.useFakeTimers()
+
 import OpenTelemetryAdapter from "./index"
 
 import {
@@ -15,8 +17,29 @@ process.env["OTEL"] = "true"
 process.env["otelJestTests"] = "true"
 
 describe("OpenTelemetryAdapter", () => {
+    let log
+    let mockContext
+    beforeAll(() => {
+        log = (...args) => null
+        log.verbose = (...args) => null
+        log.info = (...args) => null
+        log.warn = (...args) => null
+        log.error = (...args) => null
+
+        mockContext = {
+            bindings: {},
+            bindingData: {},
+            bindingDefinitions: [],
+            done: () => null,
+            executionContext: { invocationId: "foobar", functionName: "foobar", functionDirectory: "foobar" },
+            invocationId: "foobar",
+            log,
+            traceContext: { attributes: {}, traceparent: "foobar", tracestate: "foobar" },
+        }
+    })
+
     it("instantiates with api key", () => {
-        const adapter = new OpenTelemetryAdapter("mock-insert-key")
+        const adapter = new OpenTelemetryAdapter("mock-insert-key", mockContext)
 
         expect(adapter).toBeInstanceOf(OpenTelemetryAdapter)
 
@@ -27,24 +50,7 @@ describe("OpenTelemetryAdapter", () => {
     })
 
     it("processes app request and dependency as spans", () => {
-        const adapter = new OpenTelemetryAdapter("mock-insert-key")
-
-        const log = (...args) => null
-        log.verbose = (...args) => null
-        log.info = (...args) => null
-        log.warn = (...args) => null
-        log.error = (...args) => null
-
-        const mockContext = {
-            bindings: {},
-            bindingData: {},
-            bindingDefinitions: [],
-            done: () => null,
-            executionContext: { invocationId: "foobar", functionName: "foobar", functionDirectory: "foobar" },
-            invocationId: "foobar",
-            log,
-            traceContext: { attributes: {}, traceparent: "foobar", tracestate: "foobar" },
-        }
+        const adapter = new OpenTelemetryAdapter("mock-insert-key", mockContext)
 
         expect(adapter.getBatchSize()).toEqual(0)
         expect(adapter.currentBatch).toMatchSnapshot()
@@ -59,24 +65,7 @@ describe("OpenTelemetryAdapter", () => {
     })
 
     it("processes app request and dependency when sent as array of strings", () => {
-        const adapter = new OpenTelemetryAdapter("mock-insert-key")
-
-        const log = (...args) => null
-        log.verbose = (...args) => null
-        log.info = (...args) => null
-        log.warn = (...args) => null
-        log.error = (...args) => null
-
-        const mockContext = {
-            bindings: {},
-            bindingData: {},
-            bindingDefinitions: [],
-            done: () => null,
-            executionContext: { invocationId: "foobar", functionName: "foobar", functionDirectory: "foobar" },
-            invocationId: "foobar",
-            log,
-            traceContext: { attributes: {}, traceparent: "foobar", tracestate: "foobar" },
-        }
+        const adapter = new OpenTelemetryAdapter("mock-insert-key", mockContext)
 
         expect(adapter.getBatchSize()).toEqual(0)
         expect(adapter.currentBatch).toMatchSnapshot()
@@ -91,24 +80,7 @@ describe("OpenTelemetryAdapter", () => {
     })
 
     it("processes app event as span", () => {
-        const adapter = new OpenTelemetryAdapter("mock-insert-key")
-
-        const log = (...args) => null
-        log.verbose = (...args) => null
-        log.info = (...args) => null
-        log.warn = (...args) => null
-        log.error = (...args) => null
-
-        const mockContext = {
-            bindings: {},
-            bindingData: {},
-            bindingDefinitions: [],
-            done: () => null,
-            executionContext: { invocationId: "foobar", functionName: "foobar", functionDirectory: "foobar" },
-            invocationId: "foobar",
-            log,
-            traceContext: { attributes: {}, traceparent: "foobar", tracestate: "foobar" },
-        }
+        const adapter = new OpenTelemetryAdapter("mock-insert-key", mockContext)
 
         expect(adapter.getBatchSize()).toEqual(0)
         expect(adapter.currentBatch).toMatchSnapshot()
@@ -120,24 +92,8 @@ describe("OpenTelemetryAdapter", () => {
     })
 
     it("processes app exception as span", () => {
-        const adapter = new OpenTelemetryAdapter("mock-insert-key")
+        const adapter = new OpenTelemetryAdapter("mock-insert-key", mockContext)
 
-        const log = (...args) => null
-        log.verbose = (...args) => null
-        log.info = (...args) => null
-        log.warn = (...args) => null
-        log.error = (...args) => null
-
-        const mockContext = {
-            bindings: {},
-            bindingData: {},
-            bindingDefinitions: [],
-            done: () => null,
-            executionContext: { invocationId: "foobar", functionName: "foobar", functionDirectory: "foobar" },
-            invocationId: "foobar",
-            log,
-            traceContext: { attributes: {}, traceparent: "foobar", tracestate: "foobar" },
-        }
         expect(adapter.getBatchSize()).toEqual(0)
         expect(adapter.currentBatch).toMatchSnapshot()
 
