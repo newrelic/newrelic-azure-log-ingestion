@@ -99,7 +99,7 @@ export default class SpanProcessor {
     consoleExporter: ConsoleSpanExporter
 
     constructor(apiKey: string, azContext: AzureContext) {
-        this.defaultServiceName = "newrelic-azure-log-ingestion"
+        this.defaultServiceName = "pegasus-nr-azure-log-ingestion"
 
         const metadata = new grpc.Metadata()
         metadata.set("api-key", apiKey)
@@ -153,15 +153,29 @@ export default class SpanProcessor {
         this.addSpan(message, context)
     }
 
-    sendBatch(): Promise<void> {
+    sendBatch(ctx: AzureContext): Promise<void> {
+        ctx.log(`^^^^ in spans.sendBatch. Batch length: ${this.batch.length}`)
         return new Promise<void>((resolve, reject) => {
+            ctx.log("in spans.sendbatch Promise")
             try {
                 this.exporter.shutdown()
+                ctx.log("this.exporter.shutdown succeeded")
+                this.batch.length = 0 // reset
                 resolve()
             } catch (e) {
+                ctx.log("this.exporter.shutdown rejected")
                 reject(e)
             }
         })
+    }
+
+    private sanitizeOpName(name: string): string {
+        const ptn = /.*\/api\/(.*)/
+        const opCheck = name.match(ptn)
+        if (opCheck) {
+            return opCheck[1]
+        }
+        return name
     }
 
     private createContext(appSpan: Record<string, any>, ctx: AzureContext, isRoot = false): NrSpanContext {
@@ -260,14 +274,5 @@ export default class SpanProcessor {
         // or batch content. This lets us do snapshot tests.
         const spanRecord = process.env["otelJestTests"] ? loggableSpan(span) : appSpan.id
         this.batch.push(spanRecord)
-    }
-
-    private sanitizeOpName(name: string): string {
-        const ptn = /.*\/api\/(.*)/
-        const opCheck = name.match(ptn)
-        if (opCheck) {
-            return opCheck[1]
-        }
-        return name
     }
 }

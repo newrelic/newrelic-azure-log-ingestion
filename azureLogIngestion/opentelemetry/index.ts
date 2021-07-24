@@ -38,7 +38,7 @@ export default class OpenTelemetryAdapter {
             sendSpans && context.log("Spans being sent to NR: ", JSON.stringify(this.spanProcessor.batch))
         }
 
-        sendSpans && exporters.push(this.spanProcessor.sendBatch())
+        sendSpans && exporters.push(this.spanProcessor.sendBatch(context))
 
         Promise.allSettled(exporters).then((results) => {
             context.log(`++++++ Sending shutdown to exporters.`)
