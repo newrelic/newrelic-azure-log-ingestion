@@ -83,14 +83,14 @@ export default class SpanProcessor {
     batch: Array<ReadableSpan>
     resourceAttrs: any
     exporter: CollectorTraceExporter
-    consoleExporter: ConsoleSpanExporter
 
     constructor(apiKey: string, azContext: AzureContext) {
         this.defaultServiceName = "pegasus-nr-azure-log-ingestion"
 
         const metadata = new grpc.Metadata()
         metadata.set("api-key", apiKey)
-        this.exporter = new CollectorTraceExporter({
+
+        const traceExporterOptions = {
             metadata,
             url:
                 process.env.NEW_RELIC_REGION === "eu"
@@ -99,7 +99,10 @@ export default class SpanProcessor {
                     ? "grpc://staging.otlp.nr-data.net:4317"
                     : "grpc://otlp.nr-data.net:4317",
             credentials: grpc.credentials.createSsl(),
-        })
+        }
+        azContext.log("traceExporterOptions")
+        azContext.log(traceExporterOptions)
+        this.exporter = new CollectorTraceExporter(traceExporterOptions)
         this.resourceAttrs = {
             [ResourceAttributes.SERVICE_NAME]: this.defaultServiceName,
             [ResourceAttributes.TELEMETRY_SDK_LANGUAGE]: "nodejs",
@@ -129,11 +132,11 @@ export default class SpanProcessor {
 
         this.batch = []
 
-        // CollectorExporterBase has the shutDown interface, rather than the traceProvider
-        const signals = ["SIGINT", "SIGTERM"]
-        signals.forEach((signal) => {
-            process.on(signal, () => this.exporter.shutdown().catch(azContext.log))
-        })
+        // // CollectorExporterBase has the shutDown interface, rather than the traceProvider
+        // const signals = ["SIGINT", "SIGTERM"]
+        // signals.forEach((signal) => {
+        //     process.on(signal, () => this.exporter.shutdown().catch(azContext.log))
+        // })
     }
 
     processMessage(message: Record<string, any>, context: AzureContext): void {
