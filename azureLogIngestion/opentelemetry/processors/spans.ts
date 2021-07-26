@@ -104,13 +104,13 @@ export default class SpanProcessor {
         const metadata = new grpc.Metadata()
         metadata.set("api-key", apiKey)
         this.exporter = new CollectorTraceExporter({
+            metadata,
             url:
                 process.env.NEW_RELIC_REGION === "eu"
                     ? "grpc://otlp.eu01.nr-data.net:4317"
                     : process.env.NEW_RELIC_REGION === "staging"
                     ? "grpc://staging.otlp.nr-data.net:4317"
                     : "grpc://otlp.nr-data.net:4317",
-            metadata,
             credentials: grpc.credentials.createSsl(),
         })
         this.resourceAttrs = {
@@ -138,7 +138,7 @@ export default class SpanProcessor {
 
         this.traceProvider.addSpanProcessor(this.spanProcessor)
         this.traceProvider.register()
-        this.tracer = this.traceProvider.getTracer("pegasus-collector-exporter-node")
+        this.tracer = this.traceProvider.getTracer("default", "0.23.0")
 
         this.batch = []
 
@@ -158,10 +158,13 @@ export default class SpanProcessor {
         return new Promise<void>((resolve, reject) => {
             ctx.log("in spans.sendbatch Promise")
             try {
-                this.exporter.shutdown()
-                ctx.log("this.exporter.shutdown succeeded")
-                this.batch.length = 0 // reset
-                resolve()
+                // give some time before it is closed
+                setTimeout(() => {
+                    this.exporter.shutdown()
+                    ctx.log("this.exporter.shutdown succeeded")
+                    this.batch.length = 0 // reset
+                    resolve()
+                }, 2000)
             } catch (e) {
                 ctx.log("this.exporter.shutdown rejected")
                 reject(e)
