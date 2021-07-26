@@ -1,10 +1,5 @@
 import { Context as AzureContext } from "@azure/functions"
-import { Resource } from "@opentelemetry/resources"
-import { ResourceAttributes } from "@opentelemetry/semantic-conventions"
 
-import { CollectorTraceExporter, CollectorMetricExporter } from "@opentelemetry/exporter-collector-grpc"
-import { NRTracerProvider } from "./provider"
-import { endTimeHrFromDuration, timeStampToHr } from "../utils/time"
 import {
     normalizeAppAvailabilityResult,
     normalizeAppBrowserTiming,
