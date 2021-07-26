@@ -9,20 +9,10 @@ import * as grpc from "@grpc/grpc-js"
 
 import { NRTracerProvider } from "../provider"
 import { endTimeHrFromDuration, timeStampToHr } from "../../utils/time"
-import {
-    normalizeAppAvailabilityResult,
-    normalizeAppBrowserTiming,
-    normalizeAppDependency,
-    normalizeAppEvent,
-    normalizeAppException,
-    normalizeAppPageView,
-    normalizeAppRequest,
-} from "../../mappings"
+
 import * as _ from "lodash"
 import { opentelemetryProto } from "@opentelemetry/exporter-collector/build/esm/types"
-import { parse } from "../../utils/resource"
 import NrSpanContext from "../nrSpanContext"
-import { telemetry } from "@newrelic/telemetry-sdk"
 
 const debug = process.env["DEBUG"] || false
 
@@ -73,9 +63,6 @@ const loggableSpan = (span: Span): any => {
 }
 
 const getSpanKind = (type: string): SpanKind => {
-    if (type === "AppRequest") {
-        return SpanKind.SERVER
-    }
     return SpanKind.SERVER
 }
 const getSpanTrigger = (type: string): string => {
@@ -117,7 +104,7 @@ export default class SpanProcessor {
             [ResourceAttributes.SERVICE_NAME]: this.defaultServiceName,
             [ResourceAttributes.TELEMETRY_SDK_LANGUAGE]: "nodejs",
             [ResourceAttributes.TELEMETRY_SDK_NAME]: "opentelemetry",
-            [ResourceAttributes.TELEMETRY_SDK_VERSION]: "0.23.0",
+            [ResourceAttributes.TELEMETRY_SDK_VERSION]: "0.22.0",
         }
 
         // initializing with a service name which we'll override for each span
@@ -138,7 +125,7 @@ export default class SpanProcessor {
 
         this.traceProvider.addSpanProcessor(this.spanProcessor)
         this.traceProvider.register()
-        this.tracer = this.traceProvider.getTracer("default", "0.23.0")
+        this.tracer = this.traceProvider.getTracer("default")
 
         this.batch = []
 
@@ -173,7 +160,7 @@ export default class SpanProcessor {
     }
 
     private sanitizeOpName(name: string): string {
-        const ptn = /.*\/api\/(.*)/
+        const ptn = /^.*\/api\/([a-zA-Z0-9_-]+)/
         const opCheck = name.match(ptn)
         if (opCheck) {
             return opCheck[1]
