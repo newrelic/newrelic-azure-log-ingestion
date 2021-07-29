@@ -8,7 +8,7 @@ import { CollectorTraceExporter } from "@opentelemetry/exporter-collector-grpc"
 import * as grpc from "@grpc/grpc-js"
 
 import { NRTracerProvider } from "../provider"
-import { endTimeHrFromDuration, timeStampToHr } from "../../utils/time"
+import { endTimeFromDuration } from "../../utils/time"
 
 import * as _ from "lodash"
 import { opentelemetryProto } from "@opentelemetry/exporter-collector/build/esm/types"
@@ -215,7 +215,7 @@ export default class SpanProcessor {
             parentSpan = this.tracer.startSpan(
                 `${appSpan.name}`,
                 {
-                    startTime: timeStampToHr(appSpan.timestamp),
+                    startTime: new Date(appSpan.timestamp),
                     kind: getSpanKind(appSpan.type),
                     attributes: appSpan,
                     root: true,
@@ -228,7 +228,7 @@ export default class SpanProcessor {
         const span = this.tracer.startSpan(
             appSpan.name,
             {
-                startTime: timeStampToHr(appSpan.timestamp),
+                startTime: new Date(appSpan.timestamp),
                 kind: getSpanKind(appSpan.type),
                 attributes: appSpan,
                 root: false,
@@ -241,7 +241,7 @@ export default class SpanProcessor {
             span.setStatus({ code: SpanStatusCode.ERROR, message })
             span.recordException(
                 { message: message, name: appSpan.assembly, stack: appSpan.details },
-                timeStampToHr(appSpan.timestamp),
+                new Date(appSpan.timestamp),
             )
         } else {
             span.setStatus({ code: SpanStatusCode.OK })
@@ -249,23 +249,27 @@ export default class SpanProcessor {
 
         // We need to reset id and parent id here
 
-        span.end(endTimeHrFromDuration(appSpan.timestamp, appSpan.durationMs))
+        span.end(endTimeFromDuration(appSpan.timestamp, appSpan.durationMs))
 
         if (parentSpan) {
-            parentSpan.end(endTimeHrFromDuration(appSpan.timestamp, appSpan.durationMs))
-            const pSpanRecord = process.env["otelJestTests"] ? loggableSpan(parentSpan) : appSpan.parentId
-            this.batch.push(parentSpan)
+            parentSpan.end(endTimeFromDuration(appSpan.timestamp, appSpan.durationMs))
+            const logParentSpan = loggableSpan(parentSpan)
+            const pSpanRecord = process.env["otelJestTests"]
+                ? logParentSpan
+                : { azureId: appSpan.parentId, spanId: logParentSpan.spanId }
+            this.batch.push(pSpanRecord)
         }
-
-        context.log("----- appspan ------")
-        context.log(appSpan)
-        context.log("----- span ------")
-        context.log(span)
-        context.log("----- span done ------")
 
         // OT batch processor doesn't give access to current batch size
         // or batch content. This lets us do snapshot tests.
         const spanRecord = process.env["otelJestTests"] ? loggableSpan(span) : appSpan.id
         this.batch.push(spanRecord)
+        context.log("batch: ")
+        context.log(this.batch)
+        context.log("----- appspan ------")
+        context.log(appSpan)
+        context.log("----- span ------")
+        context.log(span)
+        context.log("----- span done ------")
     }
 }

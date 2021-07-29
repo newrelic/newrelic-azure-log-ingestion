@@ -16,13 +16,9 @@ export const convertToMs = (interval: string): number => {
     return ms
 }
 
-export const timeStampToHr = (timestamp: string): number => {
-    const dateTime = new Date(timestamp)
-    return dateTime.getTime() / 1000 // hrtime[0] is in seconds, not milliseconds
-}
-
-export const endTimeHrFromDuration = (timestamp: string, duration: string): number => {
-    const dateTime = new Date(timestamp)
+export const endTimeFromDuration = (timestamp: string, duration: string): Date => {
+    const dateTime = new Date(timestamp).getTime()
     const elapsed = convertToMs(duration)
-    return (dateTime.getTime() * 1000 + elapsed) / 1000
+    const endMs = dateTime + elapsed
+    return new Date(dateTime + elapsed)
 }
