@@ -7,6 +7,7 @@ export default class NrSpanContext implements Context {
     traceState: TraceState
     attributes: any
 
+    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
     constructor(config: any) {
         this.traceId = config.traceId
         this.spanId = config.spanId
