@@ -44,7 +44,6 @@ describe("OpenTelemetryAdapter", () => {
         expect(adapter).toBeInstanceOf(OpenTelemetryAdapter)
 
         expect(adapter.spanProcessor.spanProcessor).toBeInstanceOf(BatchSpanProcessor)
-        expect(adapter.spanProcessor.traceProvider).toBeInstanceOf(NRTracerProvider)
         expect(adapter.spanProcessor.batch).toBeInstanceOf(Array)
         expect(adapter.spanProcessor.batch.length).toEqual(0)
     })
@@ -60,7 +59,7 @@ describe("OpenTelemetryAdapter", () => {
         expect(adapter.spanProcessor.batch).toMatchSnapshot()
 
         adapter.processMessages(appInsightsAppDependency, mockContext)
-        expect(adapter.spanProcessor.batch.length).toEqual(2)
+        expect(adapter.spanProcessor.batch.length).toEqual(4)
         expect(adapter.spanProcessor.batch).toMatchSnapshot()
     })
 
