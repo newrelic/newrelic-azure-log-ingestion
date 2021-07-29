@@ -82,8 +82,6 @@ export default class SpanProcessor {
     batch: Array<ReadableSpan>
     resourceAttrs: any
     exporter: CollectorTraceExporter
-    // traceProvider: NRTracerProvider
-    // tracer: any
 
     constructor(apiKey: string, azContext: AzureContext) {
         this.defaultServiceName = "newrelic-azure-log-ingestion"
@@ -114,11 +112,6 @@ export default class SpanProcessor {
             [ResourceAttributes.TELEMETRY_SDK_VERSION]: "0.23.0",
         }
 
-        // initializing with a service name which we'll override for each span
-        // this.traceProvider = new NRTracerProvider({
-        //     resource: new Resource(this.resourceAttrs),
-        // })
-
         this.spanProcessor = new BatchSpanProcessor(this.exporter, {
             // The maximum queue size. After the size is reached spans are dropped.
             maxQueueSize: 1000,
@@ -129,10 +122,6 @@ export default class SpanProcessor {
             // How long the export can run before it is cancelled
             exportTimeoutMillis: 30000,
         })
-
-        // this.traceProvider.addSpanProcessor(this.spanProcessor)
-        // this.traceProvider.register()
-        // this.tracer = this.traceProvider.getTracer("default")
 
         this.batch = []
 
@@ -148,14 +137,16 @@ export default class SpanProcessor {
     }
 
     sendBatch(ctx: AzureContext): Promise<void> {
-        ctx.log(`^^^^ in spans.sendBatch. Batch length: ${this.batch.length}`)
+        if (debug) {
+            ctx.log(`In spans.sendBatch. Batch length: ${this.batch.length}`)
+        }
         return new Promise<void>((resolve, reject) => {
-            ctx.log("in spans.sendbatch promise")
             try {
-                // give some time before it is closed
                 setTimeout(() => {
                     this.exporter.shutdown()
-                    ctx.log("this.exporter.shutdown succeeded")
+                    if (debug) {
+                        ctx.log("this.exporter.shutdown succeeded")
+                    }
                     this.batch.length = 0 // reset
                     resolve()
                 }, 2000)
@@ -176,9 +167,6 @@ export default class SpanProcessor {
     }
 
     private createContext(appSpan: Record<string, any>, ctx: AzureContext, isRoot = false): NrSpanContext {
-        ctx.log("create context, setting parent")
-        ctx.log(`id: ${appSpan.id} parent id: ${appSpan.parentId} traceparent: ${ctx.traceContext.traceparent}`)
-
         const traceId = isRoot ? null : appSpan.parentId || ctx.traceContext.traceparent
         const spanId = isRoot ? appSpan.parentId : appSpan.id
 
@@ -276,12 +264,14 @@ export default class SpanProcessor {
         const logSpan = loggableSpan(span)
         const spanRecord = process.env["otelJestTests"] ? logSpan : { azureId: appSpan.id, spanId: logSpan.spanId }
         this.batch.push(spanRecord)
-        context.log("batch: ")
-        context.log(this.batch)
-        context.log("----- appspan ------")
-        context.log(appSpan)
-        context.log("----- span ------")
-        context.log(span)
-        context.log("----- span done ------")
+        if (debug) {
+            context.log("batch: ")
+            context.log(this.batch)
+            context.log("----- appspan ------")
+            context.log(appSpan)
+            context.log("----- span ------")
+            context.log(span)
+            context.log("----- span done ------")
+        }
     }
 }
