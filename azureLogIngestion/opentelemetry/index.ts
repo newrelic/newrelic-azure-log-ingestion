@@ -25,21 +25,20 @@ export default class OpenTelemetryAdapter {
         this.spanProcessor = new SpanProcessor(apiKey, azContext)
     }
 
-    sendBatches(context: AzureContext): void {
+    async sendBatches(context: AzureContext): Promise<any> {
         const exporters = []
         const sendSpans = this.spanProcessor.batch.length > 0
-
         if (debug) {
             sendSpans && context.log("Spans being sent to NR: ", JSON.stringify(this.spanProcessor.batch))
         }
 
         sendSpans && exporters.push(this.spanProcessor.sendBatch(context))
 
-        Promise.allSettled(exporters).then((results) => {
-            context.log(`++++++ Sending shutdown to exporters.`)
-            context.log(results)
+        return Promise.allSettled(exporters).then((results) => {
             results
-                .filter((result) => result.status === "rejected")
+                .filter((result) => {
+                    return result.status === "rejected"
+                })
                 .map((result: PromiseRejectedResult) =>
                     context.log(`Error occurred while sending telemetry to New Relic: ${result.reason}`),
                 )
