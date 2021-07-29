@@ -19,6 +19,5 @@ export const convertToMs = (interval: string): number => {
 export const endTimeFromDuration = (timestamp: string, duration: string): Date => {
     const dateTime = new Date(timestamp).getTime()
     const elapsed = convertToMs(duration)
-    const endMs = dateTime + elapsed
     return new Date(dateTime + elapsed)
 }
