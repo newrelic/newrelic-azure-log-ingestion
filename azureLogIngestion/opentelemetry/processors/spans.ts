@@ -107,7 +107,7 @@ export default class SpanProcessor {
             [ResourceAttributes.SERVICE_NAME]: this.defaultServiceName,
             [ResourceAttributes.TELEMETRY_SDK_LANGUAGE]: "nodejs",
             [ResourceAttributes.TELEMETRY_SDK_NAME]: "opentelemetry",
-            [ResourceAttributes.TELEMETRY_SDK_VERSION]: "0.22.0",
+            [ResourceAttributes.TELEMETRY_SDK_VERSION]: "0.23.0",
         }
 
         // initializing with a service name which we'll override for each span
