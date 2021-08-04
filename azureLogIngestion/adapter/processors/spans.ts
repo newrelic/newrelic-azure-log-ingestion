@@ -2,8 +2,8 @@ import { telemetry } from "@newrelic/telemetry-sdk"
 import { Context } from "@azure/functions"
 
 import { Processor } from "./base"
-import flatten from "../utils/flatten"
-import { parse } from "../utils/resource"
+import flatten from "../../utils/flatten"
+import { parse } from "../../utils/resource"
 
 const debug = process.env["DEBUG"] || false
 

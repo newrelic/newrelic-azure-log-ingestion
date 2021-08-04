@@ -8,7 +8,6 @@ const otel = process.env["OTEL"] || false
 const nrdt = process.env["NEW_RELIC_DISTRIBUTED_TRACING"] !== "false"
 
 const adapter = new Adapter(apiKey)
-let otelAdapter: OpenTelemetryAdapter
 
 const eventHubTrigger: AzureFunction = async function (context: Context, eventHubMessages: any): Promise<void> {
     if (debug) {
@@ -17,9 +16,9 @@ const eventHubTrigger: AzureFunction = async function (context: Context, eventHu
     }
     if (otel) {
         context.log("*** Executing OTEL ***")
-        otelAdapter = new OpenTelemetryAdapter(apiKey, context)
+        const otelAdapter = new OpenTelemetryAdapter(apiKey, context)
         otelAdapter.processMessages(eventHubMessages, context)
-        otelAdapter.sendBatches(context)
+        await otelAdapter.sendBatches(context)
     }
     if (nrdt) {
         adapter.processMessages(eventHubMessages, context)
