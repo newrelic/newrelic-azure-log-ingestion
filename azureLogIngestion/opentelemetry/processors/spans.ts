@@ -248,10 +248,10 @@ export default class SpanProcessor {
 
         // TODO: We need to reset id and parent id here
 
-        span.end(endTimeFromDuration(appSpan.timestamp, appSpan.durationMs))
+        span.end(endTimeFromDuration(appSpan.timestamp, appSpan.durationMs, context))
 
         if (parentSpan) {
-            parentSpan.end(endTimeFromDuration(appSpan.timestamp, appSpan.durationMs))
+            parentSpan.end(endTimeFromDuration(appSpan.timestamp, appSpan.durationMs, context))
             const logParentSpan = loggableSpan(parentSpan)
             const pSpanRecord = process.env["otelJestTests"]
                 ? logParentSpan
