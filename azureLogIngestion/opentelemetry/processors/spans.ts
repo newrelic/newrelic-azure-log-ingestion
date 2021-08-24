@@ -1,8 +1,8 @@
 import { Context as AzureContext } from "@azure/functions"
 import { Span, SpanAttributes, SpanContext, SpanKind, SpanStatus, SpanStatusCode } from "@opentelemetry/api"
-import { BatchSpanProcessor, ReadableSpan } from "@opentelemetry/tracing"
+import { BatchSpanProcessor, ReadableSpan } from "@opentelemetry/sdk-trace-base"
 import { Resource } from "@opentelemetry/resources"
-import { ResourceAttributes } from "@opentelemetry/semantic-conventions"
+import { SemanticResourceAttributes } from "@opentelemetry/semantic-conventions"
 
 import { CollectorTraceExporter } from "@opentelemetry/exporter-collector-grpc"
 import * as grpc from "@grpc/grpc-js"
@@ -106,10 +106,10 @@ export default class SpanProcessor {
         }
         this.exporter = new CollectorTraceExporter(traceExporterOptions)
         this.resourceAttrs = {
-            [ResourceAttributes.SERVICE_NAME]: this.defaultServiceName,
-            [ResourceAttributes.TELEMETRY_SDK_LANGUAGE]: "nodejs",
-            [ResourceAttributes.TELEMETRY_SDK_NAME]: "opentelemetry",
-            [ResourceAttributes.TELEMETRY_SDK_VERSION]: "0.23.0",
+            [SemanticResourceAttributes.SERVICE_NAME]: this.defaultServiceName,
+            [SemanticResourceAttributes.TELEMETRY_SDK_LANGUAGE]: "nodejs",
+            [SemanticResourceAttributes.TELEMETRY_SDK_NAME]: "opentelemetry",
+            [SemanticResourceAttributes.TELEMETRY_SDK_VERSION]: "0.23.0",
         }
 
         this.spanProcessor = new BatchSpanProcessor(this.exporter, {
@@ -197,7 +197,7 @@ export default class SpanProcessor {
 
         const resourceAttrs = {
             ...this.resourceAttrs,
-            [ResourceAttributes.SERVICE_NAME]: serviceName,
+            [SemanticResourceAttributes.SERVICE_NAME]: serviceName,
         }
 
         const traceProvider = new NRTracerProvider({
@@ -248,10 +248,10 @@ export default class SpanProcessor {
 
         // TODO: We need to reset id and parent id here
 
-        span.end(endTimeFromDuration(appSpan.timestamp, appSpan.durationMs, context))
+        span.end(endTimeFromDuration(appSpan.timestamp, appSpan.durationMs))
 
         if (parentSpan) {
-            parentSpan.end(endTimeFromDuration(appSpan.timestamp, appSpan.durationMs, context))
+            parentSpan.end(endTimeFromDuration(appSpan.timestamp, appSpan.durationMs))
             const logParentSpan = loggableSpan(parentSpan)
             const pSpanRecord = process.env["otelJestTests"]
                 ? logParentSpan

@@ -9,7 +9,7 @@ import {
     appInsightsAppRequest,
     arrayOfStrings,
 } from "../adapter/testdata.test"
-import { BatchSpanProcessor } from "@opentelemetry/tracing"
+import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base"
 
 import { NRTracerProvider } from "./provider"
 
