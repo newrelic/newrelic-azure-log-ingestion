@@ -1,6 +1,8 @@
 import { Context as AzureContext } from "@azure/functions"
+import { timeInputToHrTime } from "@opentelemetry/core"
+import { HrTime } from "@opentelemetry/api"
 
-export const convertToMs = (interval: string, ctx?: AzureContext): number => {
+export const convertToMs = (interval: string): number => {
     const scale = String(interval).match(/[a-zA-Z]+/g)
     const intervalNumber = String(interval).match(/[0-9.]+/g)
     let ms
@@ -8,11 +10,9 @@ export const convertToMs = (interval: string, ctx?: AzureContext): number => {
         return 0
     }
     if (!scale) {
-        // ctx.log("no scale", interval)
         return Number(interval)
     }
     const units = scale[0].toLowerCase()
-    // ctx.log(`UNITS ${units}`, interval, scale[0])
     if (units === "ms") {
         ms = Number(intervalNumber[0])
     } else if (units === "s") {
@@ -25,8 +25,9 @@ export const convertToMs = (interval: string, ctx?: AzureContext): number => {
     return ms
 }
 
-export const endTimeFromDuration = (timestamp: string, duration: string, ctx?: AzureContext): Date => {
+export const endTimeFromDuration = (timestamp: string, duration: string): HrTime => {
     const dateTime = new Date(timestamp).getTime()
-    const elapsed = convertToMs(duration, ctx)
-    return new Date(dateTime + elapsed)
+    const elapsed = convertToMs(duration)
+    const endTime = new Date(dateTime + elapsed)
+    return timeInputToHrTime(endTime)
 }

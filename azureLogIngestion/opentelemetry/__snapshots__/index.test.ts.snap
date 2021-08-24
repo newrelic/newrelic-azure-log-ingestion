@@ -27,8 +27,8 @@ Array [
     },
     "duration": undefined,
     "endTime": Array [
-      NaN,
-      NaN,
+      1620155556,
+      184999943,
     ],
     "ended": undefined,
     "events": Array [],
@@ -81,8 +81,8 @@ Array [
     },
     "duration": undefined,
     "endTime": Array [
-      NaN,
-      NaN,
+      1620155556,
+      184999943,
     ],
     "ended": undefined,
     "events": Array [],
@@ -157,8 +157,8 @@ Array [
     },
     "duration": undefined,
     "endTime": Array [
-      NaN,
-      NaN,
+      1620233096,
+      802000046,
     ],
     "ended": undefined,
     "events": Array [],
@@ -226,8 +226,8 @@ Array [
     },
     "duration": undefined,
     "endTime": Array [
-      NaN,
-      NaN,
+      1620233096,
+      802000046,
     ],
     "ended": undefined,
     "events": Array [
