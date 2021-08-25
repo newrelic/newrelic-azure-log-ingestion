@@ -1,5 +1,5 @@
 import { Resource } from "@opentelemetry/resources"
-import { BasicTracerProvider } from "@opentelemetry/tracing"
+import { BasicTracerProvider } from "@opentelemetry/sdk-trace-base"
 
 export class NRTracerProvider extends BasicTracerProvider {
     // @ts-ignore
