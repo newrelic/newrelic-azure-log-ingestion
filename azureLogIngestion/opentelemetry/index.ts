@@ -6,11 +6,13 @@ import {
     normalizeAppDependency,
     normalizeAppEvent,
     normalizeAppException,
+    normalizeAppMetrics,
     normalizeAppPageView,
+    normalizeAppPerformanceCounter,
     normalizeAppRequest,
 } from "../mappings"
 import * as _ from "lodash"
-import { SpanProcessor } from "./processors"
+import { SpanProcessor, MetricProcessor } from "./processors"
 
 const debug = process.env["DEBUG"] || false
 
@@ -20,9 +22,11 @@ interface Records {
 
 export default class OpenTelemetryAdapter {
     spanProcessor: SpanProcessor
+    metricProcessor: MetricProcessor
 
     constructor(apiKey: string, azContext: AzureContext) {
         this.spanProcessor = new SpanProcessor(apiKey, azContext)
+        this.metricProcessor = new MetricProcessor(apiKey, azContext)
     }
 
     async sendBatches(context: AzureContext): Promise<any> {
@@ -117,6 +121,15 @@ export default class OpenTelemetryAdapter {
         if (["AppBrowserTimings", "browserTimings"].includes(type)) {
             const browserTiming = normalizeAppBrowserTiming(message)
             this.spanProcessor.processMessage(browserTiming, context)
+        }
+
+        if (["AppPerformanceCounters", "appPerformanceCounters"].includes(type)) {
+            const counter = normalizeAppPerformanceCounter(message)
+            this.metricProcessor.processMessage(counter, context)
+        }
+        if (["AppMetrics", "appMetrics"].includes(type)) {
+            const counter = normalizeAppMetrics(message)
+            this.metricProcessor.processMessage(counter, context)
         }
     }
 }
