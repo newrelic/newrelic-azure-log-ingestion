@@ -11,7 +11,7 @@ import {
 } from "../adapter/testdata.test"
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base"
 
-import { NRTracerProvider } from "./provider"
+import { NRTracerProvider } from "./nrTracerProvider"
 
 process.env["OTEL"] = "true"
 process.env["otelJestTests"] = "true"

@@ -2,6 +2,7 @@ import { Context as AzureContext } from "@azure/functions"
 import { timeInputToHrTime } from "@opentelemetry/core"
 import { HrTime } from "@opentelemetry/api"
 
+// performance counter intervals come with a scale string appended
 export const convertToMs = (interval: string): number => {
     const scale = String(interval).match(/[a-zA-Z]+/g)
     const intervalNumber = String(interval).match(/[0-9.]+/g)

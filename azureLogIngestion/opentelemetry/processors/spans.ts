@@ -7,12 +7,13 @@ import { SemanticResourceAttributes } from "@opentelemetry/semantic-conventions"
 import { CollectorTraceExporter } from "@opentelemetry/exporter-collector-grpc"
 import * as grpc from "@grpc/grpc-js"
 
-import { NRTracerProvider } from "../provider"
+import { NRTracerProvider } from "../nrTracerProvider"
 import { endTimeFromDuration } from "../../utils/time"
 
 import * as _ from "lodash"
 import { opentelemetryProto } from "@opentelemetry/exporter-collector/build/esm/types"
 import NrSpanContext from "../nrSpanContext"
+import { sanitizeOpName } from "../../utils/resource"
 
 const debug = process.env["DEBUG"] || false
 
@@ -109,7 +110,7 @@ export default class SpanProcessor {
             [SemanticResourceAttributes.SERVICE_NAME]: this.defaultServiceName,
             [SemanticResourceAttributes.TELEMETRY_SDK_LANGUAGE]: "nodejs",
             [SemanticResourceAttributes.TELEMETRY_SDK_NAME]: "opentelemetry",
-            [SemanticResourceAttributes.TELEMETRY_SDK_VERSION]: "0.23.0",
+            [SemanticResourceAttributes.TELEMETRY_SDK_VERSION]: "0.25.0",
         }
 
         this.spanProcessor = new BatchSpanProcessor(this.exporter, {
@@ -157,15 +158,6 @@ export default class SpanProcessor {
         })
     }
 
-    private sanitizeOpName(name: string): string {
-        const ptn = /^.*\/api\/([a-zA-Z0-9_-]+)/
-        const opCheck = name.match(ptn)
-        if (opCheck) {
-            return opCheck[1]
-        }
-        return name
-    }
-
     private createContext(appSpan: Record<string, any>, ctx: AzureContext, isRoot = false): NrSpanContext {
         const traceId = isRoot ? null : appSpan.parentId || ctx.traceContext.traceparent
         const spanId = isRoot ? appSpan.parentId : appSpan.id
@@ -184,7 +176,7 @@ export default class SpanProcessor {
         // Much of the time, the resourceId is for the log ingestion function, not the calling function
         // operation name is least-bad, but needs to be processed, at least for web requests
         const serviceName = appSpan.operationName
-            ? this.sanitizeOpName(appSpan.operationName)
+            ? sanitizeOpName(appSpan.operationName)
             : appSpan.appRoleName
             ? appSpan.appRoleName
             : this.defaultServiceName
