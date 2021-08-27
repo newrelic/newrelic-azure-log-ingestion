@@ -1,5 +1,6 @@
 import { Context as AzureContext } from "@azure/functions"
 import { Meter, MeterProvider } from "@opentelemetry/sdk-metrics-base"
+import { ValueRecorder, BaseObserver, MetricOptions } from "@opentelemetry/api-metrics"
 import { SemanticResourceAttributes } from "@opentelemetry/semantic-conventions"
 
 import { CollectorMetricExporter } from "@opentelemetry/exporter-collector-grpc"
@@ -8,13 +9,57 @@ import * as grpc from "@grpc/grpc-js"
 import flatten from "../../utils/flatten"
 import { convertToMs } from "../../utils/time"
 import { sanitizeOpName } from "../../utils/resource"
+import { Resource } from "@opentelemetry/resources"
+import { Processor } from "@opentelemetry/sdk-metrics-base/build/src/export/Processor"
+import { InstrumentationLibrary } from "@opentelemetry/core"
 
 const debug = process.env["DEBUG"] || false
 
+/*
+        "_startTime": 1630092579043000000,
+        "attributes": undefined,
+        "grpcQueue": Array [],
+        "metadata": Metadata {
+        "internalRepr": Map {
+            "api-key" => Array [
+                "mock-insert-key",
+                ],
+        },
+        "options": Object {},
+    },
+    "serviceClient": undefined,
+        "shutdown": [Function],
+        "url": "otlp.nr-data.net:4317",
+},
+
+    instrumentationLibrary: InstrumentationLibrary
+    meter: Meter
+    resource: Resource
+ */
+
+const loggableRecorder = (recorder: ValueRecorder | BaseObserver): any => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const r: {
+        name: string
+        options: MetricOptions
+        _processor: Processor
+        resource: Resource
+        instrumentationLibrary: InstrumentationLibrary
+    } = { ...recorder }
+    return {
+        name: r.name,
+        options: r.options,
+        _processor: r._processor,
+        resource: r.resource,
+        instrumentationLibrary: r.instrumentationLibrary,
+    }
+}
+
 export default class MetricProcessor {
     defaultServiceName: string
-    providers: { string: MeterProvider }
-    batch: Array<Meter>
+    providers: { string?: MeterProvider }
+    batch: Array<any>
     resourceAttrs: any
     exporter: CollectorMetricExporter
 
@@ -47,6 +92,7 @@ export default class MetricProcessor {
             [SemanticResourceAttributes.TELEMETRY_SDK_VERSION]: "0.25.0",
         }
         this.batch = []
+        this.providers = {}
     }
 
     private performanceCounter(message: any, provider: MeterProvider): Meter {
@@ -63,11 +109,11 @@ export default class MetricProcessor {
             const intVal = (rest && rest.interval) || (properties && properties.interval)
             const intervalMs = convertToMs(intVal)
             observer.observation(intervalMs)
-            this.batch.push(meter)
+            this.batch.push(loggableRecorder(observer))
             return meter
         }
         observer.observation(value)
-        this.batch.push(meter)
+        this.batch.push(loggableRecorder(observer))
         return meter
     }
 
@@ -95,10 +141,9 @@ export default class MetricProcessor {
         if (max !== undefined) attributes.max = max
 
         const meter = provider.getMeter(name)
+        const observer = meter.createValueRecorder(name, attributes)
 
-        // this could be a summary metric
         if (count || sum || min || max) {
-            const observer = meter.createValueRecorder(name, attributes)
             if (count !== undefined) observer.record(count, { label: "count" })
             if (sum !== undefined) observer.record(sum, { label: "sum" })
             if (min !== undefined) observer.record(min, { label: "min" })
@@ -107,10 +152,9 @@ export default class MetricProcessor {
         }
         if (value) {
             // count metric
-            const observer = meter.createValueRecorder(name, attributes)
             observer.record(value, { label: "value" })
         }
-        this.batch.push(meter)
+        this.batch.push(loggableRecorder(observer))
         return meter
     }
 
@@ -129,11 +173,11 @@ export default class MetricProcessor {
                 ...this.resourceAttrs,
                 [SemanticResourceAttributes.SERVICE_NAME]: serviceName,
             }
-            // Register the exporter
+            // Register the exporter (TODO: make interval an env var)
             this.providers[serviceName] = new MeterProvider({
-                resource: resourceAttrs,
+                resource: new Resource(resourceAttrs),
                 exporter: this.exporter,
-                interval: 15000, // batch interval. TODO: make env var
+                interval: 15000,
             })
         }
         return this.providers[serviceName]
@@ -156,8 +200,10 @@ export default class MetricProcessor {
         // Deleting attributes we do not want to send to New Relic
         // TODO: Make this a part of a processor attribute filter method
         delete message.iKey
-        const meter = this.createMeter(message)
-        this.batch = [...this.batch, meter]
+        this.createMeter(message)
+        if (debug) {
+            context.log(`Processing message:`, message)
+        }
     }
 
     sendBatch(ctx: AzureContext): Promise<void> {

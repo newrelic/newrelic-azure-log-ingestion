@@ -8,10 +8,10 @@ import {
     appInsightsAppException,
     appInsightsAppRequest,
     arrayOfStrings,
+    performanceCounters,
+    appMetrics,
 } from "../adapter/testdata.test"
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base"
-
-import { NRTracerProvider } from "./nrTracerProvider"
 
 process.env["OTEL"] = "true"
 process.env["otelJestTests"] = "true"
@@ -100,5 +100,28 @@ describe("OpenTelemetryAdapter", () => {
 
         expect(adapter.spanProcessor.batch.length).toEqual(2)
         expect(adapter.spanProcessor.batch).toMatchSnapshot()
+    })
+
+    it("processes app performance counters as metrics", () => {
+        const adapter = new OpenTelemetryAdapter("mock-insert-key", mockContext)
+
+        expect(adapter.metricProcessor.batch.length).toEqual(0)
+        expect(adapter.metricProcessor.batch).toMatchSnapshot()
+
+        adapter.processMessages(performanceCounters, mockContext)
+
+        expect(adapter.metricProcessor.batch.length).toEqual(5)
+        expect(adapter.metricProcessor.batch).toMatchSnapshot()
+    })
+    it("processes app metrics", () => {
+        const adapter = new OpenTelemetryAdapter("mock-insert-key", mockContext)
+
+        expect(adapter.metricProcessor.batch.length).toEqual(0)
+        expect(adapter.metricProcessor.batch).toMatchSnapshot()
+
+        adapter.processMessages(appMetrics, mockContext)
+
+        expect(adapter.metricProcessor.batch.length).toEqual(11)
+        expect(adapter.metricProcessor.batch).toMatchSnapshot()
     })
 })
