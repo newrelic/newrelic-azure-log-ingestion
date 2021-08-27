@@ -32,11 +32,14 @@ export default class OpenTelemetryAdapter {
     async sendBatches(context: AzureContext): Promise<any> {
         const exporters = []
         const sendSpans = this.spanProcessor.batch.length > 0
+        const sendMetrics = this.metricProcessor.batch.length > 0
         if (debug) {
             sendSpans && context.log("Spans being sent to NR: ", JSON.stringify(this.spanProcessor.batch))
+            sendMetrics && context.log("Metrics being sent to NR: ", JSON.stringify(this.metricProcessor.batch))
         }
 
         sendSpans && exporters.push(this.spanProcessor.sendBatch(context))
+        sendMetrics && exporters.push(this.metricProcessor.sendBatch(context))
 
         return Promise.allSettled(exporters).then((results) => {
             results

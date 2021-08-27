@@ -1,6 +1,5 @@
 import { Context as AzureContext } from "@azure/functions"
-// import {  } from "@opentelemetry/api"
-import { Meter, MeterConfig, MeterProvider, Processor, Metric } from "@opentelemetry/sdk-metrics-base"
+import { Meter, MeterProvider } from "@opentelemetry/sdk-metrics-base"
 import { SemanticResourceAttributes } from "@opentelemetry/semantic-conventions"
 
 import { CollectorMetricExporter } from "@opentelemetry/exporter-collector-grpc"
@@ -163,7 +162,7 @@ export default class MetricProcessor {
 
     sendBatch(ctx: AzureContext): Promise<void> {
         if (debug) {
-            ctx.log(`In spans.sendBatch. Batch length: ${this.batch.length}`)
+            ctx.log(`In metrics.sendBatch. Batch length: ${this.batch.length}`)
         }
         return new Promise<void>((resolve, reject) => {
             try {
