@@ -1,6 +1,5 @@
 import { telemetry } from "@newrelic/telemetry-sdk"
 import { Context } from "@azure/functions"
-
 import { Processor } from "./base"
 import flatten from "../utils/flatten"
 import { GaugeMetric, CountMetric, SummaryMetric } from "@newrelic/telemetry-sdk/dist/src/telemetry/metrics"
@@ -10,7 +9,7 @@ export default class MetricsProcessor implements Processor {
     batch: telemetry.metrics.MetricBatch
 
     constructor(apiKey: string) {
-        const host = process.env.NEW_RELIC_REGION === "eu" ? "log-api.eu.newrelic.com" : "log-api.newrelic.com"
+        const host = process.env.NEW_RELIC_REGION === "eu" ? "metric-api.eu.newrelic.com" : "metric-api.newrelic.com"
         this.client = new telemetry.metrics.MetricClient({ apiKey, host })
         this.startNewBatch()
     }
