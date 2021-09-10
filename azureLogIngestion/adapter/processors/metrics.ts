@@ -1,7 +1,7 @@
 import { telemetry } from "@newrelic/telemetry-sdk"
 import { Context } from "@azure/functions"
 import { Processor } from "./base"
-import flatten from "../utils/flatten"
+import flatten from "../../utils/flatten"
 import { GaugeMetric, CountMetric, SummaryMetric } from "@newrelic/telemetry-sdk/dist/src/telemetry/metrics"
 
 export default class MetricsProcessor implements Processor {

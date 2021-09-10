@@ -15,6 +15,27 @@ import {
 } from "./testdata.test"
 
 describe("Adapter", () => {
+    let log
+    let mockContext
+    beforeAll(() => {
+        log = (...args) => null
+        log.verbose = (...args) => null
+        log.info = (...args) => null
+        log.warn = (...args) => null
+        log.error = (...args) => null
+
+        mockContext = {
+            bindings: {},
+            bindingData: {},
+            bindingDefinitions: [],
+            done: () => null,
+            executionContext: { invocationId: "foobar", functionName: "foobar", functionDirectory: "foobar" },
+            invocationId: "foobar",
+            log,
+            traceContext: { attributes: {}, traceparent: "foobar", tracestate: "foobar" },
+        }
+    })
+
     it("instantiates with api key", () => {
         const adapter = new Adapter("mock-insert-key")
 
@@ -44,23 +65,6 @@ describe("Adapter", () => {
     it("processes app request and dependency as spans", () => {
         const adapter = new Adapter("mock-insert-key")
 
-        const log = (...args) => null
-        log.verbose = (...args) => null
-        log.info = (...args) => null
-        log.warn = (...args) => null
-        log.error = (...args) => null
-
-        const mockContext = {
-            bindings: {},
-            bindingData: {},
-            bindingDefinitions: [],
-            done: () => null,
-            executionContext: { invocationId: "foobar", functionName: "foobar", functionDirectory: "foobar" },
-            invocationId: "foobar",
-            log,
-            traceContext: { attributes: {}, traceparent: "foobar", tracestate: "foobar" },
-        }
-
         expect(adapter.spanProcessor.batch.getBatchSize()).toEqual(0)
         expect(adapter.spanProcessor.batch.spans).toMatchSnapshot()
 
@@ -76,23 +80,6 @@ describe("Adapter", () => {
     it("processes app request as event", () => {
         const adapter = new Adapter("mock-insert-key")
 
-        const log = (...args) => null
-        log.verbose = (...args) => null
-        log.info = (...args) => null
-        log.warn = (...args) => null
-        log.error = (...args) => null
-
-        const mockContext = {
-            bindings: {},
-            bindingData: {},
-            bindingDefinitions: [],
-            done: () => null,
-            executionContext: { invocationId: "foobar", functionName: "foobar", functionDirectory: "foobar" },
-            invocationId: "foobar",
-            log,
-            traceContext: { attributes: {}, traceparent: "foobar", tracestate: "foobar" },
-        }
-
         expect(adapter.eventProcessor.batch.getBatchSize()).toEqual(0)
         expect(adapter.eventProcessor.batch.events).toMatchSnapshot()
 
@@ -103,23 +90,6 @@ describe("Adapter", () => {
 
     it("processes app request and dependency when sent as array of strings", () => {
         const adapter = new Adapter("mock-insert-key")
-
-        const log = (...args) => null
-        log.verbose = (...args) => null
-        log.info = (...args) => null
-        log.warn = (...args) => null
-        log.error = (...args) => null
-
-        const mockContext = {
-            bindings: {},
-            bindingData: {},
-            bindingDefinitions: [],
-            done: () => null,
-            executionContext: { invocationId: "foobar", functionName: "foobar", functionDirectory: "foobar" },
-            invocationId: "foobar",
-            log,
-            traceContext: { attributes: {}, traceparent: "foobar", tracestate: "foobar" },
-        }
 
         expect(adapter.spanProcessor.batch.getBatchSize()).toEqual(0)
         expect(adapter.spanProcessor.batch.spans).toMatchSnapshot()
@@ -135,23 +105,6 @@ describe("Adapter", () => {
 
     it("processes app event as event and span", () => {
         const adapter = new Adapter("mock-insert-key")
-
-        const log = (...args) => null
-        log.verbose = (...args) => null
-        log.info = (...args) => null
-        log.warn = (...args) => null
-        log.error = (...args) => null
-
-        const mockContext = {
-            bindings: {},
-            bindingData: {},
-            bindingDefinitions: [],
-            done: () => null,
-            executionContext: { invocationId: "foobar", functionName: "foobar", functionDirectory: "foobar" },
-            invocationId: "foobar",
-            log,
-            traceContext: { attributes: {}, traceparent: "foobar", tracestate: "foobar" },
-        }
 
         expect(adapter.eventProcessor.batch.getBatchSize()).toEqual(0)
         expect(adapter.spanProcessor.batch.getBatchSize()).toEqual(0)
@@ -169,23 +122,6 @@ describe("Adapter", () => {
     it("processes app traces as logs", () => {
         const adapter = new Adapter("mock-insert-key")
 
-        const log = (...args) => null
-        log.verbose = (...args) => null
-        log.info = (...args) => null
-        log.warn = (...args) => null
-        log.error = (...args) => null
-
-        const mockContext = {
-            bindings: {},
-            bindingData: {},
-            bindingDefinitions: [],
-            done: () => null,
-            executionContext: { invocationId: "foobar", functionName: "foobar", functionDirectory: "foobar" },
-            invocationId: "foobar",
-            log,
-            traceContext: { attributes: {}, traceparent: "foobar", tracestate: "foobar" },
-        }
-
         // TODO: add batch size check to logs in telemetry sdk (currently in PR)
         expect(adapter.logProcessor.batch.getBatchSize()).toEqual(0)
         expect(adapter.logProcessor.batch.logs).toMatchSnapshot()
@@ -199,22 +135,6 @@ describe("Adapter", () => {
     it("processes app exception as event and span", () => {
         const adapter = new Adapter("mock-insert-key")
 
-        const log = (...args) => null
-        log.verbose = (...args) => null
-        log.info = (...args) => null
-        log.warn = (...args) => null
-        log.error = (...args) => null
-
-        const mockContext = {
-            bindings: {},
-            bindingData: {},
-            bindingDefinitions: [],
-            done: () => null,
-            executionContext: { invocationId: "foobar", functionName: "foobar", functionDirectory: "foobar" },
-            invocationId: "foobar",
-            log,
-            traceContext: { attributes: {}, traceparent: "foobar", tracestate: "foobar" },
-        }
         expect(adapter.spanProcessor.batch.getBatchSize()).toEqual(0)
         expect(adapter.spanProcessor.batch.spans).toMatchSnapshot()
 
@@ -229,23 +149,6 @@ describe("Adapter", () => {
     it("processes AppPerformanceCounters as metrics", () => {
         const adapter = new Adapter("mock-insert-key")
 
-        const log = (...args) => null
-        log.verbose = (...args) => null
-        log.info = (...args) => null
-        log.warn = (...args) => null
-        log.error = (...args) => null
-
-        const mockContext = {
-            bindings: {},
-            bindingData: {},
-            bindingDefinitions: [],
-            done: () => null,
-            executionContext: { invocationId: "foobar", functionName: "foobar", functionDirectory: "foobar" },
-            invocationId: "foobar",
-            log,
-            traceContext: { attributes: {}, traceparent: "foobar", tracestate: "foobar" },
-        }
-
         expect(adapter.metricsProcessor.batch.getBatchSize()).toEqual(0)
         expect(adapter.metricsProcessor.batch.metrics).toMatchSnapshot()
 
@@ -256,23 +159,6 @@ describe("Adapter", () => {
     })
     it("processes AppMetrics as metrics", () => {
         const adapter = new Adapter("mock-insert-key")
-
-        const log = (...args) => null
-        log.verbose = (...args) => null
-        log.info = (...args) => null
-        log.warn = (...args) => null
-        log.error = (...args) => null
-
-        const mockContext = {
-            bindings: {},
-            bindingData: {},
-            bindingDefinitions: [],
-            done: () => null,
-            executionContext: { invocationId: "foobar", functionName: "foobar", functionDirectory: "foobar" },
-            invocationId: "foobar",
-            log,
-            traceContext: { attributes: {}, traceparent: "foobar", tracestate: "foobar" },
-        }
 
         expect(adapter.metricsProcessor.batch.getBatchSize()).toEqual(0)
         expect(adapter.metricsProcessor.batch.metrics).toMatchSnapshot()
