@@ -1,6 +1,6 @@
 import { Context as AzureContext } from "@azure/functions"
 import { Meter, MeterProvider } from "@opentelemetry/sdk-metrics-base"
-import { ValueRecorder, BaseObserver, MetricOptions } from "@opentelemetry/api-metrics"
+import { ValueObserver, MetricOptions } from "@opentelemetry/api-metrics"
 import { SemanticResourceAttributes } from "@opentelemetry/semantic-conventions"
 
 import { CollectorMetricExporter } from "@opentelemetry/exporter-collector-grpc"
@@ -37,7 +37,10 @@ const debug = process.env["DEBUG"] || false
     resource: Resource
  */
 
-const loggableRecorder = (recorder: ValueRecorder | BaseObserver): any => {
+const loggableObserver = (observer: ValueObserver, ctx?: AzureContext): any => {
+    if (ctx) {
+        ctx.log("*** observer", observer)
+    }
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const r: {
@@ -46,7 +49,7 @@ const loggableRecorder = (recorder: ValueRecorder | BaseObserver): any => {
         _processor: Processor
         resource: Resource
         instrumentationLibrary: InstrumentationLibrary
-    } = { ...recorder }
+    } = { ...observer }
     return {
         name: r.name,
         options: r.options,
@@ -61,6 +64,7 @@ export default class MetricProcessor {
     providers: { string?: MeterProvider }
     batch: Array<any>
     resourceAttrs: any
+    observers: any // tracking bound observers to unbind later
     exporter: CollectorMetricExporter
 
     constructor(apiKey: string, azContext: AzureContext) {
@@ -93,9 +97,24 @@ export default class MetricProcessor {
         }
         this.batch = []
         this.providers = {}
+        this.observers = {}
     }
 
-    private performanceCounter(message: any, provider: MeterProvider): Meter {
+    private createBoundObserver = (meter, name, options, labels) => {
+        let value
+        const observer = meter.createValueObserver(name, { options }, (observerResult) => {
+            if (value === undefined) return
+            observerResult.observe(value, labels)
+            value = undefined
+        })
+        observer.observation = function (val) {
+            value = val
+        }
+        const boundObserver = observer.bind(labels)
+        this.observers[name] = { labels, observer: boundObserver } // for later unbinding
+    }
+
+    private performanceCounter(message: any, provider: MeterProvider, context?: AzureContext): void {
         const { name, value, type, category, timestamp, properties, ...rest } = message
         const epochDate = new Date(timestamp).getTime()
         const attributes = {
@@ -103,21 +122,20 @@ export default class MetricProcessor {
         }
 
         const meter = provider.getMeter(name)
-        const observer = meter.createValueObserver(name, attributes)
 
-        if ((rest && rest.interval) || (properties && properties.interval)) {
-            const intVal = (rest && rest.interval) || (properties && properties.interval)
-            const intervalMs = convertToMs(intVal)
-            observer.observation(intervalMs)
-            this.batch.push(loggableRecorder(observer))
-            return meter
+        if (!this.observers[name]) {
+            context.log("THIS OBSERVER BEING DEFINED")
+            const options = { description: `Azure function performance counter for ${name}`, ...attributes }
+            const labels = { ...attributes }
+            this.createBoundObserver(meter, name, options, labels)
         }
-        observer.observation(value)
-        this.batch.push(loggableRecorder(observer))
-        return meter
+        const observer = this.observers[name].observer
+        observer.update(value)
+        this.batch.push(observer)
+        // this.batch.push(loggableObserver(observer, context))
     }
 
-    private genericMeter(message: any, provider: MeterProvider): Meter {
+    private genericMeter(message: any, provider: MeterProvider, context?: AzureContext): void {
         const { name, value, min, max, sum, itemCount, interval, timestamp, properties, ...rest } = message
         let { count } = message
         let intervalMs
@@ -141,21 +159,25 @@ export default class MetricProcessor {
         if (max !== undefined) attributes.max = max
 
         const meter = provider.getMeter(name)
-        const observer = meter.createValueRecorder(name, attributes)
+        if (!this.observers[name]) {
+            const options = { description: `Azure function meter for ${name}`, ...attributes }
+            const labels = { attributes }
+            this.createBoundObserver(meter, name, options, labels)
+        }
 
-        if (count || sum || min || max) {
-            if (count !== undefined) observer.record(count, { label: "count" })
-            if (sum !== undefined) observer.record(sum, { label: "sum" })
-            if (min !== undefined) observer.record(min, { label: "min" })
-            if (max !== undefined) observer.record(max, { label: "max" })
-            if (intervalMs !== undefined) observer.record(intervalMs, { label: "intervalMs" })
+        const observer = this.observers[name].observer
+
+        if (count) {
+            //  || sum || min || max
+            observer.update({ count })
+            // observer.update({ count, sum, min, max })
         }
         if (value) {
             // count metric
-            observer.record(value, { label: "value" })
+            observer.update(value)
         }
-        this.batch.push(loggableRecorder(observer))
-        return meter
+        // this.batch.push(loggableObserver(observer, context))
+        this.batch.push(observer)
     }
 
     private getProvider(message: any): MeterProvider {
@@ -177,20 +199,21 @@ export default class MetricProcessor {
             this.providers[serviceName] = new MeterProvider({
                 resource: new Resource(resourceAttrs),
                 exporter: this.exporter,
-                interval: 15000,
+                interval: 1000,
             })
         }
         return this.providers[serviceName]
     }
 
-    private createMeter(message: any): Meter {
+    private createMeter(message: any, context?: AzureContext): void {
         const { type } = message
         const provider = this.getProvider(message)
 
         if (["AppPerformanceCounter", "appPerformanceCounter"].includes(type)) {
-            return this.performanceCounter(message, provider)
+            this.performanceCounter(message, provider, context)
+        } else {
+            this.genericMeter(message, provider, context)
         }
-        return this.genericMeter(message, provider)
     }
 
     /**
@@ -200,7 +223,7 @@ export default class MetricProcessor {
         // Deleting attributes we do not want to send to New Relic
         // TODO: Make this a part of a processor attribute filter method
         delete message.iKey
-        this.createMeter(message)
+        this.createMeter(message, context)
         if (debug) {
             context.log(`Processing message:`, message)
         }
@@ -212,6 +235,12 @@ export default class MetricProcessor {
         }
         return new Promise<void>((resolve, reject) => {
             try {
+                // unbind bound observers
+                for (const o in this.observers) {
+                    const obs = this.observers[o]
+                    obs.observer.unbind(obs.labels)
+                }
+                this.observers = {} // reset
                 setTimeout(() => {
                     this.exporter.shutdown()
                     if (debug) {

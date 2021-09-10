@@ -316,83 +316,17 @@ exports[`OpenTelemetryAdapter processes app metrics 1`] = `Array []`;
 
 exports[`OpenTelemetryAdapter processes app metrics 2`] = `
 Array [
-  Object {
-    "_processor": undefined,
-    "instrumentationLibrary": undefined,
-    "name": undefined,
-    "options": undefined,
-    "resource": undefined,
-  },
-  Object {
-    "_processor": undefined,
-    "instrumentationLibrary": undefined,
-    "name": undefined,
-    "options": undefined,
-    "resource": undefined,
-  },
-  Object {
-    "_processor": undefined,
-    "instrumentationLibrary": undefined,
-    "name": undefined,
-    "options": undefined,
-    "resource": undefined,
-  },
-  Object {
-    "_processor": undefined,
-    "instrumentationLibrary": undefined,
-    "name": undefined,
-    "options": undefined,
-    "resource": undefined,
-  },
-  Object {
-    "_processor": undefined,
-    "instrumentationLibrary": undefined,
-    "name": undefined,
-    "options": undefined,
-    "resource": undefined,
-  },
-  Object {
-    "_processor": undefined,
-    "instrumentationLibrary": undefined,
-    "name": undefined,
-    "options": undefined,
-    "resource": undefined,
-  },
-  Object {
-    "_processor": undefined,
-    "instrumentationLibrary": undefined,
-    "name": undefined,
-    "options": undefined,
-    "resource": undefined,
-  },
-  Object {
-    "_processor": undefined,
-    "instrumentationLibrary": undefined,
-    "name": undefined,
-    "options": undefined,
-    "resource": undefined,
-  },
-  Object {
-    "_processor": undefined,
-    "instrumentationLibrary": undefined,
-    "name": undefined,
-    "options": undefined,
-    "resource": undefined,
-  },
-  Object {
-    "_processor": undefined,
-    "instrumentationLibrary": undefined,
-    "name": undefined,
-    "options": undefined,
-    "resource": undefined,
-  },
-  Object {
-    "_processor": undefined,
-    "instrumentationLibrary": undefined,
-    "name": undefined,
-    "options": undefined,
-    "resource": undefined,
-  },
+  NoopBoundBaseObserver {},
+  NoopBoundBaseObserver {},
+  NoopBoundBaseObserver {},
+  NoopBoundBaseObserver {},
+  NoopBoundBaseObserver {},
+  NoopBoundBaseObserver {},
+  NoopBoundBaseObserver {},
+  NoopBoundBaseObserver {},
+  NoopBoundBaseObserver {},
+  NoopBoundBaseObserver {},
+  NoopBoundBaseObserver {},
 ]
 `;
 
@@ -400,41 +334,11 @@ exports[`OpenTelemetryAdapter processes app performance counters as metrics 1`] 
 
 exports[`OpenTelemetryAdapter processes app performance counters as metrics 2`] = `
 Array [
-  Object {
-    "_processor": undefined,
-    "instrumentationLibrary": undefined,
-    "name": undefined,
-    "options": undefined,
-    "resource": undefined,
-  },
-  Object {
-    "_processor": undefined,
-    "instrumentationLibrary": undefined,
-    "name": undefined,
-    "options": undefined,
-    "resource": undefined,
-  },
-  Object {
-    "_processor": undefined,
-    "instrumentationLibrary": undefined,
-    "name": undefined,
-    "options": undefined,
-    "resource": undefined,
-  },
-  Object {
-    "_processor": undefined,
-    "instrumentationLibrary": undefined,
-    "name": undefined,
-    "options": undefined,
-    "resource": undefined,
-  },
-  Object {
-    "_processor": undefined,
-    "instrumentationLibrary": undefined,
-    "name": undefined,
-    "options": undefined,
-    "resource": undefined,
-  },
+  NoopBoundBaseObserver {},
+  NoopBoundBaseObserver {},
+  NoopBoundBaseObserver {},
+  NoopBoundBaseObserver {},
+  NoopBoundBaseObserver {},
 ]
 `;
 
