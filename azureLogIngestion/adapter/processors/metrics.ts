@@ -1,8 +1,10 @@
 import { telemetry } from "@newrelic/telemetry-sdk"
 import { Context } from "@azure/functions"
 import { Processor } from "./base"
-import flatten from "../utils/flatten"
+import flatten from "../../utils/flatten"
 import { GaugeMetric, CountMetric, SummaryMetric } from "@newrelic/telemetry-sdk/dist/src/telemetry/metrics"
+
+import { convertToMs } from "../../utils/time"
 
 export default class MetricsProcessor implements Processor {
     client: telemetry.metrics.MetricClient
@@ -21,25 +23,6 @@ export default class MetricsProcessor implements Processor {
         this.batch = new telemetry.metrics.MetricBatch({ "cloud.provider": "azure" })
     }
 
-    // performance counter intervals come with a scale string appended
-    private convertToMs(interval: string): number {
-        const scale = String(interval).match(/[a-zA-Z]+/g)
-        const intervalNumber = String(interval).match(/[0-9.]+/g)
-        let ms
-        if (!scale) {
-            return Number(interval)
-        }
-        const units = scale[0].toLowerCase()
-        if (units === "ms") {
-            ms = Number(intervalNumber[0])
-        } else if (units === "s") {
-            ms = Number(intervalNumber[0]) * 1000
-        } else if (units === "m") {
-            ms = Number(intervalNumber[0]) * 1000 * 60
-        }
-        return ms
-    }
-
     private performanceCounter(message: any): GaugeMetric | CountMetric {
         const { name, value, type, category, timestamp, properties, ...rest } = message
         const epochDate = new Date(timestamp).getTime()
@@ -48,7 +31,7 @@ export default class MetricsProcessor implements Processor {
         }
         if ((rest && rest.interval) || (properties && properties.interval)) {
             const intVal = (rest && rest.interval) || (properties && properties.interval)
-            const intervalMs = this.convertToMs(intVal)
+            const intervalMs = convertToMs(intVal)
             return new telemetry.metrics.CountMetric(name, value, attributes, epochDate, intervalMs)
         }
         // Most performance counters are likely to be gauges.
@@ -65,7 +48,7 @@ export default class MetricsProcessor implements Processor {
         }
         const epochDate = new Date(timestamp).getTime()
         if (interval) {
-            intervalMs = this.convertToMs(interval)
+            intervalMs = convertToMs(interval)
         } else {
             // otherwise, assume default 10s.
             intervalMs = 10000

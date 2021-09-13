@@ -11,7 +11,7 @@ import {
     normalizeAppRequest,
     normalizeAppPerformanceCounter,
     normalizeAppMetrics,
-} from "./mappings"
+} from "../mappings"
 import { EventProcessor, SpanProcessor, LogProcessor, MetricsProcessor } from "./processors"
 import * as _ from "lodash"
 

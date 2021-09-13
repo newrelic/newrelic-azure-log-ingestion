@@ -1,0 +1,138 @@
+import { Context as AzureContext } from "@azure/functions"
+
+import {
+    normalizeAppAvailabilityResult,
+    normalizeAppBrowserTiming,
+    normalizeAppDependency,
+    normalizeAppEvent,
+    normalizeAppException,
+    normalizeAppMetrics,
+    normalizeAppPageView,
+    normalizeAppPerformanceCounter,
+    normalizeAppRequest,
+} from "../mappings"
+import * as _ from "lodash"
+import { SpanProcessor, MetricProcessor } from "./processors"
+
+const debug = process.env["DEBUG"] || false
+
+interface Records {
+    records: Record<string, any>[]
+}
+
+export default class OpenTelemetryAdapter {
+    spanProcessor: SpanProcessor
+    metricProcessor: MetricProcessor
+
+    constructor(apiKey: string, azContext: AzureContext) {
+        this.spanProcessor = new SpanProcessor(apiKey, azContext)
+        this.metricProcessor = new MetricProcessor(apiKey, azContext)
+    }
+
+    async sendBatches(context: AzureContext): Promise<any> {
+        const exporters = []
+        const sendSpans = this.spanProcessor.batch.length > 0
+        const sendMetrics = this.metricProcessor.batch.length > 0
+        if (debug) {
+            sendSpans && context.log("Spans being sent to NR: ", JSON.stringify(this.spanProcessor.batch))
+            sendMetrics && context.log("Metrics being sent to NR: ", JSON.stringify(this.metricProcessor.batch))
+        }
+
+        sendSpans && exporters.push(this.spanProcessor.sendBatch(context))
+        sendMetrics && exporters.push(this.metricProcessor.sendBatch(context))
+
+        return Promise.allSettled(exporters).then((results) => {
+            results
+                .filter((result) => {
+                    return result.status === "rejected"
+                })
+                .map((result: PromiseRejectedResult) =>
+                    context.log(`Error occurred while sending telemetry to New Relic: ${result.reason}`),
+                )
+        })
+    }
+
+    /**
+     * Identifies messages and hands them off to the appropriate processor
+     *
+     * There may be situations where a message corresponds to more than one
+     * type of telemetry. In this case, the switch/case may not make sense.
+     */
+    processMessages(messages: string | string[], context: AzureContext): void {
+        const messageArray = _.isArray(messages) ? messages : [messages]
+        messageArray.forEach((message) => {
+            let records: Records
+
+            try {
+                records = JSON.parse(message)
+            } catch (err) {
+                context.log.error(`Error parsing JSON: ${err}`)
+                if (debug) {
+                    context.log(messages)
+                }
+                return
+            }
+
+            if (debug) {
+                context.log("All messages: ", records.records)
+                context.log("All messages length: ", records.records.length)
+            }
+
+            records.records.forEach((m) => {
+                return this.determineMessageTypeProcessor(m, context)
+            }, this)
+        }, this)
+    }
+
+    private determineMessageTypeProcessor(message: any, context: AzureContext): void {
+        const type = message.Type || message.itemType
+
+        if (!type) {
+            return
+        }
+
+        if (["AppRequests", "requests"].includes(type)) {
+            const request = normalizeAppRequest(message)
+            this.spanProcessor.processMessage(request, context)
+        }
+
+        if (["AppDependencies", "dependencies"].includes(type)) {
+            const request = normalizeAppDependency(message)
+            this.spanProcessor.processMessage(request, context)
+        }
+
+        if (["AppEvents", "customEvents"].includes(type)) {
+            const event = normalizeAppEvent(message)
+            this.spanProcessor.processMessage(event, context)
+        }
+
+        if (["AppExceptions", "exceptions"].includes(type)) {
+            const exception = normalizeAppException(message)
+            this.spanProcessor.processMessage(exception, context)
+        }
+
+        if (["AppPageViews", "pageViews"].includes(type)) {
+            const pageView = normalizeAppPageView(message)
+            this.spanProcessor.processMessage(pageView, context)
+        }
+
+        if (["AppAvailabilityResults", "availabilityResults"].includes(type)) {
+            const availabilityResult = normalizeAppAvailabilityResult(message)
+            this.spanProcessor.processMessage(availabilityResult, context)
+        }
+
+        if (["AppBrowserTimings", "browserTimings"].includes(type)) {
+            const browserTiming = normalizeAppBrowserTiming(message)
+            this.spanProcessor.processMessage(browserTiming, context)
+        }
+
+        if (["AppPerformanceCounters", "appPerformanceCounters"].includes(type)) {
+            const counter = normalizeAppPerformanceCounter(message)
+            this.metricProcessor.processMessage(counter)
+        }
+        if (["AppMetrics", "appMetrics"].includes(type)) {
+            const counter = normalizeAppMetrics(message)
+            this.metricProcessor.processMessage(counter)
+        }
+    }
+}

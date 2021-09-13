@@ -28,3 +28,12 @@ export function parse(resourceId: string): Resource {
     const [, , subscription, , resourceGroup, , provider, resourceType, resourceName] = resourceId.split("/")
     return { subscription, resourceGroup, provider, resourceType, resourceName }
 }
+
+export function sanitizeOpName(name: string): string {
+    const ptn = /^.*\/api\/([a-zA-Z0-9_-]+)/
+    const opCheck = name.match(ptn)
+    if (opCheck) {
+        return opCheck[1]
+    }
+    return name
+}
