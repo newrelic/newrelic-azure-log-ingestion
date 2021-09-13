@@ -14,7 +14,7 @@ import { Resource } from "@opentelemetry/resources"
 import { InstrumentationLibrary, timeInputToHrTime } from "@opentelemetry/core"
 import NrSpanContext from "./nrSpanContext"
 import NrTimedEvent from "./nrTime"
-import { MultiSpanProcessor } from "@opentelemetry/tracing/build/src/MultiSpanProcessor"
+import { MultiSpanProcessor } from "@opentelemetry/sdk-trace-base/build/src/MultiSpanProcessor"
 
 export class NrSpan implements Span {
     name: string
