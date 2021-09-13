@@ -128,11 +128,11 @@ export default class OpenTelemetryAdapter {
 
         if (["AppPerformanceCounters", "appPerformanceCounters"].includes(type)) {
             const counter = normalizeAppPerformanceCounter(message)
-            this.metricProcessor.processMessage(counter, context)
+            this.metricProcessor.processMessage(counter)
         }
         if (["AppMetrics", "appMetrics"].includes(type)) {
             const counter = normalizeAppMetrics(message)
-            this.metricProcessor.processMessage(counter, context)
+            this.metricProcessor.processMessage(counter)
         }
     }
 }

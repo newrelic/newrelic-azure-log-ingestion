@@ -66,6 +66,7 @@ export default class MetricProcessor {
     resourceAttrs: any
     observers: any // tracking bound observers to unbind later
     exporter: CollectorMetricExporter
+    context: AzureContext
 
     constructor(apiKey: string, azContext: AzureContext) {
         this.defaultServiceName = "newrelic-azure-log-ingestion"
@@ -98,6 +99,7 @@ export default class MetricProcessor {
         this.batch = []
         this.providers = {}
         this.observers = {}
+        this.context = azContext
     }
 
     private createBoundObserver = (meter, name, options, labels) => {
@@ -114,7 +116,7 @@ export default class MetricProcessor {
         this.observers[name] = { labels, observer: boundObserver } // for later unbinding
     }
 
-    private performanceCounter(message: any, provider: MeterProvider, context?: AzureContext): void {
+    private performanceCounter(message: any, provider: MeterProvider): void {
         const { name, value, type, category, timestamp, properties, ...rest } = message
         const epochDate = new Date(timestamp).getTime()
         const attributes = {
@@ -124,18 +126,19 @@ export default class MetricProcessor {
         const meter = provider.getMeter(name)
 
         if (!this.observers[name]) {
-            context.log("THIS OBSERVER BEING DEFINED")
             const options = { description: `Azure function performance counter for ${name}`, ...attributes }
             const labels = { ...attributes }
+            this.context.log("DEFINING performanceCounter OBSERVER", options)
             this.createBoundObserver(meter, name, options, labels)
         }
         const observer = this.observers[name].observer
         observer.update(value)
         this.batch.push(observer)
+        this.context.log("did timeout in perf counter, pushed observer", value, observer)
         // this.batch.push(loggableObserver(observer, context))
     }
 
-    private genericMeter(message: any, provider: MeterProvider, context?: AzureContext): void {
+    private genericMeter(message: any, provider: MeterProvider): void {
         const { name, value, min, max, sum, itemCount, interval, timestamp, properties, ...rest } = message
         let { count } = message
         let intervalMs
@@ -168,16 +171,16 @@ export default class MetricProcessor {
         const observer = this.observers[name].observer
 
         if (count) {
-            //  || sum || min || max
-            observer.update({ count })
+            observer.update(count)
+            this.context.log("did timeout, in generic count, pushed observer", count, observer)
             // observer.update({ count, sum, min, max })
         }
         if (value) {
-            // count metric
             observer.update(value)
+            this.context.log("did timeout, in generic value, pushed observer", value, observer)
         }
-        // this.batch.push(loggableObserver(observer, context))
         this.batch.push(observer)
+        // this.batch.push(loggableObserver(observer, context))
     }
 
     private getProvider(message: any): MeterProvider {
@@ -205,33 +208,34 @@ export default class MetricProcessor {
         return this.providers[serviceName]
     }
 
-    private createMeter(message: any, context?: AzureContext): void {
+    private createMeter(message: any): void {
         const { type } = message
         const provider = this.getProvider(message)
 
         if (["AppPerformanceCounter", "appPerformanceCounter"].includes(type)) {
-            this.performanceCounter(message, provider, context)
+            this.performanceCounter(message, provider)
         } else {
-            this.genericMeter(message, provider, context)
+            this.genericMeter(message, provider)
         }
     }
 
     /**
      * Processes a metric and add to current batch
      */
-    processMessage(message: Record<string, any>, context: AzureContext): void {
+    processMessage(message: Record<string, any>): void {
         // Deleting attributes we do not want to send to New Relic
         // TODO: Make this a part of a processor attribute filter method
         delete message.iKey
-        this.createMeter(message, context)
+        this.createMeter(message)
         if (debug) {
-            context.log(`Processing message:`, message)
+            this.context.log(`Processing message:`, message)
         }
     }
 
-    sendBatch(ctx: AzureContext): Promise<void> {
+    sendBatch(ctx?: AzureContext): Promise<void> {
+        const context = !ctx ? this.context : ctx
         if (debug) {
-            ctx.log(`In metrics.sendBatch. Batch length: ${this.batch.length}`)
+            context.log(`In metrics.sendBatch. Batch length: ${this.batch.length}`)
         }
         return new Promise<void>((resolve, reject) => {
             try {
@@ -244,13 +248,13 @@ export default class MetricProcessor {
                 setTimeout(() => {
                     this.exporter.shutdown()
                     if (debug) {
-                        ctx.log("this.exporter.shutdown succeeded")
+                        context.log("this.exporter.shutdown succeeded")
                     }
                     this.batch.length = 0 // reset
                     resolve()
                 }, 2000)
             } catch (e) {
-                ctx.log("!!!! this.exporter.shutdown rejected")
+                context.log("!!!! this.exporter.shutdown rejected")
                 reject(e)
             }
         })
